@@ -61,4 +61,4 @@ type = "cppdbg"
 pattern = "**/*.{cpp,h}"
 
 [languages.cpp.languageServer]
-start = "clangd"
+start = "clangd --enable-config"

@@ -1,35 +1,13 @@
 #include "token.h"
-#include "tokenizer.cpp"
+#include "symbol.h"
+#include "tokenizer.h"
+#include "keyword.h"
+#include "sourceLocation.h"
+#include "syntaxError.h"
 #include <cctype>
 #include <sstream>
 
 namespace Snapp {
-
-    Symbol findSymbol(const std::string& content) {
-        auto it = literalToSymbol.find(content);
-        return it == literalToSymbol.end() ? Symbol::Unknown : it->second;
-    }
-    
-    std::ostream& operator<<(std::ostream& out, const Symbol& symbol) {
-        out << "Symbol::";
-        auto it = symbolNames.find(symbol);
-        return it == symbolNames.end() ? out << "Unknown" : out << it->second;
-    }
-
-    Keyword findKeyword(const std::string& content) {
-        auto it = literalToKeyword.find(content);
-        return it == literalToKeyword.end() ? Keyword::Unknown : it->second;
-    }
-    
-    std::ostream& operator<<(std::ostream& out, const Keyword& keyword) {
-        out << "Keyword::";
-        auto it = keywordNames.find(keyword);
-        return it == keywordNames.end() ? out << "Unknown" : out << it->second;
-    }
-
-    std::ostream& operator<<(std::ostream& out, const SourceLocation& location) {
-        return out << "(line " << location.line << ":" << location.column << ")";
-    }
 
     Token::Token(TokenValue value, SourceLocation start, SourceLocation end) {
         value_ = value;
@@ -49,30 +27,6 @@ namespace Snapp {
         return end_;
     }
 
-    SyntaxError::SyntaxError() {}
-
-    SyntaxError::SyntaxError(std::string message) {
-        message_ = message;
-    }
-
-    SyntaxError::SyntaxError(std::string message, std::optional<SourceLocation> start, std::optional<SourceLocation> end) {
-        message_ = message;
-        start_ = start;
-        end_ = end;
-    }
-
-    const std::string& SyntaxError::message() const {
-        return message_;
-    }
-
-    const std::optional<SourceLocation>& SyntaxError::start() const {
-        return start_;
-    }
-
-    const std::optional<SourceLocation>& SyntaxError::end() const {
-        return end_;
-    }
-
     std::string Token::output() const {
       if (std::holds_alternative<Symbol>(value_)) {
         return symbolNames.at(std::get<Symbol>(value_));
@@ -81,7 +35,7 @@ namespace Snapp {
         return keywordNames.at(std::get<Keyword>(value_));
       }
       if (std::holds_alternative<Identifier>(value_)) {
-          return std::get<Identifier>(value_).name;
+        return std::get<Identifier>(value_).name;
       }
       if (std::holds_alternative<Integer>(value_)) {
         return std::to_string(std::get<Integer>(value_));
@@ -95,19 +49,7 @@ namespace Snapp {
       if (std::holds_alternative<String>(value_)) {
         return std::get<String>(value_);
       }
-    }
-
-    std::string SyntaxError::output(const std::string& sourceCode) const {
-        std::ostringstream out;
-        out << "SyntaxError";
-        if (start_) {
-            out << " " << *start_;
-        }
-        if (!message_.empty()) {
-            out << ": " << message_;
-        }
-        // TODO: highlight relevant code segment
-        return out.str();
+      return "Unknown";
     }
 
     std::vector<Token> getAllTokens(const std::string& source) {

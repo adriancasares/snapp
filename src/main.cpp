@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "token.h"
+#include "syntaxError.cpp"
 
 int main(int argc, char** argv) {
     std::string sourcePath;

@@ -2,8 +2,8 @@
 // Created by Adrian Casares on 4/7/23.
 //
 
-#ifndef SNAPP_INCLUDE_TOKENIZER_H_
-#define SNAPP_INCLUDE_TOKENIZER_H_
+#ifndef TOKENIZER_H_
+#define TOKENIZER_H_
 
 #include <iostream>
 #include <string>

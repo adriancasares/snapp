@@ -217,16 +217,17 @@ namespace Snapp {
     std::ostream& operator<<(std::ostream& out, const SourceLocation& location);
 
     class Token {
-    public:
-        Token(TokenValue value, SourceLocation start, SourceLocation end);
+      public:
+          Token(TokenValue value, SourceLocation start, SourceLocation end);
 
-        const TokenValue& value() const;
-        const SourceLocation& start() const;
-        const SourceLocation& end() const;
+          std::string output() const;
+          const TokenValue& value() const;
+          const SourceLocation& start() const;
+          const SourceLocation& end() const;
 
-    private:
-        TokenValue value_;
-        SourceLocation start_, end_;
+      private:
+          TokenValue value_;
+          SourceLocation start_, end_;
     };
 
     class SyntaxError {
@@ -255,6 +256,7 @@ namespace Snapp {
         char peekChar();
 
         void pushToken(Token token);
+        std::vector<Token> tokens() const;
 
     private:
         std::string::const_iterator chars_, end_;

@@ -73,6 +73,30 @@ namespace Snapp {
         return end_;
     }
 
+    std::string Token::output() const {
+      if (std::holds_alternative<Symbol>(value_)) {
+        return symbolNames.at(std::get<Symbol>(value_));
+      }
+      if (std::holds_alternative<Keyword>(value_)) {
+        return keywordNames.at(std::get<Keyword>(value_));
+      }
+      if (std::holds_alternative<Identifier>(value_)) {
+          return std::get<Identifier>(value_).name;
+      }
+      if (std::holds_alternative<Integer>(value_)) {
+        return std::to_string(std::get<Integer>(value_));
+      }
+      if (std::holds_alternative<Float>(value_)) {
+        return std::to_string(std::get<Float>(value_));
+      }
+      if (std::holds_alternative<Bool>(value_)) {
+        return std::get<Bool>(value_) ? "true" : "false";
+      }
+      if (std::holds_alternative<String>(value_)) {
+        return std::get<String>(value_);
+      }
+    }
+
     std::string SyntaxError::output(const std::string& sourceCode) const {
         std::ostringstream out;
         out << "SyntaxError";
@@ -89,6 +113,10 @@ namespace Snapp {
     Tokenizer::Tokenizer(const std::string& source) {
         chars_ = source.cbegin();
         end_ = source.cend();
+    }
+
+    std::vector<Token> Tokenizer::tokens() const {
+        return tokens_;
     }
 
     const SourceLocation& Tokenizer::location() const {
@@ -124,8 +152,8 @@ namespace Snapp {
     }
 
     std::vector<Token> getAllTokens(const std::string& source) {
-        std::vector<Token> tokens;
         Tokenizer tokenizer(source);
+
         while (char next = tokenizer.peekChar()) {
             SourceLocation start = tokenizer.location();
             if (std::isspace(next)) {
@@ -283,7 +311,7 @@ namespace Snapp {
                 throw SyntaxError(std::string("unexpected character: ") + next, start, tokenizer.location());
             }
         }
-        return tokens;
+        return tokenizer.tokens();
     }
 
 }

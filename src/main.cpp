@@ -3,10 +3,17 @@
 
 #include "token.h"
 
-int main() {
+int main(int argc, char** argv) {
     std::string sourcePath;
-    std::cout << "Source file: ";
-    std::cin >> sourcePath;
+
+    if (argc > 1) {
+        sourcePath = argv[1];
+        std::cout << "Using source file '" << sourcePath << "'" << std::endl;
+    } else {
+        std::cout << "Enter the path to the source file: ";
+        std::cin >> sourcePath;
+    }
+
     std::cout << std::endl;
     std::string sourceCode;
     {

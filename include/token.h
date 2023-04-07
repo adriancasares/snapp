@@ -247,23 +247,6 @@ namespace Snapp {
         std::optional<SourceLocation> start_, end_;
     };
 
-    class Tokenizer {
-    public:
-        Tokenizer(const std::string& source);
-
-        const SourceLocation& location() const;
-        char nextChar();
-        char peekChar();
-
-        void pushToken(Token token);
-        std::vector<Token> tokens() const;
-
-    private:
-        std::string::const_iterator chars_, end_;
-        SourceLocation location_;
-        std::vector<Token> tokens_;
-    };
-
     std::vector<Token> getAllTokens(const std::string& source);
 
 }

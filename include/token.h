@@ -6,6 +6,7 @@
 #include <map>
 #include <optional>
 #include <variant>
+#include <vector>
 
 namespace Snapp {
 
@@ -153,7 +154,7 @@ namespace Snapp {
         {"=>", Symbol::LambdaArrow},
     };
     
-    std::optional<Symbol> findSymbol(std::string content);
+    Symbol findSymbol(const std::string& content);
     
     std::ostream& operator<<(std::ostream& out, const Symbol& symbol);
     
@@ -197,7 +198,7 @@ namespace Snapp {
         {"observe", Keyword::Observe},
     };
     
-    std::optional<Keyword> findKeyword(std::string content);
+    Keyword findKeyword(const std::string& content);
     
     std::ostream& operator<<(std::ostream& out, const Keyword& keyword);
 
@@ -207,17 +208,10 @@ namespace Snapp {
 
     using TokenValue = std::variant<Symbol, Keyword, Identifier, Integer, Float, Bool, String>;
 
-    class SourceLocation {
-    public:
-        SourceLocation();
-        SourceLocation(int index, int line, int column);
-
-        int index() const;
-        int line() const;
-        int column() const;
-
-    private:
-        int mIndex, mLine, mColumn;
+    struct SourceLocation {
+        int index = 0;
+        int line = 1;
+        int column = 1;
     };
 
     std::ostream& operator<<(std::ostream& out, const SourceLocation& location);
@@ -231,9 +225,44 @@ namespace Snapp {
         const SourceLocation& end() const;
 
     private:
-        TokenValue mValue;
-        SourceLocation mStart, mEnd;
+        TokenValue value_;
+        SourceLocation start_, end_;
     };
+
+    class SyntaxError {
+    public:
+        SyntaxError();
+        SyntaxError(std::string message);
+        SyntaxError(std::string message, std::optional<SourceLocation> start, std::optional<SourceLocation> end);
+
+        const std::string& message() const;
+        const std::optional<SourceLocation>& start() const;
+        const std::optional<SourceLocation>& end() const;
+
+        std::string output(const std::string& sourceCode) const;
+
+    private:
+        std::string message_;
+        std::optional<SourceLocation> start_, end_;
+    };
+
+    class Tokenizer {
+    public:
+        Tokenizer(const std::string& source);
+
+        const SourceLocation& location() const;
+        char nextChar();
+        char peekChar();
+
+        void pushToken(Token token);
+
+    private:
+        std::string::const_iterator chars_, end_;
+        SourceLocation location_;
+        std::vector<Token> tokens_;
+    };
+
+    std::vector<Token> getAllTokens(const std::string& source);
 
 }
 

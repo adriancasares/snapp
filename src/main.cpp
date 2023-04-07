@@ -17,8 +17,14 @@ int main() {
         }
         sourceCode.assign(std::istreambuf_iterator<char>(source), std::istreambuf_iterator<char>());
     }
+
     try {
         std::vector<Snapp::Token> tokens = Snapp::getAllTokens(sourceCode);
+
+        for (Snapp::Token token : tokens) {
+            std::cout << token.output() << std::endl;
+        }
+
         std::cout << "Done! :)" << std::endl;
     } catch (Snapp::SyntaxError error) {
         std::cerr << error.output(sourceCode) << std::endl;

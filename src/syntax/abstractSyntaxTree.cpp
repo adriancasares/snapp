@@ -1,6 +1,3 @@
-//
-// Created by Adrian Casares on 4/7/23.
-//
 #include "syntax/abstractSyntaxTree.h"
 
 namespace Snapp {

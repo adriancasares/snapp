@@ -7,31 +7,32 @@
 
 #include <iostream>
 #include <vector>
+#include <variant>
 
 namespace Snapp {
 
-  class SyntaxNode {
+    class SyntaxNode {
     public:
-      SyntaxNode() = default;
-      virtual ~SyntaxNode() = default;
-  };
+        SyntaxNode() = default;
+        virtual ~SyntaxNode() = default;
+    };
 
-  class SyntaxNodeLiteral : public SyntaxNode {
+    class SyntaxNodeLiteral : public SyntaxNode {
     public:
-      SyntaxNodeLiteral() = default;
-      virtual ~SyntaxNodeLiteral() = default;
-      std::variant<int, float, bool, std::string> literal;
-  };
+        SyntaxNodeLiteral() = default;
+        virtual ~SyntaxNodeLiteral() = default;
+        std::variant<int, double, bool, std::string> literal;
+    };
 
     class SyntaxNodeIdentifier : public SyntaxNode {
-        public:
+    public:
         SyntaxNodeIdentifier() = default;
         virtual ~SyntaxNodeIdentifier() = default;
         std::string identifier;
     };
 
     class SyntaxNodeMemberAccess : public SyntaxNode {
-        public:
+    public:
         SyntaxNodeMemberAccess() = default;
         virtual ~SyntaxNodeMemberAccess() = default;
         SyntaxNodeIdentifier* objectNode;
@@ -39,7 +40,7 @@ namespace Snapp {
     };
 
     class SyntaxNodeBinaryExpression : public SyntaxNode {
-        public:
+    public:
         SyntaxNodeBinaryExpression() = default;
         virtual ~SyntaxNodeBinaryExpression() = default;
         SyntaxNode* leftNode;
@@ -48,7 +49,7 @@ namespace Snapp {
     };
 
     class SyntaxNodeUnaryExpression : public SyntaxNode {
-        public:
+    public:
         SyntaxNodeUnaryExpression() = default;
         virtual ~SyntaxNodeUnaryExpression() = default;
         SyntaxNode* node;
@@ -56,7 +57,7 @@ namespace Snapp {
     };
 
     class SyntaxNodeFunctionCall : public SyntaxNode {
-        public:
+    public:
         SyntaxNodeFunctionCall() = default;
         virtual ~SyntaxNodeFunctionCall() = default;
         SyntaxNodeIdentifier* functionNode;
@@ -64,7 +65,7 @@ namespace Snapp {
     };
 
     class SyntaxNodeFunctionDeclaration : public SyntaxNode {
-        public:
+    public:
         SyntaxNodeFunctionDeclaration() = default;
         virtual ~SyntaxNodeFunctionDeclaration() = default;
         SyntaxNodeIdentifier* identifierNode;
@@ -73,7 +74,7 @@ namespace Snapp {
     };
 
     class SyntaxNodeClassDeclaration : public SyntaxNode {
-        public:
+    public:
         SyntaxNodeClassDeclaration() = default;
         virtual ~SyntaxNodeClassDeclaration() = default;
         SyntaxNodeIdentifier* identifierNode;
@@ -81,7 +82,7 @@ namespace Snapp {
     };
 
     class SyntaxNodeIfStatement : public SyntaxNode {
-        public:
+    public:
         SyntaxNodeIfStatement() = default;
         virtual ~SyntaxNodeIfStatement() = default;
         SyntaxNode* conditionNode;
@@ -90,7 +91,7 @@ namespace Snapp {
     };
 
     class SyntaxNodeWhileStatement : public SyntaxNode {
-        public:
+    public:
         SyntaxNodeWhileStatement() = default;
         virtual ~SyntaxNodeWhileStatement() = default;
         SyntaxNode* conditionNode;
@@ -98,25 +99,20 @@ namespace Snapp {
     };
 
     class SyntaxNodeReturnStatement : public SyntaxNode {
-        public:
+    public:
         SyntaxNodeReturnStatement() = default;
         virtual ~SyntaxNodeReturnStatement() = default;
         SyntaxNode* node;
     };
 
     class SyntaxNodeVariableDeclaration : public SyntaxNode {
-        public:
+    public:
         SyntaxNodeVariableDeclaration() = default;
         virtual ~SyntaxNodeVariableDeclaration() = default;
         SyntaxNodeIdentifier* identifierNode;
         SyntaxNode* valueNode;
     };
 
-
-
-
-
-
 }
 
-#endif //SNAPP_INCLUDE_SYNTAX_SYNTAXNODE_H_
+#endif /* SYNTAX_SYNTAXNODE_H_ */

@@ -1,5 +1,5 @@
-#ifndef TOKEN_H
-#define TOKEN_H
+#ifndef SYNTAX_TOKEN_H_
+#define SYNTAX_TOKEN_H_
 
 #include <iostream>
 #include <string>
@@ -7,39 +7,36 @@
 #include <optional>
 #include <variant>
 #include <vector>
+
 #include "symbol.h"
 #include "keyword.h"
 #include "sourceLocation.h"
 
 namespace Snapp {
 
-    using Integer = int;
-    using Float = double;
-    using Bool = bool;
-    using String = std::string;
-
     struct Identifier {
         std::string name;
     };
 
-    using TokenValue = std::variant<Symbol, Keyword, Identifier, Integer, Float, Bool, String>;
+    std::ostream& operator<<(std::ostream& out, const Identifier& identifier);
+
+    using TokenValue = std::variant<Symbol, Keyword, Identifier, int, double, bool, std::string>;
 
     class Token {
-      public:
-          Token(TokenValue value, SourceLocation start, SourceLocation end);
+    public:
+        Token(TokenValue value, SourceLocation start, SourceLocation end);
 
-          std::string output() const;
-          const TokenValue& value() const;
-          const SourceLocation& start() const;
-          const SourceLocation& end() const;
+        const TokenValue& value() const;
+        const SourceLocation& start() const;
+        const SourceLocation& end() const;
 
-      private:
-          TokenValue value_;
-          SourceLocation start_, end_;
+    private:
+        TokenValue value_;
+        SourceLocation start_, end_;
     };
 
-    std::vector<Token> getAllTokens(const std::string& source);
+    std::ostream& operator<<(std::ostream& out, const Token& token);
 
 }
 
-#endif
+#endif /* SYNTAX_TOKEN_H_ */

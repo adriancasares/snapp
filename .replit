@@ -1,5 +1,5 @@
 compile = "cmake --log-level=WARNING -B/tmp/build . && make -s -C /tmp/build"
-run = "/tmp/build/main"
+run = "/tmp/build/main example.snapp"
 entrypoint = "src/main.cpp"
 
 [nix]

@@ -2,5 +2,6 @@
 
 namespace Snapp {
 
-    SyntaxNode::
+    // TODO
+
 }

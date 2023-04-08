@@ -1,8 +1,8 @@
 #include <fstream>
 #include <iostream>
 
-#include "syntax/token.h"
-#include "error/syntaxError.cpp"
+#include "syntax/tokenizer.h"
+#include "error/syntaxError.h"
 
 int main(int argc, char** argv) {
     std::string sourcePath;
@@ -27,13 +27,10 @@ int main(int argc, char** argv) {
     }
 
     try {
-        std::vector<Snapp::Token> tokens = Snapp::getAllTokens(sourceCode);
-
-        for (Snapp::Token token : tokens) {
-            std::cout << token.output() << std::endl;
+        std::vector<Snapp::Token> tokens = Snapp::tokenize(sourceCode);
+        for (const Snapp::Token& token : tokens) {
+            std::cout << token << std::endl;
         }
-
-        std::cout << "Done! :)" << std::endl;
     } catch (Snapp::SyntaxError error) {
         std::cerr << error.output(sourceCode) << std::endl;
     }

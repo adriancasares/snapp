@@ -1,4 +1,4 @@
-#include "sourceLocation.h"
+#include "syntax/sourceLocation.h"
 
 namespace Snapp {
 

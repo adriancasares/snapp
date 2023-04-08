@@ -1,4 +1,4 @@
-#include "symbol.h"
+#include "syntax/symbol.h"
 
 namespace Snapp {
   Symbol findSymbol(const std::string& content) {

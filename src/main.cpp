@@ -1,8 +1,8 @@
 #include <fstream>
 #include <iostream>
 
-#include "token.h"
-#include "syntaxError.cpp"
+#include "syntax/token.h"
+#include "error/syntaxError.cpp"
 
 int main(int argc, char** argv) {
     std::string sourcePath;

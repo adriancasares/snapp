@@ -1,5 +1,5 @@
-#include "tokenizer.h"
-#include "token.h"
+#include "syntax/tokenizer.h"
+#include "syntax/token.h"
 
 namespace Snapp {
   Tokenizer::Tokenizer(const std::string& source) {

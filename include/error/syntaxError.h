@@ -7,7 +7,7 @@
 
 #include <string>
 #include <optional>
-#include "sourceLocation.h"
+#include "syntax/sourceLocation.h"
 
 namespace Snapp {
   class SyntaxError {

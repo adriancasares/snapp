@@ -1,9 +1,9 @@
-#include "token.h"
-#include "symbol.h"
-#include "tokenizer.h"
-#include "keyword.h"
-#include "sourceLocation.h"
-#include "syntaxError.h"
+#include "syntax/token.h"
+#include "syntax/symbol.h"
+#include "syntax/tokenizer.h"
+#include "syntax/keyword.h"
+#include "syntax/sourceLocation.h"
+#include "error/syntaxError.h"
 #include <cctype>
 #include <sstream>
 

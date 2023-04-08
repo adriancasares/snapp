@@ -1,4 +1,4 @@
-#include "keyword.h"
+#include "syntax/keyword.h"
 
 namespace Snapp {
   Keyword findKeyword(const std::string& content) {

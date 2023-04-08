@@ -1,4 +1,4 @@
-#include "syntaxError.h"
+#include "error/syntaxError.h"
 #include <sstream>
 
 namespace Snapp {

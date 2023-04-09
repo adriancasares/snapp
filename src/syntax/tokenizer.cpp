@@ -101,15 +101,24 @@ namespace Snapp {
                     }
                     currentEnd = tokenizer.location();
                 }
+                size_t idx;
                 if (isInteger) {
                     try {
-                        tokenizer.pushToken(Token(std::stoi(rawNumber), start, currentEnd));
+                        int number = std::stoi(rawNumber, &idx);
+                        if (idx != rawNumber.length()) {
+                            throw std::invalid_argument("");
+                        }
+                        tokenizer.pushToken(Token(number, start, currentEnd));
                     } catch (std::invalid_argument) {
                         throw SyntaxError("invalid integer literal", start, currentEnd);
                     }
                 } else {
                     try {
-                        tokenizer.pushToken(Token(std::stod(rawNumber), start, currentEnd));
+                        double number = std::stod(rawNumber, &idx);
+                        if (idx != rawNumber.length()) {
+                            throw std::invalid_argument("");
+                        }
+                        tokenizer.pushToken(Token(number, start, currentEnd));
                     } catch (std::invalid_argument) {
                         throw SyntaxError("invalid floating-point literal", start, currentEnd);
                     }

@@ -37,7 +37,25 @@ namespace Snapp {
         if (!message_.empty()) {
             out << ": " << message_;
         }
-        // TODO: highlight relevant code segment
+        if (start_ && start_->index >= 0 && start_->index < sourceCode.length()) {
+            out << std::endl << "    ";
+            size_t index = start_->index;
+            while (index > 0 && sourceCode[index - 1] != '\n') {
+                --index;
+            }
+            std::string highlight;
+            while (index < start_->index) {
+                highlight.push_back(' ');
+                out << sourceCode[index++];
+            }
+            highlight.push_back('^');
+            out << sourceCode[index++];
+            while (index < sourceCode.length() && sourceCode[index] != '\n' && sourceCode[index] != '\r') {
+                highlight.push_back(end_ && index >= end_->index ? ' ' : '~');
+                out << sourceCode[index++];
+            }
+            out << std::endl << "    " << highlight;
+        }
         return out.str();
     }
 

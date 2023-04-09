@@ -36,3 +36,7 @@ for (int i = 0; i < 100; i++) {
         print(i);
     }
 }
+
+if (number == 5.4.6 && my_name == "thing") {
+    /* TODO */
+}

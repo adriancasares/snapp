@@ -1,4 +1,5 @@
 #include "syntax/token.h"
+#include "error/syntaxError.h"
 
 namespace Snapp {
 
@@ -22,6 +23,22 @@ namespace Snapp {
 
     const SourceLocation& Token::end() const {
         return end_;
+    }
+
+    bool Token::has(const Symbol& symbol) const {
+        return std::holds_alternative<Symbol>(value_) && std::get<Symbol>(value_) == symbol;
+    }
+
+    bool Token::has(const Keyword& keyword) const {
+        return std::holds_alternative<Keyword>(value_) && std::get<Keyword>(value_) == keyword;
+    }
+
+    const Identifier& Token::expectIdentifier() const {
+        if (std::holds_alternative<Identifier>(value_)) {
+            return std::get<Identifier>(value_);
+        } else {
+            throw SyntaxError("expected an identifier", start_, end_);
+        }
     }
 
     std::ostream& operator<<(std::ostream& out, const Token& token) {

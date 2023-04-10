@@ -30,12 +30,18 @@ namespace Snapp {
         const SourceLocation& start() const;
         const SourceLocation& end() const;
 
+        bool has(const Symbol& symbol) const;
+        bool has(const Keyword& keyword) const;
+        const Identifier& expectIdentifier() const;
+
     private:
         TokenValue value_;
         SourceLocation start_, end_;
     };
 
     std::ostream& operator<<(std::ostream& out, const Token& token);
+
+    using TokenIterator = std::vector<Token>::const_iterator;
 
 }
 

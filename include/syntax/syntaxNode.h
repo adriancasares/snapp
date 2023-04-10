@@ -6,12 +6,12 @@
 #include <variant>
 
 #include "dataType.h"
+#include "token.h"
 
 namespace Snapp {
 
     class SyntaxNode {
     public:
-        SyntaxNode() = default;
         virtual ~SyntaxNode() = default;
     };
 
@@ -108,7 +108,15 @@ namespace Snapp {
         DataType returnType;
         SyntaxNodeIdentifier* identifier;
         std::vector<SyntaxNodeVariableDeclaration*> parameters;
-        std::vector<SyntaxNode*> statements;
+        SyntaxNodeBlockStatement* body;
+    };
+
+    class SyntaxNodeClassDeclaration : public SyntaxNode {
+    public:
+        ~SyntaxNodeClassDeclaration();
+        bool isPrivate;
+        SyntaxNodeIdentifier* identifier;
+        SyntaxNodeBlockStatement* body;
     };
 
     class SyntaxNodeObserverDeclaration : public SyntaxNode {
@@ -116,14 +124,7 @@ namespace Snapp {
         ~SyntaxNodeObserverDeclaration();
         SyntaxNodeIdentifier* identifier;
         SyntaxNodeIdentifier* alias;
-        std::vector<SyntaxNode*> statements;
-    };
-
-    class SyntaxNodeClassDeclaration : public SyntaxNode {
-    public:
-        ~SyntaxNodeClassDeclaration();
-        SyntaxNodeIdentifier* identifier;
-        std::vector<SyntaxNode*> members;
+        SyntaxNodeBlockStatement* body;
     };
 
 }

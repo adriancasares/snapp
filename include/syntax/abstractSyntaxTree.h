@@ -2,8 +2,6 @@
 #define SYNTAX_ABSTRACTSYNTAXTREE_H_
 
 #include <iostream>
-#include <string>
-#include <map>
 #include <vector>
 
 #include "syntaxNode.h"
@@ -13,17 +11,18 @@ namespace Snapp {
 
     class AbstractSyntaxTree {
     public:
-        AbstractSyntaxTree();
-        virtual ~AbstractSyntaxTree();
+        AbstractSyntaxTree() = default;
+        ~AbstractSyntaxTree();
 
-        void setRoot(SyntaxNode* root);
-        SyntaxNode* getRoot() const;
+        const std::vector<SyntaxNode*>& root() const;
 
         static AbstractSyntaxTree fromTokens(const std::vector<Token>& tokens);
 
     private:
-        SyntaxNode* root;
+        std::vector<SyntaxNode*> root_;
     };
+
+    std::ostream& operator<<(std::ostream& out, const AbstractSyntaxTree& tree);
 
 }
 

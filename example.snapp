@@ -2,8 +2,8 @@ class Person {
     str staticName;
     int staticID;
 
-    *str liveAddress;
-    *int liveAge;
+    @str liveAddress;
+    @int liveAge;
 
     private str ssn;
 
@@ -11,7 +11,7 @@ class Person {
         print(e.get());
     }
 
-    Person(str name, *str address) {
+    Person(str name, @str address) {
         this.staticName = name;
         this.setLiveAddress = address;
     }

@@ -110,6 +110,82 @@ namespace Snapp {
 
     std::ostream& operator<<(std::ostream& out, const Operation& operation);
 
+    enum class Precedence {
+        Unknown,
+        Assignment,
+        LogicalOr,
+        LogicalAnd,
+        BitwiseOr,
+        BitwiseXor,
+        BitwiseAnd,
+        Equality,
+        Comparison,
+        Additive,
+        Multiplicative,
+        Exponent,
+        Prefix,
+        Postfix,
+        Access,
+        Container,
+    };
+
+    const std::map<Precedence, std::string> precedenceNames = {
+        {Precedence::Assignment, "Assignment"},
+        {Precedence::LogicalOr, "LogicalOr"},
+        {Precedence::LogicalAnd, "LogicalAnd"},
+        {Precedence::BitwiseOr, "BitwiseOr"},
+        {Precedence::BitwiseXor, "BitwiseXor"},
+        {Precedence::BitwiseAnd, "BitwiseAnd"},
+        {Precedence::Equality, "Equality"},
+        {Precedence::Comparison, "Comparison"},
+        {Precedence::Additive, "Additive"},
+        {Precedence::Multiplicative, "Multiplicative"},
+        {Precedence::Exponent, "Exponent"},
+        {Precedence::Prefix, "Prefix"},
+        {Precedence::Postfix, "Postfix"},
+        {Precedence::Access, "Access"},
+        {Precedence::Container, "Container"},
+    };
+
+    const std::map<Operation, Precedence> operationPrecedence = {
+        {Operation::Access, Precedence::Access},
+        {Operation::PostInc, Precedence::Postfix},
+        {Operation::PostDec, Precedence::Postfix},
+        {Operation::Call, Precedence::Postfix},
+        {Operation::ToNumber, Precedence::Prefix},
+        {Operation::Negate, Precedence::Prefix},
+        {Operation::PreInc, Precedence::Prefix},
+        {Operation::PreDec, Precedence::Prefix},
+        {Operation::BitwiseNot, Precedence::Prefix},
+        {Operation::Not, Precedence::Prefix},
+        {Operation::Exponent, Precedence::Exponent},
+        {Operation::Multiply, Precedence::Multiplicative},
+        {Operation::Divide, Precedence::Multiplicative},
+        {Operation::Modulus, Precedence::Multiplicative},
+        {Operation::Add, Precedence::Additive},
+        {Operation::Subtract, Precedence::Additive},
+        {Operation::LessThan, Precedence::Comparison},
+        {Operation::GreaterThan, Precedence::Comparison},
+        {Operation::LessEqual, Precedence::Comparison},
+        {Operation::GreaterEqual, Precedence::Comparison},
+        {Operation::Equal, Precedence::Equality},
+        {Operation::NotEqual, Precedence::Equality},
+        {Operation::BitwiseAnd, Precedence::BitwiseAnd},
+        {Operation::BitwiseXor, Precedence::BitwiseXor},
+        {Operation::BitwiseOr, Precedence::BitwiseOr},
+        {Operation::And, Precedence::LogicalAnd},
+        {Operation::Or, Precedence::LogicalOr},
+        {Operation::Assign, Precedence::Assignment},
+    };
+
+    Precedence findPrecedence(const Operation& operation);
+
+    std::ostream& operator<<(std::ostream& out, const Precedence& precedence);
+
+    bool isLeftToRightAssociative(const Precedence& precedence);
+
+    bool leftPrecedes(const Operation& leftSide, const Operation& rightSide);
+
 }
 
 #endif /* SYNTAX_OPERATION_H_ */

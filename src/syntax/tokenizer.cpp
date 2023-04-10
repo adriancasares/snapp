@@ -4,8 +4,8 @@
 namespace Snapp {
 
     Tokenizer::Tokenizer(const std::string& source) {
-        chars_ = source.cbegin();
-        end_ = source.cend();
+        chars_ = source.begin();
+        end_ = source.end();
     }
     
     std::vector<Token> Tokenizer::tokens() const {

@@ -26,7 +26,7 @@ namespace Snapp {
     }
 
     std::ostream& operator<<(std::ostream& out, const DataType& dataType) {
-        return out << "DataType{" << (dataType.live() ? "*" : "") << dataType.name() << "}";
+        return out << "DataType{" << (dataType.live() ? "@" : "") << dataType.name() << "}";
     }
 
 }

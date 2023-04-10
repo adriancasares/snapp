@@ -61,24 +61,18 @@ namespace Snapp {
         for (SyntaxNodeVariableDeclaration* parameter : parameters) {
             delete parameter;
         }
-        for (SyntaxNode* statement : statements) {
-            delete statement;
-        }
+        delete body;
+    }
+
+    SyntaxNodeClassDeclaration::~SyntaxNodeClassDeclaration() {
+        delete identifier;
+        delete body;
     }
 
     SyntaxNodeObserverDeclaration::~SyntaxNodeObserverDeclaration() {
         delete identifier;
         delete alias;
-        for (SyntaxNode* statement : statements) {
-            delete statement;
-        }
-    }
-
-    SyntaxNodeClassDeclaration::~SyntaxNodeClassDeclaration() {
-        delete identifier;
-        for (SyntaxNode* member : members) {
-            delete member;
-        }
+        delete body;
     }
 
 }

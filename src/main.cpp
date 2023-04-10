@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
     }
 
     try {
-        std::vector<Snapp::Token> tokens = Snapp::tokenize(sourceCode);
+        std::vector<Snapp::Token> tokens = Snapp::Tokenizer::tokenize(sourceCode);
         for (const Snapp::Token& token : tokens) {
             std::cout << token << std::endl;
         }

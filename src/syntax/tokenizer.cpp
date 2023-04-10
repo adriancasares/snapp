@@ -44,7 +44,7 @@ namespace Snapp {
         tokens_.push_back(token);
     }
 
-    std::vector<Token> tokenize(const std::string& source) {
+    std::vector<Token> Tokenizer::tokenize(const std::string& source) {
         Tokenizer tokenizer(source);
 
         while (char next = tokenizer.peekChar()) {

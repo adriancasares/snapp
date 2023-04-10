@@ -1,7 +1,3 @@
-//
-// Created by Adrian Casares on 4/7/23.
-//
-
 #ifndef SYNTAX_TOKENIZER_H_
 #define SYNTAX_TOKENIZER_H_
 
@@ -23,13 +19,13 @@ namespace Snapp {
         void pushToken(Token token);
         std::vector<Token> tokens() const;
 
+        static std::vector<Token> tokenize(const std::string& source);
+
     private:
         std::string::const_iterator chars_, end_;
         SourceLocation location_;
         std::vector<Token> tokens_;
     };
-
-    std::vector<Token> tokenize(const std::string& source);
 
 }
 

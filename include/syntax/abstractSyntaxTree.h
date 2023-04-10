@@ -1,7 +1,3 @@
-//
-// Created by Adrian Casares on 4/7/23.
-//
-
 #ifndef SYNTAX_ABSTRACTSYNTAXTREE_H_
 #define SYNTAX_ABSTRACTSYNTAXTREE_H_
 
@@ -9,7 +5,9 @@
 #include <string>
 #include <map>
 #include <vector>
+
 #include "syntaxNode.h"
+#include "token.h"
 
 namespace Snapp {
 
@@ -20,6 +18,8 @@ namespace Snapp {
 
         void setRoot(SyntaxNode* root);
         SyntaxNode* getRoot() const;
+
+        static AbstractSyntaxTree fromTokens(const std::vector<Token>& tokens);
 
     private:
         SyntaxNode* root;

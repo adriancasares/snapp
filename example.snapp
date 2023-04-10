@@ -1,42 +1,46 @@
 class Person {
-    String staticName;
+    str staticName;
     int staticID;
 
-    String* liveAddress;
-    int* liveAge;
+    *str liveAddress;
+    *int liveAge;
 
-    private String ssn;
+    private str ssn;
 
     observe liveAddress as e {
         print(e.get());
     }
 
-    Person(String name, String* address) {
+    Person(str name, *str address) {
         this.staticName = name;
         this.setLiveAddress = address;
     }
 }
 
-// outside of a class
-
-for (int i = 0; i < 100; i++) {
-    bool condFizz = i % 3 == 0;
-    bool condBuzz = i % 5 == 0;
-
-    if (condFizz && condBuzz) {
-        print("FizzBuzz");
+int test_fizzBuzz(int count) {
+    int fizzBuzzCount = 0;
+    for (int i = 0; i < count; i++) {
+        bool condFizz = i % 3 == 0;
+        bool condBuzz = i % 5 == 0;
+    
+        if (condFizz && condBuzz) {
+            print("FizzBuzz");
+            ++fizzBuzzCount;
+        }
+        elif (condFizz) {
+            print("Fizz");
+        }
+        else if (condBuzz) {
+            print("Buzz");
+        }
+        else {
+            print(i);
+        }
     }
-    elif (condFizz) {
-        print("Fizz");
-    }
-    else if (condBuzz) {
-        print("Buzz");
-    }
-    else {
-        print(i);
-    }
+    return fizzBuzzCount;
 }
 
-if (number == 5.4.6 && my_name == "thing") {
-    /* TODO */
+
+void main() {
+    test_fizzBuzz(100);
 }

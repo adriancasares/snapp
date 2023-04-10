@@ -1,7 +1,3 @@
-//
-// Created by Adrian Casares on 4/7/23.
-//
-
 #ifndef SYNTAX_SYMBOL_H_
 #define SYNTAX_SYMBOL_H_
 
@@ -24,8 +20,9 @@ namespace Snapp {
         Caret,
         Pipe,
         Exclamation,
+        Plus2,
+        Minus2,
         Ampersand2,
-        Caret2,
         Pipe2,
         LessThan2,
         GreaterThan2,
@@ -36,7 +33,6 @@ namespace Snapp {
         LessEqual,
         GreaterEqual,
         Equal,
-        EvalEqual,
         Dot,
         Comma,
         Colon,
@@ -70,8 +66,9 @@ namespace Snapp {
         {Symbol::Caret, "Caret"},
         {Symbol::Pipe, "Pipe"},
         {Symbol::Exclamation, "Exclamation"},
+        {Symbol::Plus2, "Plus2"},
+        {Symbol::Minus2, "Minus2"},
         {Symbol::Ampersand2, "Ampersand2"},
-        {Symbol::Caret2, "Caret2"},
         {Symbol::Pipe2, "Pipe2"},
         {Symbol::LessThan2, "LessThan2"},
         {Symbol::GreaterThan2, "GreaterThan2"},
@@ -82,7 +79,6 @@ namespace Snapp {
         {Symbol::LessEqual, "LessEqual"},
         {Symbol::GreaterEqual, "GreaterEqual"},
         {Symbol::Equal, "Equal"},
-        {Symbol::EvalEqual, "EvalEqual"},
         {Symbol::Dot, "Dot"},
         {Symbol::Comma, "Comma"},
         {Symbol::Colon, "Colon"},
@@ -116,8 +112,9 @@ namespace Snapp {
         {"^", Symbol::Caret},
         {"|", Symbol::Pipe},
         {"!", Symbol::Exclamation},
+        {"++", Symbol::Plus2},
+        {"--", Symbol::Minus2},
         {"&&", Symbol::Ampersand2},
-        {"^^", Symbol::Caret2},
         {"||", Symbol::Pipe2},
         {"<<", Symbol::LessThan2},
         {">>", Symbol::GreaterThan2},
@@ -128,7 +125,6 @@ namespace Snapp {
         {"<=", Symbol::LessEqual},
         {">=", Symbol::GreaterEqual},
         {"=", Symbol::Equal},
-        {":=", Symbol::EvalEqual},
         {".", Symbol::Dot},
         {",", Symbol::Comma},
         {":", Symbol::Colon},

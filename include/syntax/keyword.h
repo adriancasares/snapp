@@ -1,7 +1,3 @@
-//
-// Created by Adrian Casares on 4/7/23.
-//
-
 #ifndef SYNTAX_KEYWORD_H_
 #define SYNTAX_KEYWORD_H_
 

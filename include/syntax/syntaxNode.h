@@ -1,13 +1,11 @@
-//
-// Created by Adrian Casares on 4/7/23.
-//
-
 #ifndef SYNTAX_SYNTAXNODE_H_
 #define SYNTAX_SYNTAXNODE_H_
 
 #include <iostream>
 #include <vector>
 #include <variant>
+
+#include "dataType.h"
 
 namespace Snapp {
 
@@ -19,98 +17,113 @@ namespace Snapp {
 
     class SyntaxNodeLiteral : public SyntaxNode {
     public:
-        SyntaxNodeLiteral() = default;
-        virtual ~SyntaxNodeLiteral() = default;
-        std::variant<int, double, bool, std::string> literal;
+        ~SyntaxNodeLiteral() = default;
+        std::variant<int, double, bool, std::string> value;
     };
 
     class SyntaxNodeIdentifier : public SyntaxNode {
     public:
-        SyntaxNodeIdentifier() = default;
-        virtual ~SyntaxNodeIdentifier() = default;
-        std::string identifier;
+        ~SyntaxNodeIdentifier() = default;
+        std::string name;
     };
 
     class SyntaxNodeMemberAccess : public SyntaxNode {
     public:
-        SyntaxNodeMemberAccess() = default;
-        virtual ~SyntaxNodeMemberAccess() = default;
-        SyntaxNodeIdentifier* objectNode;
-        std::string property;
-    };
-
-    class SyntaxNodeBinaryExpression : public SyntaxNode {
-    public:
-        SyntaxNodeBinaryExpression() = default;
-        virtual ~SyntaxNodeBinaryExpression() = default;
-        SyntaxNode* leftNode;
-        SyntaxNode* rightNode;
-        std::string operator_;
+        ~SyntaxNodeMemberAccess();
+        SyntaxNode* container;
+        SyntaxNodeIdentifier* property;
     };
 
     class SyntaxNodeUnaryExpression : public SyntaxNode {
     public:
-        SyntaxNodeUnaryExpression() = default;
-        virtual ~SyntaxNodeUnaryExpression() = default;
-        SyntaxNode* node;
-        std::string operator_;
+        ~SyntaxNodeUnaryExpression();
+        SyntaxNode* operand;
+        std::string operation;
+    };
+
+    class SyntaxNodeBinaryExpression : public SyntaxNode {
+    public:
+        ~SyntaxNodeBinaryExpression();
+        SyntaxNode* leftSide;
+        SyntaxNode* rightSide;
+        std::string operation;
     };
 
     class SyntaxNodeFunctionCall : public SyntaxNode {
     public:
-        SyntaxNodeFunctionCall() = default;
-        virtual ~SyntaxNodeFunctionCall() = default;
-        SyntaxNodeIdentifier* functionNode;
+        ~SyntaxNodeFunctionCall();
+        SyntaxNodeIdentifier* identifier;
         std::vector<SyntaxNode*> arguments;
     };
 
-    class SyntaxNodeFunctionDeclaration : public SyntaxNode {
+    class SyntaxNodeVariableDeclaration : public SyntaxNode {
     public:
-        SyntaxNodeFunctionDeclaration() = default;
-        virtual ~SyntaxNodeFunctionDeclaration() = default;
-        SyntaxNodeIdentifier* identifierNode;
-        std::vector<SyntaxNodeIdentifier*> arguments;
-        std::vector<SyntaxNode*> statements;
+        ~SyntaxNodeVariableDeclaration();
+        bool isPrivate;
+        DataType dataType;
+        SyntaxNodeIdentifier* identifier;
+        SyntaxNode* value;
     };
 
-    class SyntaxNodeClassDeclaration : public SyntaxNode {
+    class SyntaxNodeBlockStatement : public SyntaxNode {
     public:
-        SyntaxNodeClassDeclaration() = default;
-        virtual ~SyntaxNodeClassDeclaration() = default;
-        SyntaxNodeIdentifier* identifierNode;
+        ~SyntaxNodeBlockStatement();
         std::vector<SyntaxNode*> statements;
     };
 
     class SyntaxNodeIfStatement : public SyntaxNode {
     public:
-        SyntaxNodeIfStatement() = default;
-        virtual ~SyntaxNodeIfStatement() = default;
-        SyntaxNode* conditionNode;
-        std::vector<SyntaxNode*> statements;
-        std::vector<SyntaxNode*> elseStatements;
+        ~SyntaxNodeIfStatement();
+        SyntaxNode* condition;
+        SyntaxNode* consequent;
+        SyntaxNode* alternative;
     };
 
     class SyntaxNodeWhileStatement : public SyntaxNode {
     public:
-        SyntaxNodeWhileStatement() = default;
-        virtual ~SyntaxNodeWhileStatement() = default;
-        SyntaxNode* conditionNode;
-        std::vector<SyntaxNode*> statements;
+        ~SyntaxNodeWhileStatement();
+        SyntaxNode* condition;
+        SyntaxNode* loop;
+    };
+
+    class SyntaxNodeForStatement : public SyntaxNode {
+    public:
+        ~SyntaxNodeForStatement();
+        SyntaxNode* initialize;
+        SyntaxNode* condition;
+        SyntaxNode* update;
+        SyntaxNode* loop;
     };
 
     class SyntaxNodeReturnStatement : public SyntaxNode {
     public:
-        SyntaxNodeReturnStatement() = default;
-        virtual ~SyntaxNodeReturnStatement() = default;
-        SyntaxNode* node;
+        ~SyntaxNodeReturnStatement();
+        SyntaxNode* value;
     };
 
-    class SyntaxNodeVariableDeclaration : public SyntaxNode {
+    class SyntaxNodeFunctionDeclaration : public SyntaxNode {
     public:
-        SyntaxNodeVariableDeclaration() = default;
-        virtual ~SyntaxNodeVariableDeclaration() = default;
-        SyntaxNodeIdentifier* identifierNode;
-        SyntaxNode* valueNode;
+        ~SyntaxNodeFunctionDeclaration();
+        bool isPrivate;
+        DataType returnType;
+        SyntaxNodeIdentifier* identifier;
+        std::vector<SyntaxNodeVariableDeclaration*> parameters;
+        std::vector<SyntaxNode*> statements;
+    };
+
+    class SyntaxNodeObserverDeclaration : public SyntaxNode {
+    public:
+        ~SyntaxNodeObserverDeclaration();
+        SyntaxNodeIdentifier* identifier;
+        SyntaxNodeIdentifier* alias;
+        std::vector<SyntaxNode*> statements;
+    };
+
+    class SyntaxNodeClassDeclaration : public SyntaxNode {
+    public:
+        ~SyntaxNodeClassDeclaration();
+        SyntaxNodeIdentifier* identifier;
+        std::vector<SyntaxNode*> members;
     };
 
 }

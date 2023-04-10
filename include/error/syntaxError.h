@@ -1,7 +1,3 @@
-//
-// Created by Adrian Casares on 4/7/23.
-//
-
 #ifndef ERROR_SYNTAXERROR_H_
 #define ERROR_SYNTAXERROR_H_
 

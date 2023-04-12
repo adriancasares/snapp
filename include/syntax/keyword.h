@@ -9,42 +9,42 @@ namespace Snapp {
 
     enum class Keyword {
         Unknown,
-        As,
         If,
-        Elif,
         Else,
-        For,
         While,
+        For,
+        Return,
         Public,
         Private,
         Class,
         Observe,
+        As,
     };
 
     const std::map<Keyword, std::string> keywordNames = {
-        {Keyword::As, "As"},
         {Keyword::If, "If"},
-        {Keyword::Elif, "Elif"},
         {Keyword::Else, "Else"},
-        {Keyword::For, "For"},
         {Keyword::While, "While"},
+        {Keyword::For, "For"},
+        {Keyword::Return, "Return"},
         {Keyword::Public, "Public"},
         {Keyword::Private, "Private"},
         {Keyword::Class, "Class"},
         {Keyword::Observe, "Observe"},
+        {Keyword::As, "As"},
     };
 
     const std::map<std::string, Keyword> literalToKeyword = {
-        {"as", Keyword::As},
         {"if", Keyword::If},
-        {"elif", Keyword::Elif},
         {"else", Keyword::Else},
-        {"for", Keyword::For},
         {"while", Keyword::While},
+        {"for", Keyword::For},
+        {"return", Keyword::Return},
         {"public", Keyword::Public},
         {"private", Keyword::Private},
         {"class", Keyword::Class},
         {"observe", Keyword::Observe},
+        {"as", Keyword::As},
     };
 
     Keyword findKeyword(const std::string& content);

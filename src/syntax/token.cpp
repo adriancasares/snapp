@@ -7,13 +7,13 @@ namespace Snapp {
         return out << "Identifier{" << identifier.name << "}";
     }
 
-    Token::Token(TokenValue value, SourceLocation start, SourceLocation end) {
+    Token::Token(Value value, SourceLocation start, SourceLocation end) {
         value_ = value;
         start_ = start;
         end_ = end;
     }
 
-    const TokenValue& Token::value() const {
+    const Token::Value& Token::value() const {
         return value_;
     }
 
@@ -33,6 +33,18 @@ namespace Snapp {
         return std::holds_alternative<Keyword>(value_) && std::get<Keyword>(value_) == keyword;
     }
 
+    void Token::expect(const Symbol& symbol) const {
+        if (!has(symbol)) {
+            throw SyntaxError("expected symbol '" + symbolNames.at(symbol) + "'", start_, end_);
+        }
+    }
+
+    void Token::expect(const Keyword& keyword) const {
+        if (!has(keyword)) {
+            throw SyntaxError("expected keyword '" + keywordNames.at(keyword) + "'", start_, end_);
+        }
+    }
+
     const Identifier& Token::expectIdentifier() const {
         if (std::holds_alternative<Identifier>(value_)) {
             return std::get<Identifier>(value_);
@@ -43,7 +55,7 @@ namespace Snapp {
 
     std::ostream& operator<<(std::ostream& out, const Token& token) {
         out << "(" << token.start() << ", ";
-        const TokenValue& value = token.value();
+        const Token::Value& value = token.value();
 
         if (std::holds_alternative<Symbol>(value)) {
             out << std::get<Symbol>(value);

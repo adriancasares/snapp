@@ -11,9 +11,15 @@ class Person {
         print(e.get());
     }
 
-    Person(str name, @str address) {
+    /* NOTE: 'void' on constructor is temporary */
+    void Person(str name, @str address) {
         this.staticName = name;
-        this.setLiveAddress = address;
+        this.liveAddress = address;
+    }
+
+    @str greet(Person person) {
+        print("Hello, " + person.staticName + "! Here is my address.");
+        return this.liveAddress;
     }
 }
 
@@ -27,7 +33,7 @@ int test_fizzBuzz(int count) {
             print("FizzBuzz");
             ++fizzBuzzCount;
         }
-        elif (condFizz) {
+        else if (condFizz) {
             print("Fizz");
         }
         else if (condBuzz) {
@@ -42,5 +48,11 @@ int test_fizzBuzz(int count) {
 
 
 void main() {
+    @str person1Address = "123";
+    @str person2Address = "456";
+    Person person1 = Person("Bob", person1Address);
+    Person person2 = Person("Jane", person2Address);
+    print(person1.greet(person2));
+
     test_fizzBuzz(100);
 }

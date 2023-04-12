@@ -20,22 +20,24 @@ namespace Snapp {
 
     std::ostream& operator<<(std::ostream& out, const Identifier& identifier);
 
-    using TokenValue = std::variant<Symbol, Keyword, Identifier, int, double, bool, std::string>;
-
     class Token {
     public:
-        Token(TokenValue value, SourceLocation start, SourceLocation end);
+        using Value = std::variant<Symbol, Keyword, Identifier, int, double, bool, std::string>;
 
-        const TokenValue& value() const;
+        Token(Value value, SourceLocation start, SourceLocation end);
+
+        const Value& value() const;
         const SourceLocation& start() const;
         const SourceLocation& end() const;
 
         bool has(const Symbol& symbol) const;
         bool has(const Keyword& keyword) const;
+        void expect(const Symbol& symbol) const;
+        void expect(const Keyword& keyword) const;
         const Identifier& expectIdentifier() const;
 
     private:
-        TokenValue value_;
+        Value value_;
         SourceLocation start_, end_;
     };
 

@@ -4,6 +4,7 @@
 #include "syntax/abstractSyntaxTree.h"
 #include "syntax/tokenizer.h"
 #include "error/syntaxError.h"
+#include "semantics/astRunner.cpp"
 
 int main(int argc, char** argv) {
     std::string sourcePath;
@@ -33,7 +34,9 @@ int main(int argc, char** argv) {
             std::cout << token << std::endl;
         }
         auto ast = Snapp::AbstractSyntaxTree::fromTokens(tokens);
-        std::cout << ast << std::endl;
+
+        Snapp::ASTRunner::runAST(ast);
+
     } catch (Snapp::SyntaxError error) {
         std::cerr << error.output(sourceCode) << std::endl;
     }

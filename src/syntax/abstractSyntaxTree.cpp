@@ -1,5 +1,6 @@
 #include "syntax/abstractSyntaxTree.h"
 #include "error/syntaxError.h"
+#include "syntax/operation.h"
 
 namespace Snapp {
 
@@ -43,8 +44,118 @@ namespace Snapp {
 
         SyntaxNode* parseStatement(TokenIterator& iter, const TokenIterator& end, bool required = true);
 
+        struct OperatorInfo {
+            Operation operation;
+            int operandCount;
+        };
+
+        void popOperatorIntoOperand(std::vector<OperatorInfo>& operators, std::vector<SyntaxNode*>& operands) {
+            OperatorInfo operatorInfo = operators.back();
+            operators.pop_back();
+            if (operands.size() < operatorInfo.operandCount) {
+                throw SyntaxError("too few operands for operation (expected " + std::to_string(operatorInfo.operandCount) + ", got " + std::to_string(operands.size()) + ")");
+            }
+            if (operatorInfo.operation == Operation::Call) {
+                SyntaxNode* callee = operands.at(operands.size() - operatorInfo.operandCount);
+                std::vector<SyntaxNode*> arguments(operands.end() - operatorInfo.operandCount + 1, operands.end());
+                operands.erase(operands.end() - operatorInfo.operandCount, operands.end());
+                operands.push_back(new SyntaxNodeFunctionCall(callee, arguments));
+            }
+            else if (operatorInfo.operandCount == 1) {
+                SyntaxNode* operand = operands.back();
+                operands.back() = new SyntaxNodeUnaryExpression(operatorInfo.operation, operand);
+            }
+            else {
+                SyntaxNode* rightSide = operands.back();
+                operands.pop_back();
+                SyntaxNode* leftSide = operands.back();
+                operands.back() = new SyntaxNodeBinaryExpression(operatorInfo.operation, leftSide, rightSide);
+            }
+        }
+
         SyntaxNode* parseExpression(TokenIterator& iter, const TokenIterator& end, StopperRule stopper) {
-            return nullptr; // temporary
+            std::vector<OperatorInfo> operators;
+            std::vector<SyntaxNode*> operands;
+            bool expectOperand = true;
+            while (iter != end && shouldUseToken(iter, end, stopper)) {
+                if (std::holds_alternative<Symbol>(iter->value())) {
+                    const Symbol& symbol = std::get<Symbol>(iter->value());
+                    Operation operation = findOperation(symbol, expectOperand);
+                    if (operation == Operation::Unknown) {
+                        throw SyntaxError("unexpected symbol '" + symbolNames.at(symbol) + "'", iter->start(), iter->end());
+                    }
+                    while (!operators.empty() && leftPrecedes(operators.back().operation, operation)) {
+                        popOperatorIntoOperand(operators, operands);
+                    }
+                    OperatorInfo operatorInfo{operation};
+                    switch (operation) {
+                        case Operation::Call: {
+                            operatorInfo.operandCount = 1;
+                            nextToken(iter, end);
+                            while (!iter->has(Symbol::ParenRight)) {
+                                operands.push_back(parseExpression(iter, end, StopperRule::CommaOrParenRight));
+                                ++operatorInfo.operandCount;
+                                if (iter->has(Symbol::Comma)) {
+                                    nextToken(iter, end);
+                                }
+                            }
+                            break;
+                        }
+                        case Operation::PostInc:
+                        case Operation::PostDec:
+                        case Operation::ToNumber:
+                        case Operation::Negate:
+                        case Operation::PreInc:
+                        case Operation::PreDec:
+                        case Operation::Not:
+                        case Operation::BitwiseNot:
+                            operatorInfo.operandCount = 1;
+                            break;
+                        default:
+                            operatorInfo.operandCount = 2;
+                            break;
+                    }
+                    operators.push_back(operatorInfo);
+                    expectOperand = findPrecedence(operatorInfo.operation) != Precedence::Postfix;
+                }
+                else {
+                    if (!expectOperand) {
+                        throw SyntaxError("expected an operator", iter->start(), iter->end());
+                    }
+                    else if (std::holds_alternative<int>(iter->value())) {
+                        operands.push_back(new SyntaxNodeLiteral(std::get<int>(iter->value())));
+                    }
+                    else if (std::holds_alternative<double>(iter->value())) {
+                        operands.push_back(new SyntaxNodeLiteral(std::get<double>(iter->value())));
+                    }
+                    else if (std::holds_alternative<bool>(iter->value())) {
+                        operands.push_back(new SyntaxNodeLiteral(std::get<bool>(iter->value())));
+                    }
+                    else if (std::holds_alternative<std::string>(iter->value())) {
+                        operands.push_back(new SyntaxNodeLiteral(std::get<std::string>(iter->value())));
+                    }
+                    else if (std::holds_alternative<Identifier>(iter->value())) {
+                        operands.push_back(new SyntaxNodeIdentifier(std::get<Identifier>(iter->value()).name));
+                    }
+                    else {
+                        throw SyntaxError("unexpected token", iter->start(), iter->end());
+                    }
+                    expectOperand = false;
+                }
+                ++iter;
+            }
+            if (expectOperand) {
+                --iter;
+                throw SyntaxError("expected an operand", iter->end(), iter->end());
+            }
+            while (!operators.empty()) {
+                popOperatorIntoOperand(operators, operands);
+            }
+            if (operands.size() != 1) {
+                --iter;
+                throw SyntaxError("expression unexpectedly resolved to " + std::to_string(operands.size()) + "operands", iter->end(), iter->end());
+            }
+            return operands.back();
         }
 
         SyntaxNode* tryParseDeclaration(TokenIterator& iter, const TokenIterator& end, StopperRule stopper, bool functionAllowed = false, bool isPrivate = false) {
@@ -116,7 +227,8 @@ namespace Snapp {
                     return nullptr;
                 }
                 else if (block->statements.size() == 1) {
-                    auto* statement = block->statements[0];
+                    auto* statement = block->statements.back();
+                    block->statements.pop_back();
                     delete block;
                     return statement;
                 }
@@ -170,14 +282,14 @@ namespace Snapp {
                 nextToken(iter, end);
                 auto* consequent = parseStatement(iter, end);
                 ++iter;
-                SyntaxNode* alternative = nullptr;
                 if (iter != end && iter->has(Keyword::Else)) {
                     nextToken(iter, end);
-                    alternative = parseStatement(iter, end);
+                    auto* alternative = parseStatement(iter, end);
+                    return new SyntaxNodeIfStatement(condition, consequent, alternative);
                 } else {
                     --iter;
+                    return new SyntaxNodeIfStatement(condition, consequent, nullptr);
                 }
-                return new SyntaxNodeIfStatement(condition, consequent, alternative);
             }
             else if (iter->has(Keyword::While)) {
                 nextToken(iter, end);
@@ -245,7 +357,14 @@ namespace Snapp {
     }
 
     std::ostream& operator<<(std::ostream& out, const AbstractSyntaxTree& tree) {
-        return out << "AbstractSyntaxTree (TODO)"; // TODO
+        out << "AbstractSyntaxTree{";
+        for (int i = 0; i < tree.root().size(); ++i) {
+            if (i != 0) {
+                out << "; ";
+            }
+            out << tree.root()[i]->output();
+        }
+        return out << "}";
     }
 
 }

@@ -14,6 +14,7 @@ namespace Snapp {
     class SyntaxNode {
     public:
         virtual ~SyntaxNode() = default;
+        virtual std::string output() const = 0;
     };
 
     class SyntaxNodeLiteral : public SyntaxNode {
@@ -21,6 +22,7 @@ namespace Snapp {
         using Value = std::variant<int, double, bool, std::string>;
         SyntaxNodeLiteral(Value value);
         ~SyntaxNodeLiteral() = default;
+        std::string output() const;
         Value value;
     };
 
@@ -28,6 +30,7 @@ namespace Snapp {
     public:
         SyntaxNodeIdentifier(std::string name);
         ~SyntaxNodeIdentifier() = default;
+        std::string output() const;
         std::string name;
     };
 
@@ -35,6 +38,7 @@ namespace Snapp {
     public:
         SyntaxNodeUnaryExpression(Operation operation, SyntaxNode* operand);
         ~SyntaxNodeUnaryExpression();
+        std::string output() const;
         Operation operation;
         SyntaxNode* operand;
     };
@@ -43,6 +47,7 @@ namespace Snapp {
     public:
         SyntaxNodeBinaryExpression(Operation operation, SyntaxNode* leftSide, SyntaxNode* rightSide);
         ~SyntaxNodeBinaryExpression();
+        std::string output() const;
         Operation operation;
         SyntaxNode* leftSide;
         SyntaxNode* rightSide;
@@ -50,9 +55,10 @@ namespace Snapp {
 
     class SyntaxNodeFunctionCall : public SyntaxNode {
     public:
-        SyntaxNodeFunctionCall(SyntaxNodeIdentifier* identifier, std::vector<SyntaxNode*> arguments);
+        SyntaxNodeFunctionCall(SyntaxNode* callee, std::vector<SyntaxNode*> arguments);
         ~SyntaxNodeFunctionCall();
-        SyntaxNodeIdentifier* identifier;
+        std::string output() const;
+        SyntaxNode* callee;
         std::vector<SyntaxNode*> arguments;
     };
 
@@ -60,6 +66,7 @@ namespace Snapp {
     public:
         SyntaxNodeVariableDeclaration(DataType dataType, SyntaxNodeIdentifier* identifier, SyntaxNode* value, bool isPrivate = false);
         ~SyntaxNodeVariableDeclaration();
+        std::string output() const;
         DataType dataType;
         SyntaxNodeIdentifier* identifier;
         SyntaxNode* value;
@@ -70,6 +77,7 @@ namespace Snapp {
     public:
         SyntaxNodeBlockStatement(std::vector<SyntaxNode*> statements);
         ~SyntaxNodeBlockStatement();
+        std::string output() const;
         std::vector<SyntaxNode*> statements;
     };
 
@@ -77,6 +85,7 @@ namespace Snapp {
     public:
         SyntaxNodeIfStatement(SyntaxNode* condition, SyntaxNode* consequent, SyntaxNode* alternative);
         ~SyntaxNodeIfStatement();
+        std::string output() const;
         SyntaxNode* condition;
         SyntaxNode* consequent;
         SyntaxNode* alternative;
@@ -86,6 +95,7 @@ namespace Snapp {
     public:
         SyntaxNodeWhileStatement(SyntaxNode* condition, SyntaxNode* loop);
         ~SyntaxNodeWhileStatement();
+        std::string output() const;
         SyntaxNode* condition;
         SyntaxNode* loop;
     };
@@ -94,6 +104,7 @@ namespace Snapp {
     public:
         SyntaxNodeForStatement(SyntaxNode* initialize, SyntaxNode* condition, SyntaxNode* update, SyntaxNode* loop);
         ~SyntaxNodeForStatement();
+        std::string output() const;
         SyntaxNode* initialize;
         SyntaxNode* condition;
         SyntaxNode* update;
@@ -104,6 +115,7 @@ namespace Snapp {
     public:
         SyntaxNodeReturnStatement(SyntaxNode* value);
         ~SyntaxNodeReturnStatement();
+        std::string output() const;
         SyntaxNode* value;
     };
 
@@ -111,6 +123,7 @@ namespace Snapp {
     public:
         SyntaxNodeFunctionDeclaration(DataType returnType, SyntaxNodeIdentifier* identifier, std::vector<SyntaxNodeVariableDeclaration*> parameters, SyntaxNode* body, bool isPrivate = false);
         ~SyntaxNodeFunctionDeclaration();
+        std::string output() const;
         DataType returnType;
         SyntaxNodeIdentifier* identifier;
         std::vector<SyntaxNodeVariableDeclaration*> parameters;
@@ -122,6 +135,7 @@ namespace Snapp {
     public:
         SyntaxNodeClassDeclaration(SyntaxNodeIdentifier* identifier, SyntaxNode* body, bool isPrivate = false);
         ~SyntaxNodeClassDeclaration();
+        std::string output() const;
         SyntaxNodeIdentifier* identifier;
         SyntaxNode* body;
         bool isPrivate;
@@ -131,6 +145,7 @@ namespace Snapp {
     public:
         SyntaxNodeObserverDeclaration(SyntaxNodeIdentifier* identifier, SyntaxNodeIdentifier* alias, SyntaxNode* body);
         ~SyntaxNodeObserverDeclaration();
+        std::string output() const;
         SyntaxNodeIdentifier* identifier;
         SyntaxNodeIdentifier* alias;
         SyntaxNode* body;

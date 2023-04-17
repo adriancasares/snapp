@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 
+#include "syntax/abstractSyntaxTree.h"
 #include "syntax/tokenizer.h"
 #include "error/syntaxError.h"
 
@@ -31,6 +32,8 @@ int main(int argc, char** argv) {
         for (const Snapp::Token& token : tokens) {
             std::cout << token << std::endl;
         }
+        auto ast = Snapp::AbstractSyntaxTree::fromTokens(tokens);
+        std::cout << ast << std::endl;
     } catch (Snapp::SyntaxError error) {
         std::cerr << error.output(sourceCode) << std::endl;
     }

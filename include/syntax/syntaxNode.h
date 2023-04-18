@@ -19,11 +19,10 @@ namespace Snapp {
 
     class SyntaxNodeLiteral : public SyntaxNode {
     public:
-        using Value = std::variant<int, double, bool, std::string>;
-        SyntaxNodeLiteral(Value value);
+        SyntaxNodeLiteral(DataValue value);
         ~SyntaxNodeLiteral() = default;
         std::string output() const;
-        Value value;
+        DataValue value;
     };
 
     class SyntaxNodeIdentifier : public SyntaxNode {

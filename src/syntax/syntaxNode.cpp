@@ -4,7 +4,7 @@
 
 namespace Snapp {
 
-    SyntaxNodeLiteral::SyntaxNodeLiteral(Value value) :
+    SyntaxNodeLiteral::SyntaxNodeLiteral(DataValue value) :
         value(value) {}
 
     std::string SyntaxNodeLiteral::output() const {

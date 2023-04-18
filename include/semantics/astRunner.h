@@ -1,24 +1,23 @@
-//
-// Created by Adrian Casares on 4/17/23.
-//
+#ifndef SEMANTICS_ASTRUNNER_H_
+#define SEMANTICS_ASTRUNNER_H_
 
-#ifndef SNAPP_INCLUDE_SEMANTICS_ASTRUNNER_H_
-#define SNAPP_INCLUDE_SEMANTICS_ASTRUNNER_H_
+#include "syntax/abstractSyntaxTree.h"
 
-#include "../syntax/abstractSyntaxTree.h"
+#include <optional>
 
 namespace Snapp {
 
     class ASTRunner {
-      private:
-        ASTRunner() = default;
-        static std::map<std::string, void*> identifiers;
-        void addIdentifier(std::string identifier, void* value);
-        void* runASTNode(SyntaxNode* node);
+    private:
+        static std::map<std::string, DataValue> identifiers;
+        void addIdentifier(std::string identifier, DataValue value);
+        std::optional<DataValue> runASTNode(const SyntaxNode* node);
 
-      public:
-        static void runAST(AbstractSyntaxTree& ast);
+    public:
+        ASTRunner() = default;
+        static void runAST(const AbstractSyntaxTree& ast);
     };
 
 }
-#endif //SNAPP_INCLUDE_SEMANTICS_ASTRUNNER_H_
+
+#endif /* SEMANTICS_ASTRUNNER_H_ */

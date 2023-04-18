@@ -4,8 +4,11 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <variant>
 
 namespace Snapp {
+
+    using DataValue = std::variant<int, double, bool, std::string>;
 
     enum class BaseDataType {
         Unknown,

@@ -80,13 +80,46 @@ namespace Snapp {
       }
 
       if(binaryExpression->operation == Operation::Add) {
-          float* left = (float*) runASTNode(binaryExpression->leftSide);
-          float* right = (float*) runASTNode(binaryExpression->rightSide);
+          std::variant<std::string, int, float>* left = static_cast<std::variant<std::string, int, float>*>(runASTNode(binaryExpression->leftSide));
+          std::variant<std::string, int, float>* right = static_cast<std::variant<std::string, int, float>*>(runASTNode(binaryExpression->rightSide));
 
-          float* result = new float;
-          *result = *left + *right;
 
-          return result;
+          if (std::holds_alternative<int>(*left) && std::holds_alternative<int>(*right)) {
+            std::cout << "Adding two ints" << std::endl;
+              int* result = new int;
+              *result = std::get<int>(*left) + std::get<int>(*right);
+              return result;
+          }
+
+          if (std::holds_alternative<float>(*left) && std::holds_alternative<float>(*right)) {
+            std::cout << "Adding two floats" << std::endl;
+              float* result = new float;
+              *result = std::get<float>(*left) + std::get<float>(*right);
+              return result;
+          }
+
+          if (std::holds_alternative<float>(*left) && std::holds_alternative<int>(*right)) {
+            std::cout << "Adding a float and an int" << std::endl;
+              float* result = new float;
+              *result = std::get<float>(*left) + std::get<int>(*right);
+              return result;
+          }
+
+          if (std::holds_alternative<int>(*left) && std::holds_alternative<float>(*right)) {
+            std::cout << "Adding an int and a float" << std::endl;
+              float* result = new float;
+              *result = std::get<int>(*left) + std::get<float>(*right);
+              return result;
+          }
+
+          if (std::holds_alternative<std::string>(*left) && std::holds_alternative<std::string>(*right)) {
+            std::cout << "Adding two strings" << std::endl;
+              std::string* result = new std::string;
+              *result = std::get<std::string>(*left) + std::get<std::string>(*right);
+              return result;
+          }
+
+          std::cout << "Error: Cannot add these types" << std::endl;
       }
 
       if(binaryExpression->operation == Operation::Subtract) {

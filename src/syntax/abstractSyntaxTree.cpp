@@ -80,6 +80,13 @@ namespace Snapp {
             while (iter != end && shouldUseToken(iter, end, stopper)) {
                 if (std::holds_alternative<Symbol>(iter->value())) {
                     const Symbol& symbol = std::get<Symbol>(iter->value());
+                    if (expectOperand && symbol == Symbol::ParenLeft) {
+                        nextToken(iter, end);
+                        operands.push_back(parseExpression(iter, end, StopperRule::ParenRight));
+                        expectOperand = false;
+                        ++iter;
+                        continue;
+                    }
                     Operation operation = findOperation(symbol, expectOperand);
                     if (operation == Operation::Unknown) {
                         throw SyntaxError("unexpected symbol '" + symbolNames.at(symbol) + "'", iter->start(), iter->end());

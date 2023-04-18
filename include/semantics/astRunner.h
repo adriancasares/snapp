@@ -12,8 +12,8 @@ namespace Snapp {
     class ASTRunner {
       private:
         ASTRunner() = default;
-        static std::map<std::string, SyntaxNode*> identifiers;
-        void addIdentifier(SyntaxNodeIdentifier* identifier, SyntaxNode* value);
+        static std::map<std::string, void*> identifiers;
+        void addIdentifier(std::string identifier, void* value);
         void runASTNode(SyntaxNode* node);
 
       public:

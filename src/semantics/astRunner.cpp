@@ -7,15 +7,15 @@
 
 namespace Snapp {
 
-  std::map<std::string, SyntaxNode*> ASTRunner::identifiers;
+  std::map<std::string, void*> ASTRunner::identifiers;
 
-  void ASTRunner::addIdentifier(SyntaxNodeIdentifier *identifier, SyntaxNode *value) {
+  void ASTRunner::addIdentifier(std::string identifier, void *value) {
       // check if identifier already exists
-        if (identifiers.find(identifier->output()) != identifiers.end()) {
-            std::cout << "Identifier already exists: " << identifier->output() << std::endl;
+        if (identifiers.find(identifier) != identifiers.end()) {
+            std::cout << "Identifier already exists: " << identifier << std::endl;
         } else {
-            identifiers[identifier->output()] = value;
-            std::cout << "Added identifier: " << identifier->output() << std::endl;
+            identifiers[identifier] = value;
+            std::cout << "Added identifier: " << identifier << std::endl;
         }
   }
 
@@ -52,9 +52,45 @@ namespace Snapp {
     }
 
     if (auto variableDeclaration = dynamic_cast<SyntaxNodeVariableDeclaration*>(node)) {
-//      std::cout << "Variable Declaration: " << variableDeclaration->output() << std::endl;
-//      runASTNode(variableDeclaration->identifier);
-//      runASTNode(variableDeclaration->value);
+      if(variableDeclaration->dataType.base() == BaseDataType::Int) {
+          int* value = new int;
+          *value = 0;
+          addIdentifier(variableDeclaration->identifier->name, value);
+      }
+
+      if(variableDeclaration->dataType.base() == BaseDataType::Float) {
+          float* value = new float;
+          *value = 0.0;
+
+          addIdentifier(variableDeclaration->identifier->name, value);
+      }
+
+      if(variableDeclaration->dataType.base() == BaseDataType::Bool) {
+          bool* value = new bool;
+          *value = false;
+
+          addIdentifier(variableDeclaration->identifier->name, value);
+      }
+
+      if(variableDeclaration->dataType.base() == BaseDataType::Str) {
+          std::string* value = new std::string;
+          *value = "";
+
+          addIdentifier(variableDeclaration->identifier->name, value);
+      }
+
+
+      if(variableDeclaration->dataType.base() == BaseDataType::Object) {
+            std::cout << "Cannot declare object variable" << std::endl;
+      }
+
+      if(variableDeclaration->dataType.base() == BaseDataType::Void) {
+          std::cout << "Cannot declare void variable" << std::endl;
+      }
+
+      if(variableDeclaration->dataType.base() == BaseDataType::Unknown) {
+          std::cout << "Cannot declare unknown variable" << std::endl;
+      }
     }
 
     if(auto blockStatement = dynamic_cast<SyntaxNodeBlockStatement*>(node)) {
@@ -91,15 +127,11 @@ namespace Snapp {
     };
 
     if (auto functionDeclaration = dynamic_cast<SyntaxNodeFunctionDeclaration*>(node)) {
-//      std::cout << "Function Declaration: " << functionDeclaration->output() << std::endl;
-
-      addIdentifier(functionDeclaration->identifier, functionDeclaration);
+      addIdentifier(functionDeclaration->identifier->name, functionDeclaration);
     }
 
     if (auto classDeclaration = dynamic_cast<SyntaxNodeClassDeclaration*>(node)) {
-//      std::cout << "Class Declaration: " << classDeclaration->output() << std::endl;
-
-      addIdentifier(classDeclaration->identifier, classDeclaration);
+      addIdentifier(classDeclaration->identifier->name, classDeclaration);
     }
 
     if(auto observerDeclaration = dynamic_cast<SyntaxNodeObserverDeclaration*>(node)) {
@@ -112,7 +144,6 @@ namespace Snapp {
   }
 
   void ASTRunner::runAST(AbstractSyntaxTree &ast) {
-    // loop through tree root
     for (auto &node : ast.root()) {
       ASTRunner *runner = new ASTRunner();
       runner->runASTNode(node);

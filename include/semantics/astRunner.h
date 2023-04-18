@@ -14,7 +14,7 @@ namespace Snapp {
         ASTRunner() = default;
         static std::map<std::string, void*> identifiers;
         void addIdentifier(std::string identifier, void* value);
-        void runASTNode(SyntaxNode* node);
+        void* runASTNode(SyntaxNode* node);
 
       public:
         static void runAST(AbstractSyntaxTree& ast);

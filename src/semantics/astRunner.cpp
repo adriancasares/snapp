@@ -19,13 +19,13 @@ namespace Snapp {
         }
   }
 
-  void ASTRunner::runASTNode(Snapp::SyntaxNode *node) {
+  void* ASTRunner::runASTNode(Snapp::SyntaxNode *node) {
     if(node == nullptr) {
-      return;
+      return nullptr;
     }
 
     if (auto literal = dynamic_cast<SyntaxNodeLiteral*>(node)) {
-//      std::cout << "Literal: " << literal->output() << std::endl;
+      return &literal->value;
     }
 
     if (auto identifier = dynamic_cast<SyntaxNodeIdentifier*>(node)) {
@@ -52,29 +52,52 @@ namespace Snapp {
     }
 
     if (auto variableDeclaration = dynamic_cast<SyntaxNodeVariableDeclaration*>(node)) {
+      void* v = runASTNode(variableDeclaration->value);
+
       if(variableDeclaration->dataType.base() == BaseDataType::Int) {
           int* value = new int;
-          *value = 0;
+
+          if(v == nullptr) {
+              *value = 0;
+          } else {
+              *value = *((int*) v);
+          }
+
           addIdentifier(variableDeclaration->identifier->name, value);
       }
 
       if(variableDeclaration->dataType.base() == BaseDataType::Float) {
           float* value = new float;
-          *value = 0.0;
+
+          if(v == nullptr) {
+              *value = 0.0;
+          } else {
+              *value = *((float*) v);
+          }
 
           addIdentifier(variableDeclaration->identifier->name, value);
       }
 
       if(variableDeclaration->dataType.base() == BaseDataType::Bool) {
           bool* value = new bool;
-          *value = false;
+
+          if(v == nullptr) {
+              *value = false;
+          } else {
+              *value = *((bool*) v);
+          }
 
           addIdentifier(variableDeclaration->identifier->name, value);
       }
 
       if(variableDeclaration->dataType.base() == BaseDataType::Str) {
           std::string* value = new std::string;
-          *value = "";
+
+          if(v == nullptr) {
+              *value = "";
+          } else {
+              *value = *((std::string*) v);
+          }
 
           addIdentifier(variableDeclaration->identifier->name, value);
       }

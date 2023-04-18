@@ -10,6 +10,7 @@
 namespace Snapp {
 
     enum class Operation {
+        // Unary operations start here
         Unknown,
         Access,
         PostInc,
@@ -21,6 +22,7 @@ namespace Snapp {
         PreDec,
         BitwiseNot,
         Not,
+        // Binary operations start here
         Exponent,
         Multiply,
         Divide,

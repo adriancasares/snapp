@@ -3,6 +3,7 @@
 //
 // function to run the AST
 
+#include <cmath>
 #include "semantics/astRunner.h"
 
 namespace Snapp {
@@ -38,9 +39,188 @@ namespace Snapp {
     }
 
     if (auto binaryExpression = dynamic_cast<SyntaxNodeBinaryExpression*>(node)) {
-//      std::cout << "Binary Expression: " << binaryExpression->output() << std::endl;
-//      runASTNode(binaryExpression->leftSide);
-//      runASTNode(binaryExpression->rightSide);
+      if(binaryExpression->operation == Operation::Exponent) {
+        float* left = (float*) runASTNode(binaryExpression->leftSide);
+        float* right = (float*) runASTNode(binaryExpression->rightSide);
+
+        float* result = new float;
+        *result = pow(*left, *right);
+
+        return result;
+      }
+
+      if(binaryExpression->operation == Operation::Multiply) {
+        float* left = (float*) runASTNode(binaryExpression->leftSide);
+        float* right = (float*) runASTNode(binaryExpression->rightSide);
+
+        float* result = new float;
+        *result = *left * *right;
+
+        return result;
+      }
+
+      if(binaryExpression->operation == Operation::Divide) {
+          float* left = (float*) runASTNode(binaryExpression->leftSide);
+          float* right = (float*) runASTNode(binaryExpression->rightSide);
+
+          float* result = new float;
+          *result = *left / *right;
+
+          return result;
+      }
+
+      if(binaryExpression->operation == Operation::Modulus) {
+          float* left = (float*) runASTNode(binaryExpression->leftSide);
+          float* right = (float*) runASTNode(binaryExpression->rightSide);
+
+          float* result = new float;
+          *result = fmod(*left, *right);
+
+          return result;
+      }
+
+      if(binaryExpression->operation == Operation::Add) {
+          float* left = (float*) runASTNode(binaryExpression->leftSide);
+          float* right = (float*) runASTNode(binaryExpression->rightSide);
+
+          float* result = new float;
+          *result = *left + *right;
+
+          return result;
+      }
+
+      if(binaryExpression->operation == Operation::Subtract) {
+          float* left = (float*) runASTNode(binaryExpression->leftSide);
+          float* right = (float*) runASTNode(binaryExpression->rightSide);
+
+          float* result = new float;
+          *result = *left - *right;
+
+          return result;
+      }
+
+      if(binaryExpression->operation == Operation::LessThan) {
+          float* left = (float*) runASTNode(binaryExpression->leftSide);
+          float* right = (float*) runASTNode(binaryExpression->rightSide);
+
+          bool* result = new bool;
+          *result = *left < *right;
+
+          return result;
+      }
+
+      if(binaryExpression->operation == Operation::GreaterThan) {
+          float* left = (float*) runASTNode(binaryExpression->leftSide);
+          float* right = (float*) runASTNode(binaryExpression->rightSide);
+
+          bool* result = new bool;
+          *result = *left > *right;
+
+          return result;
+      }
+
+        if(binaryExpression->operation == Operation::LessEqual) {
+            float* left = (float*) runASTNode(binaryExpression->leftSide);
+            float* right = (float*) runASTNode(binaryExpression->rightSide);
+
+            bool* result = new bool;
+            *result = *left <= *right;
+
+            return result;
+        }
+
+        if(binaryExpression->operation == Operation::GreaterEqual) {
+            float* left = (float*) runASTNode(binaryExpression->leftSide);
+            float* right = (float*) runASTNode(binaryExpression->rightSide);
+
+            bool* result = new bool;
+            *result = *left >= *right;
+
+            return result;
+        }
+
+        if(binaryExpression->operation == Operation::Equal) {
+            float* left = (float*) runASTNode(binaryExpression->leftSide);
+            float* right = (float*) runASTNode(binaryExpression->rightSide);
+
+            bool* result = new bool;
+            *result = *left == *right;
+
+            return result;
+        }
+
+        if(binaryExpression->operation == Operation::NotEqual) {
+            float* left = (float*) runASTNode(binaryExpression->leftSide);
+            float* right = (float*) runASTNode(binaryExpression->rightSide);
+
+            bool* result = new bool;
+            *result = *left != *right;
+
+            return result;
+        }
+
+        // Bitwise operations
+        if(binaryExpression->operation == Operation::BitwiseAnd) {
+            int* left = (int*) runASTNode(binaryExpression->leftSide);
+            int* right = (int*) runASTNode(binaryExpression->rightSide);
+
+            int* result = new int;
+            *result = *left & *right;
+
+            return result;
+        }
+
+        if(binaryExpression->operation == Operation::BitwiseXor) {
+          int* left = (int*) runASTNode(binaryExpression->leftSide);
+          int* right = (int*) runASTNode(binaryExpression->rightSide);
+
+          int* result = new int;
+          *result = *left ^ *right;
+
+          return result;
+        }
+
+        if(binaryExpression->operation == Operation::BitwiseOr) {
+            int* left = (int*) runASTNode(binaryExpression->leftSide);
+            int* right = (int*) runASTNode(binaryExpression->rightSide);
+
+            int* result = new int;
+            *result = *left | *right;
+
+            return result;
+        }
+
+        // Logical operations
+
+        if(binaryExpression->operation == Operation::And) {
+            bool* left = (bool*) runASTNode(binaryExpression->leftSide);
+            bool* right = (bool*) runASTNode(binaryExpression->rightSide);
+
+            bool* result = new bool;
+            *result = *left && *right;
+
+            return result;
+        }
+
+        if(binaryExpression->operation == Operation::Or) {
+            bool* left = (bool*) runASTNode(binaryExpression->leftSide);
+            bool* right = (bool*) runASTNode(binaryExpression->rightSide);
+
+            bool* result = new bool;
+            *result = *left || *right;
+
+            return result;
+        }
+
+        if(binaryExpression->operation == Operation::Assign) {
+            float* left = (float*) runASTNode(binaryExpression->leftSide);
+            float* right = (float*) runASTNode(binaryExpression->rightSide);
+
+            *left = *right;
+
+            return left;
+        }
+
     }
 
     if (auto functionCall = dynamic_cast<SyntaxNodeFunctionCall*>(node)) {
@@ -61,6 +241,7 @@ namespace Snapp {
               *value = 0;
           } else {
               *value = *((int*) v);
+            std::cout << "Value: " << *value << std::endl;
           }
 
           addIdentifier(variableDeclaration->identifier->name, value);
@@ -73,6 +254,7 @@ namespace Snapp {
               *value = 0.0;
           } else {
               *value = *((float*) v);
+              std::cout << "Value: " << *value << std::endl;
           }
 
           addIdentifier(variableDeclaration->identifier->name, value);

@@ -1,5 +1,5 @@
-.ccls-cache/
-.idea/
+.ccls-cache
+.idea
 cmake-build-debug
 
 # https://github.com/github/gitignore/blob/main/CMake.gitignore

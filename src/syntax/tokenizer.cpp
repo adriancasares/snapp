@@ -63,9 +63,9 @@ namespace Snapp {
                 if (keyword != Keyword::Unknown) {
                     tokenizer.pushToken(Token(keyword, start, tokenizer.location()));
                 } else if (word == "true") {
-                    tokenizer.pushToken(Token(true, start, tokenizer.location()));
+                    tokenizer.pushToken(Token(BoolValue{true}, start, tokenizer.location()));
                 } else if (word == "false") {
-                    tokenizer.pushToken(Token(false, start, tokenizer.location()));
+                    tokenizer.pushToken(Token(BoolValue{false}, start, tokenizer.location()));
                 } else {
                     tokenizer.pushToken(Token(Identifier{word}, start, tokenizer.location()));
                 }
@@ -104,7 +104,7 @@ namespace Snapp {
                 size_t idx;
                 if (isInteger) {
                     try {
-                        int number = std::stoi(rawNumber, &idx);
+                        IntValue number = std::stoi(rawNumber, &idx);
                         if (idx != rawNumber.length()) {
                             throw std::invalid_argument("");
                         }
@@ -114,7 +114,7 @@ namespace Snapp {
                     }
                 } else {
                     try {
-                        double number = std::stod(rawNumber, &idx);
+                        FloatValue number = std::stod(rawNumber, &idx);
                         if (idx != rawNumber.length()) {
                             throw std::invalid_argument("");
                         }
@@ -160,7 +160,7 @@ namespace Snapp {
                         continue;
                     }
                 } else if (next == '"') {
-                    std::string literal;
+                    StrValue literal;
                     bool escaped = false;
                     bool terminated = false;
                     while (char next = tokenizer.nextChar()) {

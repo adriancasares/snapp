@@ -11,6 +11,7 @@
 #include "symbol.h"
 #include "keyword.h"
 #include "sourceLocation.h"
+#include "dataType.h"
 
 namespace Snapp {
 
@@ -22,7 +23,7 @@ namespace Snapp {
 
     class Token {
     public:
-        using Value = std::variant<Symbol, Keyword, Identifier, int, double, bool, std::string>;
+        using Value = std::variant<Symbol, Keyword, Identifier, IntValue, FloatValue, BoolValue, StrValue>;
 
         Token(Value value, SourceLocation start, SourceLocation end);
 

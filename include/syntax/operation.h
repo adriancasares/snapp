@@ -10,12 +10,12 @@
 namespace Snapp {
 
     enum class Operation {
-        // Unary operations start here
         Unknown,
         Access,
         PostInc,
         PostDec,
         Call,
+        // Unary operations start here
         ToNumber,
         Negate,
         PreInc,

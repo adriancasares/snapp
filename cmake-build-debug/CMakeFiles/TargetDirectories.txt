@@ -1,4 +1,0 @@
-/Users/adriancasares/CLionProjects/snapp/cmake-build-debug/CMakeFiles/main.dir
-/Users/adriancasares/CLionProjects/snapp/cmake-build-debug/CMakeFiles/copy-compile-commands.dir
-/Users/adriancasares/CLionProjects/snapp/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/adriancasares/CLionProjects/snapp/cmake-build-debug/CMakeFiles/rebuild_cache.dir

@@ -46,8 +46,8 @@ namespace Snapp {
     }
 
     const Identifier& Token::expectIdentifier() const {
-        if (std::holds_alternative<Identifier>(value_)) {
-            return std::get<Identifier>(value_);
+        if (auto* value = std::get_if<Identifier>(&value_)) {
+            return *value;
         } else {
             throw SyntaxError("expected an identifier", start_, end_);
         }
@@ -55,28 +55,27 @@ namespace Snapp {
 
     std::ostream& operator<<(std::ostream& out, const Token& token) {
         out << "(" << token.start() << ", ";
-        const Token::Value& value = token.value();
 
-        if (std::holds_alternative<Symbol>(value)) {
-            out << std::get<Symbol>(value);
+        if (auto* value = std::get_if<Symbol>(&token.value())) {
+            out << *value;
         }
-        else if (std::holds_alternative<Keyword>(value)) {
-            out << std::get<Keyword>(value);
+        else if (auto* value = std::get_if<Keyword>(&token.value())) {
+            out << *value;
         }
-        else if (std::holds_alternative<Identifier>(value)) {
-            out << std::get<Identifier>(value);
+        else if (auto* value = std::get_if<Identifier>(&token.value())) {
+            out << *value;
         }
-        else if (std::holds_alternative<int>(value)) {
-            out << "int{" << std::get<int>(value) << "}";
+        else if (auto* value = std::get_if<IntValue>(&token.value())) {
+            out << "int{" << *value << "}";
         }
-        else if (std::holds_alternative<double>(value)) {
-            out << "float{" << std::get<double>(value) << "}";
+        else if (auto* value = std::get_if<FloatValue>(&token.value())) {
+            out << "float{" << *value << "}";
         }
-        else if (std::holds_alternative<bool>(value)) {
-            out << (std::get<bool>(value) ? "bool{true}" : "bool{false}");
+        else if (auto* value = std::get_if<BoolValue>(&token.value())) {
+            out << (*value ? "bool{true}" : "bool{false}");
         }
-        else if (std::holds_alternative<std::string>(value)) {
-            out << "String{\"" << std::get<std::string>(value) << "\"}";
+        else if (auto* value = std::get_if<StrValue>(&token.value())) {
+            out << "String{\"" << *value << "\"}";
         }
         else {
             out << "<unknown>";

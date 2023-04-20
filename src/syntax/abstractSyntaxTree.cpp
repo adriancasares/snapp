@@ -129,20 +129,20 @@ namespace Snapp {
                     if (!expectOperand) {
                         throw SyntaxError("expected an operator", iter->start(), iter->end());
                     }
-                    else if (std::holds_alternative<int>(iter->value())) {
-                        operands.push_back(new SyntaxNodeLiteral(std::get<int>(iter->value())));
+                    else if (auto* value = std::get_if<IntValue>(&iter->value())) {
+                        operands.push_back(new SyntaxNodeLiteral(*value));
                     }
-                    else if (std::holds_alternative<double>(iter->value())) {
-                        operands.push_back(new SyntaxNodeLiteral(std::get<double>(iter->value())));
+                    else if (auto* value = std::get_if<FloatValue>(&iter->value())) {
+                        operands.push_back(new SyntaxNodeLiteral(*value));
                     }
-                    else if (std::holds_alternative<bool>(iter->value())) {
-                        operands.push_back(new SyntaxNodeLiteral(std::get<bool>(iter->value())));
+                    else if (auto* value = std::get_if<BoolValue>(&iter->value())) {
+                        operands.push_back(new SyntaxNodeLiteral(*value));
                     }
-                    else if (std::holds_alternative<std::string>(iter->value())) {
-                        operands.push_back(new SyntaxNodeLiteral(std::get<std::string>(iter->value())));
+                    else if (auto* value = std::get_if<StrValue>(&iter->value())) {
+                        operands.push_back(new SyntaxNodeLiteral(*value));
                     }
-                    else if (std::holds_alternative<Identifier>(iter->value())) {
-                        operands.push_back(new SyntaxNodeIdentifier(std::get<Identifier>(iter->value()).name));
+                    else if (auto* value = std::get_if<Identifier>(&iter->value())) {
+                        operands.push_back(new SyntaxNodeIdentifier(value->name));
                     }
                     else {
                         throw SyntaxError("unexpected token", iter->start(), iter->end());

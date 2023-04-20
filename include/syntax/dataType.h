@@ -5,10 +5,17 @@
 #include <string>
 #include <map>
 #include <variant>
+#include <vector>
 
 namespace Snapp {
 
-    using DataValue = std::variant<int, double, bool, std::string>;
+    using IntValue = int;
+    using FloatValue = double;
+    using BoolValue = bool;
+    using StrValue = std::string;
+
+    struct FunctionValue;
+    using DataValue = std::variant<IntValue, FloatValue, BoolValue, StrValue, FunctionValue>;
 
     enum class BaseDataType {
         Unknown,
@@ -17,6 +24,7 @@ namespace Snapp {
         Float,
         Bool,
         Str,
+        Function,
         Object,
     };
 
@@ -46,6 +54,19 @@ namespace Snapp {
     };
 
     std::ostream& operator<<(std::ostream& out, const DataType& dataType);
+
+    class SyntaxNode;
+
+    struct FunctionValue {
+        struct Parameter {
+            DataType type;
+            std::string name;
+        };
+
+        DataType returnType;
+        std::vector<Parameter> parameters;
+        SyntaxNode* body;
+    };
 
 }
 

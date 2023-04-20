@@ -10,42 +10,51 @@ namespace Snapp {
 
     namespace {
 
-        double coerceFloat(DataValue value) {
-            if (int* i = std::get_if<int>(&value)) {
-                return *i;
+        std::optional<FloatValue> coerceFloat(DataValue value) {
+            if (auto* x = std::get_if<IntValue>(&value)) {
+                return *x;
+            }
+            if (auto* x = std::get_if<FloatValue>(&value)) {
+                return *x;
             }
             else {
-                return std::get<double>(value);
+                return {};
             }
         }
 
-        bool coerceBool(DataValue value) {
-            if (int* i = std::get_if<int>(&value)) {
-                return *i;
+        std::optional<BoolValue> coerceBool(DataValue value) {
+            if (auto* x = std::get_if<IntValue>(&value)) {
+                return *x;
             }
-            else if (double* d = std::get_if<double>(&value)) {
-                return *d;
+            else if (auto* x = std::get_if<FloatValue>(&value)) {
+                return *x;
             }
-            else if (std::string* s = std::get_if<std::string>(&value)) {
-                return !s->empty();
+            else if (auto* x = std::get_if<BoolValue>(&value)) {
+                return *x;
+            }
+            else if (auto* x = std::get_if<StrValue>(&value)) {
+                return !x->empty();
             }
             else {
-                return std::get<bool>(value);
+                return {};
             }
         }
 
-        std::string coerceStr(DataValue value) {
-            if (int* i = std::get_if<int>(&value)) {
-                return std::to_string(*i);
+        std::optional<StrValue> coerceStr(DataValue value) {
+            if (auto* x = std::get_if<IntValue>(&value)) {
+                return std::to_string(*x);
             }
-            else if (double* d = std::get_if<double>(&value)) {
-                return std::to_string(*d);
+            else if (auto* x = std::get_if<FloatValue>(&value)) {
+                return std::to_string(*x);
             }
-            else if (bool* b = std::get_if<bool>(&value)) {
-                return *b ? "true" : "false";
+            else if (auto* x = std::get_if<BoolValue>(&value)) {
+                return *x ? "true" : "false";
+            }
+            else if (auto* x = std::get_if<StrValue>(&value)) {
+                return *x;
             }
             else {
-                return std::get<std::string>(value);
+                return {};
             }
         }
 
@@ -73,206 +82,209 @@ namespace Snapp {
         }
 
         else if (auto* identifier = dynamic_cast<const SyntaxNodeIdentifier*>(node)) {
-//          std::cout << "Identifier: " << identifier->output() << std::endl;
+            auto it = identifiers.find(identifier->name);
+            if (it != identifiers.end()) {
+                return it->second;
+            } else {
+                return {}; // TODO error
+            }
         }
 
         else if (auto* unaryExpression = dynamic_cast<const SyntaxNodeUnaryExpression*>(node)) {
-//          std::cout << "Unary Expression: " << unaryExpression->output() << std::endl;
-//          runASTNode(unaryExpression->operand);
+            if (unaryExpression->operation == Operation::ToNumber) {
+                DataValue operand = *runASTNode(unaryExpression->operand);
+                if (std::holds_alternative<IntValue>(operand)) {
+                    return +std::get<IntValue>(operand);
+                }
+                else if (std::holds_alternative<FloatValue>(operand)) {
+                    return +std::get<FloatValue>(operand);
+                }
+                else {
+                    return {}; // TODO error
+                }
+            }
+
+            if (unaryExpression->operation == Operation::Negate) {
+                DataValue operand = *runASTNode(unaryExpression->operand);
+                if (std::holds_alternative<IntValue>(operand)) {
+                    return -std::get<IntValue>(operand);
+                }
+                else if (std::holds_alternative<FloatValue>(operand)) {
+                    return -std::get<FloatValue>(operand);
+                }
+                else {
+                    return {}; // TODO error
+                }
+            }
+
+            if (unaryExpression->operation == Operation::BitwiseNot) {
+                DataValue operand = *runASTNode(unaryExpression->operand);
+                if (std::holds_alternative<IntValue>(operand)) {
+                    return ~std::get<IntValue>(operand);
+                }
+                else {
+                    return {}; // TODO error
+                }
+            }
+
+            if (unaryExpression->operation == Operation::Not) {
+                DataValue operand = *runASTNode(unaryExpression->operand);
+                return !*coerceBool(operand);
+            }
         }
 
         else if (auto* binaryExpression = dynamic_cast<const SyntaxNodeBinaryExpression*>(node)) {
             if (binaryExpression->operation == Operation::Exponent) {
                 DataValue left = *runASTNode(binaryExpression->leftSide);
                 DataValue right = *runASTNode(binaryExpression->rightSide);
-                return std::pow(coerceFloat(left), coerceFloat(right));
+                return std::pow(*coerceFloat(left), *coerceFloat(right));
             }
 
             if (binaryExpression->operation == Operation::Multiply) {
                 DataValue left = *runASTNode(binaryExpression->leftSide);
                 DataValue right = *runASTNode(binaryExpression->rightSide);
-                if (std::holds_alternative<int>(left) && std::holds_alternative<int>(right)) {
-                    return std::get<int>(left) * std::get<int>(right);
+                if (std::holds_alternative<IntValue>(left) && std::holds_alternative<IntValue>(right)) {
+                    return std::get<IntValue>(left) * std::get<IntValue>(right);
                 }
                 else {
-                    return coerceFloat(left) * coerceFloat(right);
+                    return *coerceFloat(left) * *coerceFloat(right);
                 }
             }
 
             if (binaryExpression->operation == Operation::Divide) {
                 DataValue left = *runASTNode(binaryExpression->leftSide);
                 DataValue right = *runASTNode(binaryExpression->rightSide);
-                if (std::holds_alternative<int>(left) && std::holds_alternative<int>(right)) {
-                    return std::get<int>(left) / std::get<int>(right);
+                if (std::holds_alternative<IntValue>(left) && std::holds_alternative<IntValue>(right)) {
+                    return std::get<IntValue>(left) / std::get<IntValue>(right);
                 }
                 else {
-                    return coerceFloat(left) / coerceFloat(right);
+                    return *coerceFloat(left) / *coerceFloat(right);
                 }
             }
 
             if (binaryExpression->operation == Operation::Modulus) {
                 DataValue left = *runASTNode(binaryExpression->leftSide);
                 DataValue right = *runASTNode(binaryExpression->rightSide);
-                if (std::holds_alternative<int>(left) && std::holds_alternative<int>(right)) {
-                    return std::get<int>(left) % std::get<int>(right);
+                if (std::holds_alternative<IntValue>(left) && std::holds_alternative<IntValue>(right)) {
+                    return std::get<IntValue>(left) % std::get<IntValue>(right);
                 }
                 else {
-                    return std::fmod(coerceFloat(left), coerceFloat(right));
+                    return std::fmod(*coerceFloat(left), *coerceFloat(right));
                 }
             }
 
             if (binaryExpression->operation == Operation::Add) {
                 DataValue left = *runASTNode(binaryExpression->leftSide);
                 DataValue right = *runASTNode(binaryExpression->rightSide);
-                if (std::holds_alternative<std::string>(left) || std::holds_alternative<std::string>(right)) {
-                    std::cout << "String concatenation" << std::endl;
-                    return coerceStr(left) + coerceStr(right);
+                if (std::holds_alternative<StrValue>(left) || std::holds_alternative<StrValue>(right)) {
+                    return *coerceStr(left) + *coerceStr(right);
                 }
-                else if (std::holds_alternative<int>(left) && std::holds_alternative<int>(right)) {
-                    std::cout << "Integer addition" << std::endl;
-                    return std::get<int>(left) + std::get<int>(right);
+                else if (std::holds_alternative<IntValue>(left) && std::holds_alternative<IntValue>(right)) {
+                    return std::get<IntValue>(left) + std::get<IntValue>(right);
                 }
                 else {
-                    std::cout << "Float addition" << std::endl;
-                    return coerceFloat(left) + coerceFloat(right);
+                    return *coerceFloat(left) + *coerceFloat(right);
                 }
-
-                /*if (std::holds_alternative<int>(*left) && std::holds_alternative<int>(*right)) {
-                    std::cout << "Adding two ints" << std::endl;
-                    int* result = new int;
-                    *result = std::get<int>(*left) + std::get<int>(*right);
-                    return result;
-                }
-
-                if (std::holds_alternative<float>(*left) && std::holds_alternative<float>(*right)) {
-                    std::cout << "Adding two floats" << std::endl;
-                    float* result = new float;
-                    *result = std::get<float>(*left) + std::get<float>(*right);
-                    return result;
-                }
-
-                if (std::holds_alternative<float>(*left) && std::holds_alternative<int>(*right)) {
-                    std::cout << "Adding a float and an int" << std::endl;
-                    float* result = new float;
-                    *result = std::get<float>(*left) + std::get<int>(*right);
-                    return result;
-                }
-
-                if (std::holds_alternative<int>(*left) && std::holds_alternative<float>(*right)) {
-                    std::cout << "Adding an int and a float" << std::endl;
-                    float* result = new float;
-                    *result = std::get<int>(*left) + std::get<float>(*right);
-                    return result;
-                }
-
-                if (std::holds_alternative<std::string>(*left) && std::holds_alternative<std::string>(*right)) {
-                    std::cout << "Adding two strings" << std::endl;
-                    std::string* result = new std::string;
-                    *result = std::get<std::string>(*left) + std::get<std::string>(*right);
-                    return result;
-                }
-
-                std::cout << "Error: Cannot add these types" << std::endl;*/
             }
 
             if (binaryExpression->operation == Operation::Subtract) {
                 DataValue left = *runASTNode(binaryExpression->leftSide);
                 DataValue right = *runASTNode(binaryExpression->rightSide);
-                if (std::holds_alternative<int>(left) && std::holds_alternative<int>(right)) {
-                    return std::get<int>(left) - std::get<int>(right);
+                if (std::holds_alternative<IntValue>(left) && std::holds_alternative<IntValue>(right)) {
+                    return std::get<IntValue>(left) - std::get<IntValue>(right);
                 }
                 else {
-                    return coerceFloat(left) - coerceFloat(right);
+                    return *coerceFloat(left) - *coerceFloat(right);
                 }
             }
 
             if (binaryExpression->operation == Operation::LessThan) {
                 DataValue left = *runASTNode(binaryExpression->leftSide);
                 DataValue right = *runASTNode(binaryExpression->rightSide);
-                if (std::holds_alternative<std::string>(left) && std::holds_alternative<std::string>(right)) {
-                    return std::get<std::string>(left) == std::get<std::string>(right);
+                if (std::holds_alternative<StrValue>(left) && std::holds_alternative<StrValue>(right)) {
+                    return std::get<StrValue>(left) == std::get<StrValue>(right);
                 }
-                else if (std::holds_alternative<int>(left) && std::holds_alternative<int>(right)) {
-                    return std::get<int>(left) < std::get<int>(right);
+                else if (std::holds_alternative<IntValue>(left) && std::holds_alternative<IntValue>(right)) {
+                    return std::get<IntValue>(left) < std::get<IntValue>(right);
                 }
                 else {
-                    return coerceFloat(left) < coerceFloat(right);
+                    return *coerceFloat(left) < *coerceFloat(right);
                 }
             }
 
             if (binaryExpression->operation == Operation::GreaterThan) {
                 DataValue left = *runASTNode(binaryExpression->leftSide);
                 DataValue right = *runASTNode(binaryExpression->rightSide);
-                if (std::holds_alternative<std::string>(left) && std::holds_alternative<std::string>(right)) {
-                    return std::get<std::string>(left) == std::get<std::string>(right);
+                if (std::holds_alternative<StrValue>(left) && std::holds_alternative<StrValue>(right)) {
+                    return std::get<StrValue>(left) == std::get<StrValue>(right);
                 }
-                else if (std::holds_alternative<int>(left) && std::holds_alternative<int>(right)) {
-                    return std::get<int>(left) > std::get<int>(right);
+                else if (std::holds_alternative<IntValue>(left) && std::holds_alternative<IntValue>(right)) {
+                    return std::get<IntValue>(left) > std::get<IntValue>(right);
                 }
                 else {
-                    return coerceFloat(left) > coerceFloat(right);
+                    return *coerceFloat(left) > *coerceFloat(right);
                 }
             }
 
             if (binaryExpression->operation == Operation::LessEqual) {
                 DataValue left = *runASTNode(binaryExpression->leftSide);
                 DataValue right = *runASTNode(binaryExpression->rightSide);
-                if (std::holds_alternative<std::string>(left) && std::holds_alternative<std::string>(right)) {
-                    return std::get<std::string>(left) == std::get<std::string>(right);
+                if (std::holds_alternative<StrValue>(left) && std::holds_alternative<StrValue>(right)) {
+                    return std::get<StrValue>(left) == std::get<StrValue>(right);
                 }
-                else if (std::holds_alternative<int>(left) && std::holds_alternative<int>(right)) {
-                    return std::get<int>(left) <= std::get<int>(right);
+                else if (std::holds_alternative<IntValue>(left) && std::holds_alternative<IntValue>(right)) {
+                    return std::get<IntValue>(left) <= std::get<IntValue>(right);
                 }
                 else {
-                    return coerceFloat(left) <= coerceFloat(right);
+                    return *coerceFloat(left) <= *coerceFloat(right);
                 }
             }
 
             if (binaryExpression->operation == Operation::GreaterEqual) {
                 DataValue left = *runASTNode(binaryExpression->leftSide);
                 DataValue right = *runASTNode(binaryExpression->rightSide);
-                if (std::holds_alternative<std::string>(left) && std::holds_alternative<std::string>(right)) {
-                    return std::get<std::string>(left) == std::get<std::string>(right);
+                if (std::holds_alternative<StrValue>(left) && std::holds_alternative<StrValue>(right)) {
+                    return std::get<StrValue>(left) == std::get<StrValue>(right);
                 }
-                else if (std::holds_alternative<int>(left) && std::holds_alternative<int>(right)) {
-                    return std::get<int>(left) >= std::get<int>(right);
+                else if (std::holds_alternative<IntValue>(left) && std::holds_alternative<IntValue>(right)) {
+                    return std::get<IntValue>(left) >= std::get<IntValue>(right);
                 }
                 else {
-                    return coerceFloat(left) >= coerceFloat(right);
+                    return *coerceFloat(left) >= *coerceFloat(right);
                 }
             }
 
             if (binaryExpression->operation == Operation::Equal) {
                 DataValue left = *runASTNode(binaryExpression->leftSide);
                 DataValue right = *runASTNode(binaryExpression->rightSide);
-                if (std::holds_alternative<std::string>(left) && std::holds_alternative<std::string>(right)) {
-                    return std::get<std::string>(left) == std::get<std::string>(right);
+                if (std::holds_alternative<StrValue>(left) && std::holds_alternative<StrValue>(right)) {
+                    return std::get<StrValue>(left) == std::get<StrValue>(right);
                 }
-                else if (std::holds_alternative<int>(left) && std::holds_alternative<int>(right)) {
-                    return std::get<int>(left) == std::get<int>(right);
+                else if (std::holds_alternative<IntValue>(left) && std::holds_alternative<IntValue>(right)) {
+                    return std::get<IntValue>(left) == std::get<IntValue>(right);
                 }
-                else if (std::holds_alternative<bool>(left) && std::holds_alternative<bool>(right)) {
-                    return std::get<bool>(left) == std::get<bool>(right);
+                else if (std::holds_alternative<BoolValue>(left) && std::holds_alternative<BoolValue>(right)) {
+                    return std::get<BoolValue>(left) == std::get<BoolValue>(right);
                 }
                 else {
-                    return coerceFloat(left) == coerceFloat(right);
+                    return *coerceFloat(left) == *coerceFloat(right);
                 }
             }
 
             if (binaryExpression->operation == Operation::NotEqual) {
                 DataValue left = *runASTNode(binaryExpression->leftSide);
                 DataValue right = *runASTNode(binaryExpression->rightSide);
-                if (std::holds_alternative<std::string>(left) && std::holds_alternative<std::string>(right)) {
-                    return std::get<std::string>(left) != std::get<std::string>(right);
+                if (std::holds_alternative<StrValue>(left) && std::holds_alternative<StrValue>(right)) {
+                    return std::get<StrValue>(left) != std::get<StrValue>(right);
                 }
-                else if (std::holds_alternative<int>(left) && std::holds_alternative<int>(right)) {
-                    return std::get<int>(left) != std::get<int>(right);
+                else if (std::holds_alternative<IntValue>(left) && std::holds_alternative<IntValue>(right)) {
+                    return std::get<IntValue>(left) != std::get<IntValue>(right);
                 }
-                else if (std::holds_alternative<bool>(left) && std::holds_alternative<bool>(right)) {
-                    return std::get<bool>(left) != std::get<bool>(right);
+                else if (std::holds_alternative<BoolValue>(left) && std::holds_alternative<BoolValue>(right)) {
+                    return std::get<BoolValue>(left) != std::get<BoolValue>(right);
                 }
                 else {
-                    return coerceFloat(left) != coerceFloat(right);
+                    return *coerceFloat(left) != *coerceFloat(right);
                 }
             }
 
@@ -280,38 +292,38 @@ namespace Snapp {
             if (binaryExpression->operation == Operation::BitwiseAnd) {
                 DataValue left = *runASTNode(binaryExpression->leftSide);
                 DataValue right = *runASTNode(binaryExpression->rightSide);
-                return std::get<int>(left) & std::get<int>(right);
+                return std::get<IntValue>(left) & std::get<IntValue>(right);
             }
 
             if (binaryExpression->operation == Operation::BitwiseXor) {
                 DataValue left = *runASTNode(binaryExpression->leftSide);
                 DataValue right = *runASTNode(binaryExpression->rightSide);
-                return std::get<int>(left) ^ std::get<int>(right);
+                return std::get<IntValue>(left) ^ std::get<IntValue>(right);
             }
 
             if (binaryExpression->operation == Operation::BitwiseOr) {
                 DataValue left = *runASTNode(binaryExpression->leftSide);
                 DataValue right = *runASTNode(binaryExpression->rightSide);
-                return std::get<int>(left) | std::get<int>(right);
+                return std::get<IntValue>(left) | std::get<IntValue>(right);
             }
 
             // Logical operations
             if (binaryExpression->operation == Operation::And) {
                 DataValue left = *runASTNode(binaryExpression->leftSide);
-                if (!coerceBool(left)) {
+                if (!*coerceBool(left)) {
                     return false;
                 }
                 DataValue right = *runASTNode(binaryExpression->rightSide);
-                return coerceBool(right);
+                return *coerceBool(right);
             }
 
             if (binaryExpression->operation == Operation::Or) {
                 DataValue left = *runASTNode(binaryExpression->leftSide);
-                if (coerceBool(left)) {
+                if (*coerceBool(left)) {
                     return true;
                 }
                 DataValue right = *runASTNode(binaryExpression->rightSide);
-                return coerceBool(right);
+                return *coerceBool(right);
             }
 
             if (binaryExpression->operation == Operation::Assign) {
@@ -323,52 +335,17 @@ namespace Snapp {
         }
 
         else if (auto* functionCall = dynamic_cast<const SyntaxNodeFunctionCall*>(node)) {
-//          std::cout << "Function Call: " << functionCall->output() << std::endl;
-//          runASTNode(functionCall->callee);
-//          for (auto &argument : functionCall->arguments) {
-//                runASTNode(argument);
-//          }
+            DataValue callee = *runASTNode(functionCall->callee);
+            for (auto* argument : functionCall->arguments) {
+                runASTNode(argument);
+            }
         }
 
         else if (auto* variableDeclaration = dynamic_cast<const SyntaxNodeVariableDeclaration*>(node)) {
-            std::optional<DataValue> valueOpt = runASTNode(variableDeclaration->value);
+            DataValue value = *runASTNode(variableDeclaration->value);
 
-            if (variableDeclaration->dataType.base() == BaseDataType::Int) {
-                int value = valueOpt ? std::get<int>(*valueOpt) : 0;
-                std::cout << "Value: " << value << std::endl;
-                addIdentifier(variableDeclaration->identifier->name, value);
-            }
-
-            if (variableDeclaration->dataType.base() == BaseDataType::Float) {
-                double value = valueOpt ? coerceFloat(*valueOpt) : 0;
-                std::cout << "Value: " << value << std::endl;
-                addIdentifier(variableDeclaration->identifier->name, value);
-            }
-
-            if (variableDeclaration->dataType.base() == BaseDataType::Bool) {
-                bool value = valueOpt ? coerceBool(*valueOpt) : false;
-                std::cout << "Value: " << value << std::endl;
-                addIdentifier(variableDeclaration->identifier->name, value);
-            }
-
-            if (variableDeclaration->dataType.base() == BaseDataType::Str) {
-                std::string value = valueOpt ? std::get<std::string>(*valueOpt) : "";
-                std::cout << "Value: " << value << std::endl;
-                addIdentifier(variableDeclaration->identifier->name, value);
-            }
-
-
-            if (variableDeclaration->dataType.base() == BaseDataType::Object) {
-                std::cout << "Cannot declare object variable" << std::endl;
-            }
-
-            if (variableDeclaration->dataType.base() == BaseDataType::Void) {
-                std::cout << "Cannot declare void variable" << std::endl;
-            }
-
-            if (variableDeclaration->dataType.base() == BaseDataType::Unknown) {
-                std::cout << "Cannot declare unknown variable" << std::endl;
-            }
+            std::cout << "Variable (" << variableDeclaration->dataType << " " << variableDeclaration->identifier->name << "): " << *coerceStr(value) << std::endl;
+            addIdentifier(variableDeclaration->identifier->name, value);
         }
 
         else if (auto* blockStatement = dynamic_cast<const SyntaxNodeBlockStatement*>(node)) {
@@ -425,10 +402,8 @@ namespace Snapp {
 
     void ASTRunner::runAST(const AbstractSyntaxTree &ast) {
         for (auto* node : ast.root()) {
-            ASTRunner* runner = new ASTRunner();
-            runner->runASTNode(node);
-
-            delete runner;
+            ASTRunner runner;
+            runner.runASTNode(node);
         }
     }
 }

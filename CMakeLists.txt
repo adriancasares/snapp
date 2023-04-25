@@ -11,4 +11,11 @@ set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
 
 include_directories(include)
 file(GLOB_RECURSE SOURCE_FILES src/*.cpp)
-add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES})
+add_executable(main ${CMAKE_PROJECT_NAME} include/syntax/tokenizer.h include/syntax/symbol.h include/syntax/keyword.h include/syntax/sourceLocation.h include/error/syntaxError.h include/syntax/abstractSyntaxTree.h include/syntax/s	yntaxNode.h include/semantics/astRunner.h)
+
+add_custom_target(
+	copy-compile-commands ALL
+	${CMAKE_COMMAND} -E copy_if_different
+	${CMAKE_BINARY_DIR}/compile_commands.json
+	${CMAKE_CURRENT_LIST_DIR}
+)

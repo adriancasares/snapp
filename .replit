@@ -1,4 +1,4 @@
-compile = "cmake --log-level=WARNING -S . -B cmake-build-debug && make -s -C cmake-build-debug"
+compile = "cmake --log-level=WARNING -S . -B cmake-build-debug && make -C cmake-build-debug"
 run = "cmake-build-debug/snapp samples/assignNumberWithLiteral.snapp"
 entrypoint = "src/main.cpp"
 
@@ -9,7 +9,7 @@ channel = "stable-22_11"
 support = true
 
 [debugger.compile]
-command = "cmake -DCMAKE_BUILD_TYPE=Debug -B/tmp/build . && make -C /tmp/build"
+command = "cmake -DCMAKE_BUILD_TYPE=Debug -S . -B cmake-build-debug && make -C cmake-build-debug"
 noFileArgs = true
 
 [debugger.interactive]
@@ -47,7 +47,7 @@ externalConsole = false
 logging = {}
 miDebuggerPath = "gdb"
 name = "g++ - Build and debug active file"
-program = "/tmp/build/main"
+program = "cmake-build-debug/snapp"
 request = "launch"
 setupCommands = [
 	{ description = "Enable pretty-printing for gdb", ignoreFailures = true, text = "-enable-pretty-printing" }
@@ -61,4 +61,4 @@ type = "cppdbg"
 pattern = "**/*.{cpp,h}"
 
 [languages.cpp.languageServer]
-start = "clangd --enable-config"
+start = "clangd --enable-config --compile-commands-dir=cmake-build-debug"

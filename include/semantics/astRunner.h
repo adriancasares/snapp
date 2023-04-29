@@ -2,20 +2,26 @@
 #define SEMANTICS_ASTRUNNER_H_
 
 #include "syntax/abstractSyntaxTree.h"
+#include "semantics/scope.h"
 
 #include <optional>
 
 namespace Snapp {
 
     class ASTRunner {
-    private:
-        static std::map<std::string, DataValue> identifiers;
-        void addIdentifier(std::string identifier, DataValue value);
-        std::optional<DataValue> runASTNode(const SyntaxNode* node);
-
     public:
-        ASTRunner() = default;
         static void runAST(const AbstractSyntaxTree& ast);
+        ASTRunner();
+        ~ASTRunner();
+
+        Scope& currentScope();
+
+    private:
+        std::vector<Scope*> scopes_;
+        int scopeIndex_;
+
+        int createScope(bool isFunction = false);
+        std::optional<DataValue> runASTNode(const SyntaxNode* node);
     };
 
 }

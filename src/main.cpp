@@ -30,9 +30,8 @@ int main(int argc, char** argv) {
 
     try {
         std::vector<Snapp::Token> tokens = Snapp::Tokenizer::tokenize(sourceCode);
-        for (const Snapp::Token& token : tokens) {
-            std::cout << token << std::endl;
-        }
+        // for (const Snapp::Token& token : tokens) std::cout << token << std::endl;
+        
         auto ast = Snapp::AbstractSyntaxTree::fromTokens(tokens);
         std::cout << ast << std::endl;
 

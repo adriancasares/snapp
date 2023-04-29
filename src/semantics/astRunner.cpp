@@ -60,16 +60,26 @@ namespace Snapp {
 
     }
 
-    std::map<std::string, DataValue> ASTRunner::identifiers;
+    ASTRunner::ASTRunner() {
+        scopes_.push_back(new Scope());
+        scopeIndex_ = 0;
+    }
 
-    void ASTRunner::addIdentifier(std::string identifier, DataValue value) {
-        // check if identifier already exists
-        if (identifiers.find(identifier) != identifiers.end()) {
-            std::cout << "Identifier already exists: " << identifier << std::endl;
-        } else {
-            identifiers[identifier] = value;
-            std::cout << "Added identifier: " << identifier << std::endl;
+    ASTRunner::~ASTRunner() {
+        for (Scope* scope : scopes_) {
+            delete scope;
         }
+    }
+
+    Scope& ASTRunner::currentScope() {
+        return *scopes_[scopeIndex_];
+    }
+
+    int ASTRunner::createScope(bool isFunction) {
+        int parent = scopeIndex_;
+        scopeIndex_ = scopes_.size();
+        scopes_.push_back(new Scope(scopes_[parent], isFunction));
+        return parent;
     }
 
     std::optional<DataValue> ASTRunner::runASTNode(const SyntaxNode *node) {
@@ -82,12 +92,7 @@ namespace Snapp {
         }
 
         else if (auto* identifier = dynamic_cast<const SyntaxNodeIdentifier*>(node)) {
-            auto it = identifiers.find(identifier->name);
-            if (it != identifiers.end()) {
-                return it->second;
-            } else {
-                return {}; // TODO error
-            }
+            return currentScope().get(identifier->name);
         }
 
         else if (auto* unaryExpression = dynamic_cast<const SyntaxNodeUnaryExpression*>(node)) {
@@ -344,36 +349,59 @@ namespace Snapp {
         else if (auto* variableDeclaration = dynamic_cast<const SyntaxNodeVariableDeclaration*>(node)) {
             DataValue value = *runASTNode(variableDeclaration->value);
 
-            std::cout << "Variable (" << variableDeclaration->dataType << " " << variableDeclaration->identifier->name << "): " << *coerceStr(value) << std::endl;
-            addIdentifier(variableDeclaration->identifier->name, value);
+            std::cout << "[" << scopeIndex_ << "] Variable (" << variableDeclaration->dataType << " " << variableDeclaration->identifier->name << "): " << *coerceStr(value) << std::endl;
+            currentScope().add(variableDeclaration->identifier->name, value);
         }
 
         else if (auto* blockStatement = dynamic_cast<const SyntaxNodeBlockStatement*>(node)) {
-//          std::cout << "Block Statement: " << blockStatement->output() << std::endl;
-//          for (auto &statement : blockStatement->statements) {
-//              runASTNode(statement);
-//          }
+            int parent = createScope();
+            std::optional<DataValue> value;
+            std::cout << "[" << scopeIndex_ << "] Block Statement: start" << std::endl;
+            for (auto* statement : blockStatement->statements) {
+                value = runASTNode(statement);
+            }
+            std::cout << "[" << scopeIndex_ << "] Block Statement: end" << std::endl;
+            scopeIndex_ = parent;
+            return value;
         }
 
         else if (auto* ifStatement = dynamic_cast<const SyntaxNodeIfStatement*>(node)) {
-//          std::cout << "If Statement: " << ifStatement->output() << std::endl;
-//          runASTNode(ifStatement->condition);
-//          runASTNode(ifStatement->consequent);
-//          runASTNode(ifStatement->alternative);
+            int parent = createScope();
+            std::optional<DataValue> value;
+            if (*coerceBool(*runASTNode(ifStatement->condition))) {
+                std::cout << "[" << scopeIndex_ << "] If Statement: condition is true" << std::endl;
+                value = runASTNode(ifStatement->consequent);
+            } else {
+                std::cout << "[" << scopeIndex_ << "] If Statement: condition is false" << std::endl;
+                value = runASTNode(ifStatement->alternative);
+            }
+            std::cout << "[" << scopeIndex_ << "] If Statement: end" << std::endl;
+            scopeIndex_ = parent;
+            return value;
         }
 
         else if (auto* whileStatement = dynamic_cast<const SyntaxNodeWhileStatement*>(node)) {
-//          std::cout << "While Statement: " << whileStatement->output() << std::endl;
-//          runASTNode(whileStatement->condition);
-//          runASTNode(whileStatement->body);
+            int parent = createScope();
+            while (*coerceBool(*runASTNode(whileStatement->condition))) {
+                std::cout << "[" << scopeIndex_ << "] While Statement: iteration" << std::endl;
+                runASTNode(whileStatement->loop);
+            }
+            std::cout << "[" << scopeIndex_ << "] While Statement: end" << std::endl;
+            scopeIndex_ = parent;
+            return {};
         }
 
         else if (auto* forStatement = dynamic_cast<const SyntaxNodeForStatement*>(node)) {
-//          std::cout << "For Statement: " << forStatement->output() << std::endl;
-//          runASTNode(forStatement->initialization);
-//          runASTNode(forStatement->condition);
-//          runASTNode(forStatement->increment);
-//          runASTNode(forStatement->body);
+            int parent = createScope();
+            runASTNode(forStatement->initialize);
+            while (*coerceBool(*runASTNode(forStatement->condition))) {
+                std::cout << "[" << scopeIndex_ << "] For Statement: iteration" << std::endl;
+                runASTNode(forStatement->loop);
+                runASTNode(forStatement->update);
+            }
+            std::cout << "[" << scopeIndex_ << "] For Statement: end" << std::endl;
+            scopeIndex_ = parent;
+            return {};
         }
 
         else if (auto* returnStatement = dynamic_cast<const SyntaxNodeReturnStatement*>(node)) {
@@ -400,9 +428,9 @@ namespace Snapp {
         return {};
     }
 
-    void ASTRunner::runAST(const AbstractSyntaxTree &ast) {
+    void ASTRunner::runAST(const AbstractSyntaxTree& ast) {
+        ASTRunner runner;
         for (auto* node : ast.root()) {
-            ASTRunner runner;
             runner.runASTNode(node);
         }
     }

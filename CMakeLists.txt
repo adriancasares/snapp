@@ -9,6 +9,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -g")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
 
-include_directories(include)
-file(GLOB_RECURSE SOURCE_FILES src/*.cpp)
+file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS src/*.cpp)
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES})
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE include)

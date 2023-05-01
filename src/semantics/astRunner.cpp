@@ -340,10 +340,21 @@ namespace Snapp {
         }
 
         else if (auto* functionCall = dynamic_cast<const SyntaxNodeFunctionCall*>(node)) {
-            DataValue callee = *runASTNode(functionCall->callee);
-            for (auto* argument : functionCall->arguments) {
-                runASTNode(argument);
-            }
+//            DataValue callee = *runASTNode(functionCall->callee);
+//
+//            currentScope().get(callee.);
+//
+//            // create a scope
+//            int parent = createScope(true);
+//
+//            // add arguments to scope
+//            for(int argumentIndex = 0; argumentIndex < functionCall->arguments.size(); argumentIndex++) {
+//              currentScope().add(functionCall->arguments[argumentIndex]., *runASTNode(argument));
+//              argumentValues.push_back(*runASTNode(argument));
+//            }
+//
+//            runASTNode(functionCall);
+
         }
 
         else if (auto* variableDeclaration = dynamic_cast<const SyntaxNodeVariableDeclaration*>(node)) {
@@ -410,7 +421,19 @@ namespace Snapp {
         }
 
         else if (auto* functionDeclaration = dynamic_cast<const SyntaxNodeFunctionDeclaration*>(node)) {
-//          addIdentifier(functionDeclaration->identifier->name, functionDeclaration);
+          // create FunctionValue
+
+          FunctionValue* functionValue;
+          functionValue->body = functionDeclaration->body;
+
+          for(auto parameter : functionDeclaration->parameters) {
+              FunctionValue::Parameter parameterValue = {parameter->dataType, parameter->identifier->name};
+              functionValue->parameters.push_back(parameterValue);
+          }
+
+          functionValue->returnType = functionDeclaration->returnType;
+
+          currentScope().add(functionDeclaration->identifier->name, functionValue);
         }
 
         else if (auto* classDeclaration = dynamic_cast<const SyntaxNodeClassDeclaration*>(node)) {

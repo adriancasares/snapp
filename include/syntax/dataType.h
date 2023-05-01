@@ -58,7 +58,7 @@ namespace Snapp {
     class SyntaxNode;
 
     struct FunctionValue {
-        struct Parameter {
+      struct Parameter {
             DataType type;
             std::string name;
         };

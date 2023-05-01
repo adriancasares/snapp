@@ -1,5 +1,6 @@
-int foo() {
-    return 1;
+int foo(int a) {
+    int b = 2 + a;
+    return b;
 }
 
-int a = 1 + 2;
+int a = foo(3) + 5;

@@ -342,18 +342,14 @@ namespace Snapp {
         else if (auto* functionCall = dynamic_cast<const SyntaxNodeFunctionCall*>(node)) {
             FunctionValue callee = (FunctionValue &&) *runASTNode(functionCall->callee);
 
-//
-//
-//            // create a scope
-//            int parent = createScope(true);
-//
-//            // add arguments to scope
-//            for(int argumentIndex = 0; argumentIndex < functionCall->arguments.size(); argumentIndex++) {
-//              currentScope().add(functionCall->arguments[argumentIndex]., *runASTNode(argument));
-//              argumentValues.push_back(*runASTNode(argument));
-//            }
-//
-//            runASTNode(functionCall);
+            int parent = createScope(true);
+
+            for(int parameterIndex = 0; parameterIndex < callee.parameters.size(); parameterIndex++) {
+                currentScope().add(callee.parameters[parameterIndex].name, *runASTNode(functionCall->arguments[parameterIndex]));
+            }
+            return runASTNode(callee.body);
+
+
 
         }
 
@@ -369,7 +365,14 @@ namespace Snapp {
             std::optional<DataValue> value;
             std::cout << "[" << scopeIndex_ << "] Block Statement: start" << std::endl;
             for (auto* statement : blockStatement->statements) {
+              if (auto *returnStatement = dynamic_cast<const SyntaxNodeReturnStatement *>(statement)) {
+                std::cout << "[" << scopeIndex_ << "] Block Statement: return" << std::endl;
+                value = runASTNode(returnStatement->value);
+                return value;
+                break;
+              } else {
                 value = runASTNode(statement);
+              }
             }
             std::cout << "[" << scopeIndex_ << "] Block Statement: end" << std::endl;
             scopeIndex_ = parent;
@@ -417,7 +420,7 @@ namespace Snapp {
 
         else if (auto* returnStatement = dynamic_cast<const SyntaxNodeReturnStatement*>(node)) {
 //          std::cout << "Return Statement: " << returnStatement->output() << std::endl;
-//          runASTNode(returnStatement->value);
+          runASTNode(returnStatement->value);
         }
 
         else if (auto* functionDeclaration = dynamic_cast<const SyntaxNodeFunctionDeclaration*>(node)) {

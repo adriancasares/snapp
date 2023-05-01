@@ -17,7 +17,21 @@ int main(int argc, char** argv) {
         std::cin >> sourcePath;
     }
 
+    bool isDebug = false;
+
+    for (int i = 0; i < argc; i++) {
+        if (std::string(argv[i]) == "--debug") {
+            isDebug = true;
+            break;
+        }
+    }
+
+    if(isDebug) {
+        std::cout << "Debug mode enabled" << std::endl;
+    }
+
     std::cout << std::endl;
+
     std::string sourceCode;
     {
         std::ifstream source(sourcePath);

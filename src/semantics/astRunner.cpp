@@ -61,7 +61,8 @@ namespace Snapp {
 
     }
 
-    ASTRunner::ASTRunner() {
+    ASTRunner::ASTRunner(bool isDebug) {
+        isDebug_ = isDebug;
         scopes_.push_back(new Scope());
         scopeIndex_ = 0;
         initializeNativeGroup(scopes_[scopeIndex_]);
@@ -344,8 +345,6 @@ namespace Snapp {
         else if (auto* functionCall = dynamic_cast<const SyntaxNodeFunctionCall*>(node)) {
           DataValue callee = *runASTNode(functionCall->callee);
 
-          // if callee is a native function
-
           if(std::holds_alternative<NativeFunctionValue>(callee)) {
             NativeFunctionValue nativeFunction = std::get<NativeFunctionValue>(callee);
 
@@ -375,17 +374,28 @@ namespace Snapp {
         else if (auto* variableDeclaration = dynamic_cast<const SyntaxNodeVariableDeclaration*>(node)) {
             DataValue value = *runASTNode(variableDeclaration->value);
 
-            std::cout << "[" << scopeIndex_ << "] Variable (" << variableDeclaration->dataType << " " << variableDeclaration->identifier->name << "): " << *coerceStr(value) << std::endl;
+            if(isDebug_) {
+              std::cout << "[" << scopeIndex_ << "] Variable (" << variableDeclaration->dataType << " " << variableDeclaration->identifier->name << "): " << *coerceStr(value) << std::endl;
+            }
+
             currentScope().add(variableDeclaration->identifier->name, value);
         }
 
         else if (auto* blockStatement = dynamic_cast<const SyntaxNodeBlockStatement*>(node)) {
             int parent = createScope();
             std::optional<DataValue> value;
-            std::cout << "[" << scopeIndex_ << "] Block Statement: start" << std::endl;
+
+            if(isDebug_) {
+              std::cout << "[" << scopeIndex_ << "] Block Statement: start" << std::endl;
+            }
+
             for (auto* statement : blockStatement->statements) {
               if (auto *returnStatement = dynamic_cast<const SyntaxNodeReturnStatement *>(statement)) {
-                std::cout << "[" << scopeIndex_ << "] Block Statement: return" << std::endl;
+
+                if(isDebug_) {
+                  std::cout << "[" << scopeIndex_ << "] Block Statement: return" << std::endl;
+                }
+
                 value = runASTNode(returnStatement->value);
                 return value;
                 break;
@@ -393,7 +403,11 @@ namespace Snapp {
                 value = runASTNode(statement);
               }
             }
-            std::cout << "[" << scopeIndex_ << "] Block Statement: end" << std::endl;
+
+            if(isDebug_) {
+              std::cout << "[" << scopeIndex_ << "] Block Statement: end" << std::endl;
+            }
+
             scopeIndex_ = parent;
             return value;
         }
@@ -402,13 +416,23 @@ namespace Snapp {
             int parent = createScope();
             std::optional<DataValue> value;
             if (*coerceBool(*runASTNode(ifStatement->condition))) {
-                std::cout << "[" << scopeIndex_ << "] If Statement: condition is true" << std::endl;
+                if(isDebug_) {
+                  std::cout << "[" << scopeIndex_ << "] If Statement: condition is true" << std::endl;
+                }
+
                 value = runASTNode(ifStatement->consequent);
             } else {
-                std::cout << "[" << scopeIndex_ << "] If Statement: condition is false" << std::endl;
+                if(isDebug_) {
+                  std::cout << "[" << scopeIndex_ << "] If Statement: condition is false" << std::endl;
+                }
+
                 value = runASTNode(ifStatement->alternative);
             }
-            std::cout << "[" << scopeIndex_ << "] If Statement: end" << std::endl;
+
+            if(isDebug_) {
+              std::cout << "[" << scopeIndex_ << "] If Statement: end" << std::endl;
+            }
+
             scopeIndex_ = parent;
             return value;
         }
@@ -416,10 +440,16 @@ namespace Snapp {
         else if (auto* whileStatement = dynamic_cast<const SyntaxNodeWhileStatement*>(node)) {
             int parent = createScope();
             while (*coerceBool(*runASTNode(whileStatement->condition))) {
-                std::cout << "[" << scopeIndex_ << "] While Statement: iteration" << std::endl;
+                if(isDebug_) {
+                  std::cout << "[" << scopeIndex_ << "] While Statement: iteration" << std::endl;
+                }
+
                 runASTNode(whileStatement->loop);
             }
-            std::cout << "[" << scopeIndex_ << "] While Statement: end" << std::endl;
+
+            if(isDebug_) {
+              std::cout << "[" << scopeIndex_ << "] While Statement: end" << std::endl;
+            }
             scopeIndex_ = parent;
             return {};
         }
@@ -427,24 +457,33 @@ namespace Snapp {
         else if (auto* forStatement = dynamic_cast<const SyntaxNodeForStatement*>(node)) {
             int parent = createScope();
             runASTNode(forStatement->initialize);
+
             while (*coerceBool(*runASTNode(forStatement->condition))) {
-                std::cout << "[" << scopeIndex_ << "] For Statement: iteration" << std::endl;
+                if(isDebug_) {
+                  std::cout << "[" << scopeIndex_ << "] For Statement: iteration" << std::endl;
+                }
+
                 runASTNode(forStatement->loop);
                 runASTNode(forStatement->update);
             }
-            std::cout << "[" << scopeIndex_ << "] For Statement: end" << std::endl;
+
+            if(isDebug_) {
+              std::cout << "[" << scopeIndex_ << "] For Statement: end" << std::endl;
+            }
+
             scopeIndex_ = parent;
             return {};
         }
 
         else if (auto* returnStatement = dynamic_cast<const SyntaxNodeReturnStatement*>(node)) {
-//          std::cout << "Return Statement: " << returnStatement->output() << std::endl;
+          if(isDebug_) {
+            std::cout << "Return Statement: " << returnStatement->output() << std::endl;
+          }
+
           runASTNode(returnStatement->value);
         }
 
         else if (auto* functionDeclaration = dynamic_cast<const SyntaxNodeFunctionDeclaration*>(node)) {
-          // create FunctionValue
-
           FunctionValue functionValue = {
             functionDeclaration->returnType,
             {},

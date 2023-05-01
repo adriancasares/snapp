@@ -11,7 +11,7 @@ namespace Snapp {
     class ASTRunner {
     public:
         static void runAST(const AbstractSyntaxTree& ast);
-        ASTRunner();
+        ASTRunner(const bool isDebug = false);
         ~ASTRunner();
 
         Scope& currentScope();
@@ -19,6 +19,7 @@ namespace Snapp {
     private:
         std::vector<Scope*> scopes_;
         int scopeIndex_;
+        bool isDebug_;
 
         int createScope(bool isFunction = false);
         std::optional<DataValue> runASTNode(const SyntaxNode* node);

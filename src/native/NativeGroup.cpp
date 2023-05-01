@@ -11,7 +11,7 @@ namespace Snapp {
   void Snapp::initializeNativeGroup(Snapp::Scope *scope) {
 
     scope->add("print", createPrintFunction());
-
+    scope->add("input", createInputFunction());
   }
 
 }

@@ -10,5 +10,7 @@ namespace Snapp {
 
     NativeFunctionValue createPrintFunction();
 
+    NativeFunctionValue createInputFunction();
+
 }
 #endif //SNAPP_INCLUDE_NATIVE_ROOT_ROOTIO_H_

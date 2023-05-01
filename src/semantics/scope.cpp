@@ -24,6 +24,14 @@ namespace Snapp {
         // TODO error
     }
 
+    void Scope::assign(const std::string &name, const Snapp::DataValue &value) {
+        if (auto it = identifiers_.find(name); it != identifiers_.end()) {
+            it->second = value;
+        } else /*if (parent_)*/ { // uncomment when error is implemented
+            parent_->assign(name, value);
+        }
+    }
+
     void Scope::add(const std::string& name, const DataValue& value) {
         identifiers_.insert_or_assign(name, value);
     }

@@ -10,7 +10,7 @@ namespace Snapp {
 
     class ASTRunner {
     public:
-        static void runAST(const AbstractSyntaxTree& ast);
+        static void runAST(const AbstractSyntaxTree& ast, const bool isDebug = false);
         ASTRunner(const bool isDebug = false);
         ~ASTRunner();
 

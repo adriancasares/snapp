@@ -335,9 +335,38 @@ namespace Snapp {
             }
 
             if (binaryExpression->operation == Operation::Assign) {
-                DataValue left = *runASTNode(binaryExpression->leftSide);
+                const SyntaxNodeIdentifier* identifier = dynamic_cast<const SyntaxNodeIdentifier*>(binaryExpression->leftSide);
+
+                if(isDebug_) {
+                    std::cout << "Assigning " << identifier->name << std::endl;
+                }
+
                 DataValue right = *runASTNode(binaryExpression->rightSide);
-                // TODO
+
+                if(std::holds_alternative<IntValue>(right)) {
+                    currentScope().assign(identifier->name, std::get<IntValue>(right));
+                }
+
+                if(std::holds_alternative<StrValue>(right)) {
+                    currentScope().assign(identifier->name, std::get<StrValue>(right));
+                }
+
+                if(std::holds_alternative<BoolValue>(right)) {
+                    currentScope().assign(identifier->name, std::get<BoolValue>(right));
+                }
+
+                if(std::holds_alternative<FloatValue>(right)) {
+                    currentScope().assign(identifier->name, std::get<FloatValue>(right));
+                }
+
+                if(std::holds_alternative<FunctionValue>(right)) {
+                    currentScope().assign(identifier->name, std::get<FunctionValue>(right));
+                }
+
+                if(std::holds_alternative<NativeFunctionValue>(right)) {
+                    currentScope().assign(identifier->name, std::get<NativeFunctionValue>(right));
+                }
+
                 return right;
             }
         }
@@ -513,8 +542,8 @@ namespace Snapp {
         return {};
     }
 
-    void ASTRunner::runAST(const AbstractSyntaxTree& ast) {
-        ASTRunner runner;
+    void ASTRunner::runAST(const AbstractSyntaxTree& ast, bool isDebug_) {
+        ASTRunner runner = ASTRunner(isDebug_);
         for (auto* node : ast.root()) {
             runner.runASTNode(node);
         }

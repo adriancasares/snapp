@@ -14,6 +14,7 @@ namespace Snapp {
 
         DataValue& get(const std::string& name);
         void add(const std::string& name, const DataValue& value);
+        void assign(const std::string& name, const DataValue& value);
 
     private:
         Scope* parent_;

@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
         auto ast = Snapp::AbstractSyntaxTree::fromTokens(tokens);
         std::cout << ast << std::endl;
 
-        Snapp::ASTRunner::runAST(ast);
+        Snapp::ASTRunner::runAST(ast, isDebug);
 
     } catch (Snapp::SyntaxError error) {
         std::cerr << error.output(sourceCode) << std::endl;

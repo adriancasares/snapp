@@ -15,7 +15,9 @@ namespace Snapp {
     using StrValue = std::string;
 
     struct FunctionValue;
-    using DataValue = std::variant<IntValue, FloatValue, BoolValue, StrValue, FunctionValue>;
+    struct NativeFunctionValue;
+
+    using DataValue = std::variant<IntValue, FloatValue, BoolValue, StrValue, FunctionValue, NativeFunctionValue>;
 
     enum class BaseDataType {
         Unknown,
@@ -68,6 +70,11 @@ namespace Snapp {
         SyntaxNode* body;
     };
 
+    struct NativeFunctionValue {
+        DataType returnType;
+        std::vector<DataType> parameters;
+        std::function<DataValue(std::vector<DataValue>)> body;
+    };
 }
 
 #endif /* SYNTAX_DATATYPE_H_ */

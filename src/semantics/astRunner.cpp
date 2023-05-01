@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include "semantics/astRunner.h"
+#include "native/NativeGroup.h"
 
 namespace Snapp {
 
@@ -63,6 +64,7 @@ namespace Snapp {
     ASTRunner::ASTRunner() {
         scopes_.push_back(new Scope());
         scopeIndex_ = 0;
+        initializeNativeGroup(scopes_[scopeIndex_]);
     }
 
     ASTRunner::~ASTRunner() {
@@ -340,17 +342,34 @@ namespace Snapp {
         }
 
         else if (auto* functionCall = dynamic_cast<const SyntaxNodeFunctionCall*>(node)) {
-            FunctionValue callee = (FunctionValue &&) *runASTNode(functionCall->callee);
+          DataValue callee = *runASTNode(functionCall->callee);
+
+          // if callee is a native function
+
+          if(std::holds_alternative<NativeFunctionValue>(callee)) {
+            NativeFunctionValue nativeFunction = std::get<NativeFunctionValue>(callee);
+
+            std::vector<DataValue> arguments;
+
+            for (auto *argument : functionCall->arguments) {
+              arguments.push_back(*runASTNode(argument));
+            }
+
+            return nativeFunction.body(arguments);
+          } else if(std::holds_alternative<FunctionValue>(callee)) {
+            FunctionValue function = std::get<FunctionValue>(callee);
 
             int parent = createScope(true);
 
-            for(int parameterIndex = 0; parameterIndex < callee.parameters.size(); parameterIndex++) {
-                currentScope().add(callee.parameters[parameterIndex].name, *runASTNode(functionCall->arguments[parameterIndex]));
+            for (int parameterIndex = 0; parameterIndex < function.parameters.size(); parameterIndex++) {
+              currentScope().add(function.parameters[parameterIndex].name,
+                                 *runASTNode(functionCall->arguments[parameterIndex]));
             }
-            return runASTNode(callee.body);
 
-
-
+            return runASTNode(function.body);
+          } else {
+            throw std::runtime_error("Function call to non-function");
+          }
         }
 
         else if (auto* variableDeclaration = dynamic_cast<const SyntaxNodeVariableDeclaration*>(node)) {

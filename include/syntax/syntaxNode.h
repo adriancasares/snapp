@@ -150,6 +150,7 @@ namespace Snapp {
         SyntaxNode* body;
     };
 
+    using R_Value = std::variant<SyntaxNodeIdentifier>;
 }
 
 #endif /* SYNTAX_SYNTAXNODE_H_ */

@@ -14,7 +14,16 @@ namespace Snapp {
     bool Scope::hasParent() const {
         return parent_ != nullptr;
     }
-    
+
+    bool Scope::exists(const std::string& name) const {
+        if (auto it = identifiers_.find(name); it != identifiers_.end()) {
+            return true;
+        } else if (parent_) {
+            return parent_->exists(name);
+        }
+        return false;
+    }
+
     DataValue& Scope::get(const std::string& name) {
         if (auto it = identifiers_.find(name); it != identifiers_.end()) {
             return it->second;

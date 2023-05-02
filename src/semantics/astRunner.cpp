@@ -6,6 +6,7 @@
 #include <cmath>
 #include "semantics/astRunner.h"
 #include "native/NativeGroup.h"
+#include "syntax/dataType.h"
 
 namespace Snapp {
 
@@ -61,6 +62,31 @@ namespace Snapp {
 
     }
 
+    std::optional<DataValue> ASTRunner::runFunction(const std::variant<FunctionValue, NativeFunctionValue>& callee, const SyntaxNodeFunctionCall* functionCall) {
+      if(std::holds_alternative<NativeFunctionValue>(callee)) {
+        NativeFunctionValue nativeFunction = std::get<NativeFunctionValue>(callee);
+
+        std::vector<DataValue> arguments;
+
+        for (auto *argument : functionCall->arguments) {
+          arguments.push_back(*runASTNode(argument));
+        }
+
+        return nativeFunction.body(arguments);
+      } else if(std::holds_alternative<FunctionValue>(callee)) {
+        FunctionValue function = std::get<FunctionValue>(callee);
+
+        int parent = createScope(true);
+
+        for (int parameterIndex = 0; parameterIndex < function.parameters.size(); parameterIndex++) {
+          currentScope().add(function.parameters[parameterIndex].name,
+                             *runASTNode(functionCall->arguments[parameterIndex]));
+        }
+
+        return runASTNode(function.body);
+      }
+    }
+
     ASTRunner::ASTRunner(bool isDebug) {
         isDebug_ = isDebug;
         scopes_.push_back(new Scope());
@@ -84,6 +110,15 @@ namespace Snapp {
         scopes_.push_back(new Scope(scopes_[parent], isFunction));
         return parent;
     }
+
+//    std::optional<R_Value> ASTRunner::getRValue(const Snapp::SyntaxNode *node) {
+//        if (auto* identifier = dynamic_cast<const SyntaxNodeIdentifier*>(node)) {
+//            return *identifier;
+//        }
+//        else {
+//            throw std::runtime_error("Expected identifier");
+//        }
+//    }
 
     std::optional<DataValue> ASTRunner::runASTNode(const SyntaxNode *node) {
         if (node == nullptr) {
@@ -139,6 +174,10 @@ namespace Snapp {
                 DataValue operand = *runASTNode(unaryExpression->operand);
                 return !*coerceBool(operand);
             }
+
+//            if(unaryExpression->operation == Operation::PreInc) {
+//              R_Value identifier = *getRValue(unaryExpression->operand);
+//            }
         }
 
         else if (auto* binaryExpression = dynamic_cast<const SyntaxNodeBinaryExpression*>(node)) {
@@ -374,29 +413,28 @@ namespace Snapp {
         else if (auto* functionCall = dynamic_cast<const SyntaxNodeFunctionCall*>(node)) {
           DataValue callee = *runASTNode(functionCall->callee);
 
-          if(std::holds_alternative<NativeFunctionValue>(callee)) {
-            NativeFunctionValue nativeFunction = std::get<NativeFunctionValue>(callee);
+          if (std::holds_alternative<FunctionValue>(callee)) {
+            runFunction(std::get<FunctionValue>(callee), functionCall);
+          }
+          else if (std::holds_alternative<NativeFunctionValue>(callee)) {
+              runFunction(std::get<NativeFunctionValue>(callee), functionCall);
+          }
+          else if(std::holds_alternative<FunctionGroup>(callee)) {
+            FunctionGroup group = std::get<FunctionGroup>(callee);
 
-            std::vector<DataValue> arguments;
+            std::vector<DataType> parameters;
 
-            for (auto *argument : functionCall->arguments) {
-              arguments.push_back(*runASTNode(argument));
-            }
+              for(auto* argument : functionCall->arguments) {
+                  parameters.push_back(DataType::getDataType(*runASTNode(argument)));
+              }
 
-            return nativeFunction.body(arguments);
-          } else if(std::holds_alternative<FunctionValue>(callee)) {
-            FunctionValue function = std::get<FunctionValue>(callee);
+              if(group.hasFunction(parameters)) {
+                runFunction(group.getFunction(parameters), functionCall);
+              }
 
-            int parent = createScope(true);
-
-            for (int parameterIndex = 0; parameterIndex < function.parameters.size(); parameterIndex++) {
-              currentScope().add(function.parameters[parameterIndex].name,
-                                 *runASTNode(functionCall->arguments[parameterIndex]));
-            }
-
-            return runASTNode(function.body);
-          } else {
-            throw std::runtime_error("Function call to non-function");
+              else {
+                throw std::runtime_error("No matching function found");
+              }
           }
         }
 
@@ -513,22 +551,45 @@ namespace Snapp {
         }
 
         else if (auto* functionDeclaration = dynamic_cast<const SyntaxNodeFunctionDeclaration*>(node)) {
+          std::string name = functionDeclaration->identifier->name;
+
+          if(isDebug_) {
+              std::cout << "Function Declaration: " << functionDeclaration->output() << std::endl;
+          }
+
           FunctionValue functionValue = {
-            functionDeclaration->returnType,
-            {},
-            functionDeclaration->body
+              functionDeclaration->returnType,
+              {},
+              functionDeclaration->body
           };
 
-          for(auto parameter : functionDeclaration->parameters) {
+          if(currentScope().exists(name)) {
+            DataValue& value = currentScope().get(name);
+
+            for(auto parameter : functionDeclaration->parameters) {
               FunctionValue::Parameter parameterValue = {parameter->dataType, parameter->identifier->name};
               functionValue.parameters.push_back(parameterValue);
-          };
+            };
 
-          currentScope().add(functionDeclaration->identifier->name, functionValue);
+            if(std::holds_alternative<FunctionValue>(value)) {
+              FunctionGroup functionGroupValue = FunctionGroup();
+              functionGroupValue.addFunction(std::get<FunctionValue>(value));
+              functionGroupValue.addFunction(functionValue);
+
+              currentScope().assign(name, functionGroupValue);
+            }
+            else if(std::holds_alternative<FunctionGroup>(value)) {
+              FunctionGroup functionGroupValue = std::get<FunctionGroup>(value);
+              functionGroupValue.addFunction(functionValue);
+              currentScope().assign(name, functionValue);
+            }
+          } else {
+            currentScope().add(functionDeclaration->identifier->name, functionValue);
+          }
         }
 
         else if (auto* classDeclaration = dynamic_cast<const SyntaxNodeClassDeclaration*>(node)) {
-//          addIdentifier(classDeclaration->identifier->name, classDeclaration);
+//          currentScope().add(classDeclaration->identifier->name, classDeclaration);
         }
 
         else if (auto* observerDeclaration = dynamic_cast<const SyntaxNodeObserverDeclaration*>(node)) {

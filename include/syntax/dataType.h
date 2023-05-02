@@ -6,8 +6,11 @@
 #include <map>
 #include <variant>
 #include <vector>
+#include "functionGroup.h"
 
 namespace Snapp {
+
+    class FunctionGroup;
 
     using IntValue = int;
     using FloatValue = double;
@@ -17,7 +20,7 @@ namespace Snapp {
     struct FunctionValue;
     struct NativeFunctionValue;
 
-    using DataValue = std::variant<IntValue, FloatValue, BoolValue, StrValue, FunctionValue, NativeFunctionValue>;
+    using DataValue = std::variant<IntValue, FloatValue, BoolValue, StrValue, FunctionValue, NativeFunctionValue, FunctionGroup>;
 
     enum class BaseDataType {
         Unknown,
@@ -48,6 +51,8 @@ namespace Snapp {
         BaseDataType base() const;
         const std::string& name() const;
         bool live() const;
+        static DataType getDataType(const DataValue& value);
+
 
     private:
         BaseDataType base_;

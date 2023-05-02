@@ -1,11 +1,9 @@
-for(int i = 0; i < 100; i = i + 1) {
-    if(i % 3 == 0 && i % 5 == 0) {
-        print("fizzbuzz");
-    } else if(i % 3 == 0) {
-        print("fizz");
-    } else if(i % 5 == 0) {
-        print("buzz");
-    } else {
-        print("" + i);
-    }
+int a() {
+    print("first function");
 }
+
+int a(int b) {
+    print("second function");
+}
+
+a(1);

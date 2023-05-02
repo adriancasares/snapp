@@ -23,34 +23,8 @@ class Person {
     }
 }
 
-int test_fizzBuzz(int count) {
-    int fizzBuzzCount = 0;
-    for (int i = 0; i < count; i++) {
-        bool condFizz = i % 3 == 0;
-        bool condBuzz = i % 5 == 0;
-    
-        if (condFizz && condBuzz) {
-            print("FizzBuzz");
-            ++fizzBuzzCount;
-        }
-        else if (condFizz) {
-            print("Fizz");
-        }
-        else if (condBuzz) {
-            print("Buzz");
-        }
-        else {
-            print(i);
-        }
-    }
-    return fizzBuzzCount;
-}
-
-
 @str person1Address = "123";
 @str person2Address = "456";
 Person person1 = Person("Bob", person1Address);
 Person person2 = Person("Jane", person2Address);
 print(person1.greet(person2));
-
-test_fizzBuzz(100);

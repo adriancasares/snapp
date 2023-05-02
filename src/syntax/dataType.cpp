@@ -7,6 +7,26 @@ namespace Snapp {
         return it == nameToBaseDataType.end() ? BaseDataType::Object : it->second;
     }
 
+    DataType DataType::getDataType(const Snapp::DataValue &value) {
+        if (std::holds_alternative<IntValue>(value)) {
+            return DataType(BaseDataType::Int, "int", false);
+        } else if (std::holds_alternative<FloatValue>(value)) {
+            return DataType(BaseDataType::Float, "float", false);
+        } else if (std::holds_alternative<BoolValue>(value)) {
+            return DataType(BaseDataType::Bool, "bool", false);
+        } else if (std::holds_alternative<StrValue>(value)) {
+            return DataType(BaseDataType::Str, "str", false);
+        } else if (std::holds_alternative<FunctionValue>(value)) {
+            return DataType(BaseDataType::Function, "Function", false);
+        } else if (std::holds_alternative<NativeFunctionValue>(value)) {
+            return DataType(BaseDataType::Function, "Function", false);
+        } else if (std::holds_alternative<FunctionGroup>(value)) {
+            return DataType(BaseDataType::Function, "Function", false);
+        } else {
+            return DataType(BaseDataType::Unknown, "Unknown", false);
+        }
+    }
+
     DataType::DataType(BaseDataType base, std::string name, bool live) {
         base_ = base;
         name_ = name;

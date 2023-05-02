@@ -13,6 +13,7 @@ namespace Snapp {
         bool hasParent() const;
 
         DataValue& get(const std::string& name);
+        bool exists(const std::string& name) const;
         void add(const std::string& name, const DataValue& value);
         void assign(const std::string& name, const DataValue& value);
 

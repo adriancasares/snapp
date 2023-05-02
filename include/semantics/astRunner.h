@@ -1,5 +1,5 @@
-#ifndef SEMANTICS_ASTRUNNER_H_
-#define SEMANTICS_ASTRUNNER_H_
+#ifndef SNAPP_SEMANTICS_ASTRUNNER_H_
+#define SNAPP_SEMANTICS_ASTRUNNER_H_
 
 #include "syntax/abstractSyntaxTree.h"
 #include "semantics/scope.h"
@@ -8,23 +8,27 @@
 
 namespace Snapp {
 
+    std::optional<FloatValue> coerceFloat(DataValue value);
+    std::optional<BoolValue> coerceBool(DataValue value);
+    std::optional<StrValue> coerceStr(DataValue value);
+
     class ASTRunner {
     public:
-        static void runAST(const AbstractSyntaxTree& ast, const bool isDebug = false);
-        ASTRunner(const bool isDebug = false);
+        static void runAST(const AbstractSyntaxTree& ast, bool enableDebug = false);
+        ASTRunner(bool enableDebug = false);
         ~ASTRunner();
 
         Scope& currentScope();
 
     private:
         std::vector<Scope*> scopes_;
-        int scopeIndex_;
-        bool isDebug_;
+        size_t scopeIndex_;
+        bool debugEnabled_;
 
-        int createScope(bool isFunction = false);
+        size_t createScope(bool isFunction = false);
         std::optional<DataValue> runASTNode(const SyntaxNode* node);
     };
 
 }
 
-#endif /* SEMANTICS_ASTRUNNER_H_ */
+#endif /* SNAPP_SEMANTICS_ASTRUNNER_H_ */

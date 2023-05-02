@@ -3,8 +3,6 @@
 #include <sstream>
 
 namespace Snapp {
-
-    SyntaxError::SyntaxError() {}
   
     SyntaxError::SyntaxError(std::string message) {
         message_ = message;

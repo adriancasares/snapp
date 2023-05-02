@@ -1,2 +1,2 @@
-string name = input("What is your name? ");
+str name = input("What is your name? ");
 print("Hello, " + name + "!");

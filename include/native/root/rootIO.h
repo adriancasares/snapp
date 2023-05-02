@@ -7,7 +7,7 @@
 
 #include "semantics/scope.h"
 
-namespace Snapp {
+namespace Snapp::Native {
 
     NativeFunctionValue createPrintFunction();
     NativeFunctionValue createInputFunction();

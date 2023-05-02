@@ -3,41 +3,34 @@
 //
 
 #include "native/root/rootIO.h"
-#include "semantics/scope.h"
 #include "syntax/dataType.h"
+#include "semantics/astRunner.h"
 
-namespace Snapp {
+namespace Snapp::Native {
 
     NativeFunctionValue createPrintFunction() {
-        std::vector<DataType> parameters = {DataType(BaseDataType::Str, "str", false)};
-
-        NativeFunctionValue printFunction = {
-            DataType(BaseDataType::Void, "void", false),
-            parameters,
+        return {
+            DataType::Void,
+            {DataType::Str},
             [](const std::vector<DataValue>& args) {
-                std::cout << std::get<StrValue>(args[0]) << std::endl;
-                return DataValue();
+                std::cout << *coerceStr(args[0]) << std::endl;
+                return std::nullopt;
             }
         };
-
-        return printFunction;
     }
 
     NativeFunctionValue createInputFunction() {
-        std::vector<DataType> parameters = {DataType(BaseDataType::Str, "str", false)};
-
-        NativeFunctionValue inputFunction = {
-            DataType(BaseDataType::Str, "str", false),
-            parameters,
+        return {
+            DataType::Str,
+            {DataType::Str},
             [](const std::vector<DataValue>& args) {
-                std::cout << std::get<StrValue>(args[0]);
+                std::cout << *coerceStr(args[0]);
                 std::string input;
-                std::cin >> input;
-                return DataValue(input);
+                std::cin.ignore(); // unclear exactly what this fixes, but getline() doesn't work otherwise
+                std::getline(std::cin, input);
+                return input;
             }
         };
-
-        return inputFunction;
     }
 
 }

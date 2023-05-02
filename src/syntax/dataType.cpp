@@ -25,6 +25,12 @@ namespace Snapp {
         return live_;
     }
 
+    DataType DataType::Void(BaseDataType::Void, "void");
+    DataType DataType::Int(BaseDataType::Int, "int");
+    DataType DataType::Float(BaseDataType::Float, "float");
+    DataType DataType::Bool(BaseDataType::Bool, "bool");
+    DataType DataType::Str(BaseDataType::Str, "str");
+
     std::ostream& operator<<(std::ostream& out, const DataType& dataType) {
         return out << "DataType{" << (dataType.live() ? "@" : "") << dataType.name() << "}";
     }

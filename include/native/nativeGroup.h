@@ -7,9 +7,9 @@
 
 #include "semantics/scope.h"
 
-namespace Snapp {
+namespace Snapp::Native {
 
-  void initializeNativeGroup(Scope* scope);
+    void injectNativeGroup(Scope* scope);
 
 }
 

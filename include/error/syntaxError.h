@@ -1,5 +1,5 @@
-#ifndef ERROR_SYNTAXERROR_H_
-#define ERROR_SYNTAXERROR_H_
+#ifndef SNAPP_ERROR_SYNTAXERROR_H_
+#define SNAPP_ERROR_SYNTAXERROR_H_
 
 #include <string>
 #include <optional>
@@ -10,7 +10,7 @@ namespace Snapp {
 
     class SyntaxError {
     public:
-        SyntaxError();
+        SyntaxError() = default;
         SyntaxError(std::string message);
         SyntaxError(std::string message, std::optional<SourceLocation> start, std::optional<SourceLocation> end);
     
@@ -27,4 +27,4 @@ namespace Snapp {
 
 }
 
-#endif /* ERROR_SYNTAXERROR_H_ */
+#endif /* SNAPP_ERROR_SYNTAXERROR_H_ */

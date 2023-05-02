@@ -11,6 +11,18 @@
 
 namespace Snapp {
 
+    std::optional<IntValue> coerceInt(DataValue value) {
+      if (auto* x = std::get_if<IntValue>(&value)) {
+        return *x;
+      }
+      if (auto* x = std::get_if<IntValue>(&value)) {
+        return *x;
+      }
+      else {
+        return {};
+      }
+    }
+
     std::optional<FloatValue> coerceFloat(DataValue value) {
         if (auto* x = std::get_if<IntValue>(&value)) {
             return *x;

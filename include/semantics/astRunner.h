@@ -11,6 +11,7 @@ namespace Snapp {
     std::optional<FloatValue> coerceFloat(DataValue value);
     std::optional<BoolValue> coerceBool(DataValue value);
     std::optional<StrValue> coerceStr(DataValue value);
+    std::optional<IntValue> coerceInt(DataValue value);
 
     class ASTRunner {
     public:

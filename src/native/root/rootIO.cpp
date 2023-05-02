@@ -21,6 +21,33 @@ namespace Snapp::Native {
           }
       });
 
+      printFunction.addFunction({
+        DataType::Void,
+        { DataType::Int },
+        [](const std::vector<DataValue>& args) {
+          std::cout << *coerceInt(args[0]) << std::endl;
+          return std::nullopt;
+        }
+      });
+
+      printFunction.addFunction({
+        DataType::Void,
+        { DataType::Float },
+        [](const std::vector<DataValue>& args) {
+          std::cout << *coerceFloat(args[0]) << std::endl;
+          return std::nullopt;
+        }
+      });
+
+      printFunction.addFunction({
+          DataType::Void,
+          { DataType::Bool },
+          [](const std::vector<DataValue>& args) {
+          std::cout << (*coerceBool(args[0]) ? "true" : "false") << std::endl;
+          return std::nullopt;
+          }
+      });
+
       return printFunction;
     }
 

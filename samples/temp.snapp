@@ -1,2 +1,9 @@
-str a = "hello";
-print(a);
+class A {
+    str name;
+
+    //A(str name) {
+      //  this.name = name;
+    //}
+}
+
+A();

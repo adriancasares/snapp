@@ -8,20 +8,19 @@
 #include <vector>
 #include "functionGroup.h"
 #include <functional>
+#include "syntax/values/classValue.h"
+#include "dataValue.h"
 
 namespace Snapp {
 
     class FunctionGroup;
 
-    using IntValue = int;
-    using FloatValue = double;
-    using BoolValue = bool;
-    using StrValue = std::string;
-
     struct FunctionValue;
     struct NativeFunctionValue;
 
-    using DataValue = std::variant<IntValue, FloatValue, BoolValue, StrValue, FunctionValue, NativeFunctionValue, FunctionGroup>;
+    class ClassValue;
+
+    using AnyFunction = std::variant<FunctionValue, NativeFunctionValue, FunctionGroup>;
 
     enum class BaseDataType {
         Unknown,
@@ -86,6 +85,11 @@ namespace Snapp {
         DataType returnType;
         std::vector<DataType> parameters;
         std::function<std::optional<DataValue>(const std::vector<DataValue>&)> body;
+    };
+
+    struct ConstructorValue {
+        std::vector<DataType> parameters;
+        SyntaxNode* body;
     };
 
 }

@@ -120,10 +120,10 @@ namespace Snapp {
         return *scopes_[scopeIndex_];
     }
 
-    size_t ASTRunner::createScope(bool isFunction) {
+    size_t ASTRunner::createScope(bool isFunction, ClassValue* classValue) {
         size_t parent = scopeIndex_;
         scopeIndex_ = scopes_.size();
-        scopes_.push_back(new Scope(scopes_[parent], isFunction));
+        scopes_.push_back(new Scope(scopes_[parent], isFunction, classValue));
         return parent;
     }
 
@@ -546,7 +546,17 @@ namespace Snapp {
         }
 
         if (auto* classDeclaration = dynamic_cast<const SyntaxNodeClassDeclaration*>(node)) {
-//          addIdentifier(classDeclaration->identifier->name, classDeclaration);
+          ClassValue classValue;
+
+          currentScope().add(classDeclaration->identifier->name, classValue);
+
+          size_t parent = createScope(false, &classValue);
+
+          runASTNode(classDeclaration->body);
+
+          scopeIndex_ = parent;
+
+          return {};
         }
 
         if (auto* observerDeclaration = dynamic_cast<const SyntaxNodeObserverDeclaration*>(node)) {

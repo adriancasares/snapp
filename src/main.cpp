@@ -4,6 +4,7 @@
 #include "syntax/abstractSyntaxTree.h"
 #include "syntax/tokenizer.h"
 #include "error/syntaxError.h"
+#include "error/runtimeError.h"
 #include "semantics/astRunner.h"
 
 int main(int argc, char** argv) {
@@ -17,16 +18,16 @@ int main(int argc, char** argv) {
         std::cin >> sourcePath;
     }
 
-    bool isDebug = false;
+    bool debugEnabled = false;
 
     for (int i = 0; i < argc; i++) {
         if (std::string(argv[i]) == "--debug") {
-            isDebug = true;
+            debugEnabled = true;
             break;
         }
     }
 
-    if(isDebug) {
+    if (debugEnabled) {
         std::cout << "Debug mode enabled" << std::endl;
     }
 
@@ -44,14 +45,17 @@ int main(int argc, char** argv) {
 
     try {
         std::vector<Snapp::Token> tokens = Snapp::Tokenizer::tokenize(sourceCode);
-        // for (const Snapp::Token& token : tokens) std::cout << token << std::endl;
-        
+
         auto ast = Snapp::AbstractSyntaxTree::fromTokens(tokens);
-        std::cout << ast << std::endl;
+        if (debugEnabled) std::cout << ast << std::endl;
 
-        Snapp::ASTRunner::runAST(ast, isDebug);
+        Snapp::ASTRunner::runAST(ast, debugEnabled);
 
-    } catch (Snapp::SyntaxError error) {
+    } catch (const Snapp::SyntaxError& error) {
         std::cerr << error.output(sourceCode) << std::endl;
+        return 1;
+    } catch (const Snapp::RuntimeError& error) {
+        std::cerr << error.output() << std::endl;
+        return 1;
     }
 }

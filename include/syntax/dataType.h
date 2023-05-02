@@ -7,6 +7,7 @@
 #include <variant>
 #include <vector>
 #include "functionGroup.h"
+#include <functional>
 
 namespace Snapp {
 
@@ -46,13 +47,19 @@ namespace Snapp {
 
     class DataType {
     public:
-        DataType(BaseDataType base, std::string name, bool live);
+        DataType(BaseDataType base, std::string name, bool live = false);
 
         BaseDataType base() const;
         const std::string& name() const;
         bool live() const;
         static DataType getDataType(const DataValue& value);
 
+
+        static DataType Void;
+        static DataType Int;
+        static DataType Float;
+        static DataType Bool;
+        static DataType Str;
 
     private:
         BaseDataType base_;
@@ -65,7 +72,7 @@ namespace Snapp {
     class SyntaxNode;
 
     struct FunctionValue {
-      struct Parameter {
+        struct Parameter {
             DataType type;
             std::string name;
         };
@@ -78,8 +85,9 @@ namespace Snapp {
     struct NativeFunctionValue {
         DataType returnType;
         std::vector<DataType> parameters;
-        std::function<DataValue(std::vector<DataValue>)> body;
+        std::function<std::optional<DataValue>(const std::vector<DataValue>&)> body;
     };
+
 }
 
 #endif /* SYNTAX_DATATYPE_H_ */

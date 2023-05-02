@@ -1,4 +1,5 @@
 #include "semantics/scope.h"
+#include "error/runtimeError.h"
 
 namespace Snapp {
 
@@ -27,17 +28,20 @@ namespace Snapp {
     DataValue& Scope::get(const std::string& name) {
         if (auto it = identifiers_.find(name); it != identifiers_.end()) {
             return it->second;
-        } else /*if (parent_)*/ { // uncomment when error is implemented
+        } else if (parent_) {
             return parent_->get(name);
+        } else {
+            throw RuntimeError("undefined identifier '" + name + "'");
         }
-        // TODO error
     }
 
     void Scope::assign(const std::string &name, const Snapp::DataValue &value) {
         if (auto it = identifiers_.find(name); it != identifiers_.end()) {
             it->second = value;
-        } else /*if (parent_)*/ { // uncomment when error is implemented
+        } else if (parent_) {
             parent_->assign(name, value);
+        } else {
+            throw RuntimeError("undefined identifier '" + name + "'");
         }
     }
 

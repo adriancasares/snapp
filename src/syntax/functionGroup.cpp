@@ -40,6 +40,20 @@ namespace Snapp {
               return true;
             }
           }
+        } else if(std::holds_alternative<NativeFunctionValue>(function)) {
+          const auto &functionValue = std::get<NativeFunctionValue>(function);
+          if (functionValue.parameters.size() == parameters.size()) {
+            bool match = true;
+            for (int i = 0; i < parameters.size(); i++) {
+              if (functionValue.parameters[i].base() != parameters[i].base()) {
+                match = false;
+                break;
+              }
+            }
+            if (match) {
+              return true;
+            }
+          }
         }
       }
     }
@@ -52,6 +66,20 @@ namespace Snapp {
             bool match = true;
             for (int i = 0; i < parameters.size(); i++) {
               if (functionValue.parameters[i].type.base() != parameters[i].base()) {
+                match = false;
+                break;
+              }
+            }
+            if (match) {
+              return function;
+            }
+          }
+        } else if (std::holds_alternative<NativeFunctionValue>(function)) {
+          const auto &functionValue = std::get<NativeFunctionValue>(function);
+          if (functionValue.parameters.size() == parameters.size()) {
+            bool match = true;
+            for (int i = 0; i < parameters.size(); i++) {
+              if (functionValue.parameters[i].base() != parameters[i].base()) {
                 match = false;
                 break;
               }

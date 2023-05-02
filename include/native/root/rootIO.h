@@ -6,11 +6,12 @@
 #define SNAPP_NATIVE_ROOT_ROOTIO_H_
 
 #include "semantics/scope.h"
+#include "syntax/functionGroup.h"
 
 namespace Snapp::Native {
 
-    NativeFunctionValue createPrintFunction();
-    NativeFunctionValue createInputFunction();
+    FunctionGroup createPrintFunction();
+    FunctionGroup createInputFunction();
 
 }
 

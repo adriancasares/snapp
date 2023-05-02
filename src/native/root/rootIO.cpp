@@ -8,19 +8,26 @@
 
 namespace Snapp::Native {
 
-    NativeFunctionValue createPrintFunction() {
-        return {
-            DataType::Void,
-            {DataType::Str},
-            [](const std::vector<DataValue>& args) {
-                std::cout << *coerceStr(args[0]) << std::endl;
-                return std::nullopt;
-            }
-        };
+    FunctionGroup createPrintFunction() {
+
+      FunctionGroup printFunction;
+
+      printFunction.addFunction({
+          DataType::Void,
+          {DataType::Str},
+          [](const std::vector<DataValue>& args) {
+              std::cout << *coerceStr(args[0]) << std::endl;
+              return std::nullopt;
+          }
+      });
+
+      return printFunction;
     }
 
-    NativeFunctionValue createInputFunction() {
-        return {
+    FunctionGroup createInputFunction() {
+        FunctionGroup inputFunction;
+
+        inputFunction.addFunction({
             DataType::Str,
             {DataType::Str},
             [](const std::vector<DataValue>& args) {
@@ -30,7 +37,9 @@ namespace Snapp::Native {
                 std::getline(std::cin, input);
                 return input;
             }
-        };
+        });
+
+        return inputFunction;
     }
 
 }

@@ -5,7 +5,7 @@
 
 #include <cmath>
 #include "semantics/astRunner.h"
-#include "native/NativeGroup.h"
+#include "native/nativeGroup.h"
 
 namespace Snapp {
 

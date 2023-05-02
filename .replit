@@ -1,5 +1,5 @@
 compile = "cmake --log-level=WARNING -S . -B cmake-build-debug && make -C cmake-build-debug"
-run = "cmake-build-debug/snapp samples/assignNumberWithLiteral.snapp"
+run = "cmake-build-debug/snapp"
 entrypoint = "src/main.cpp"
 
 [nix]

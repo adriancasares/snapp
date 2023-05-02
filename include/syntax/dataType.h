@@ -6,6 +6,7 @@
 #include <map>
 #include <variant>
 #include <vector>
+#include <functional>
 
 namespace Snapp {
 

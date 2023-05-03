@@ -1,5 +1,5 @@
-#ifndef SYNTAX_SYMBOL_H_
-#define SYNTAX_SYMBOL_H_
+#ifndef SNAPP_SYNTAX_SYMBOL_H_
+#define SNAPP_SYNTAX_SYMBOL_H_
 
 #include <iostream>
 #include <string>
@@ -152,4 +152,4 @@ namespace Snapp {
 
 }
 
-#endif /* SYNTAX_SYMBOL_H_ */
+#endif /* SNAPP_SYNTAX_SYMBOL_H_ */

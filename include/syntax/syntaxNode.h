@@ -1,13 +1,14 @@
-#ifndef SYNTAX_SYNTAXNODE_H_
-#define SYNTAX_SYNTAXNODE_H_
+#ifndef SNAPP_SYNTAX_SYNTAXNODE_H_
+#define SNAPP_SYNTAX_SYNTAXNODE_H_
 
 #include <iostream>
 #include <vector>
 #include <variant>
 
-#include "dataType.h"
 #include "operation.h"
-#include "token.h"
+#include "value/dataType.h"
+#include "value/dataValue.h"
+#include "value/function.h"
 
 namespace Snapp {
 
@@ -150,7 +151,6 @@ namespace Snapp {
         SyntaxNode* body;
     };
 
-    using R_Value = std::variant<SyntaxNodeIdentifier>;
 }
 
-#endif /* SYNTAX_SYNTAXNODE_H_ */
+#endif /* SNAPP_SYNTAX_SYNTAXNODE_H_ */

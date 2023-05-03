@@ -1,13 +1,13 @@
-#ifndef SEMANTICS_SCOPE_H_
-#define SEMANTICS_SCOPE_H_
+#ifndef SNAPP_SEMANTICS_SCOPE_H_
+#define SNAPP_SEMANTICS_SCOPE_H_
 
-#include "syntax/values/classValue.h"
-#include "syntax/dataType.h"
-#include "syntax/dataValue.h"
+#include "value/dataValue.h"
+#include "value/function.h"
+
+#include <map>
+#include <string>
 
 namespace Snapp {
-
-    class ClassValue;
 
     class Scope {
     public:
@@ -18,7 +18,7 @@ namespace Snapp {
         bool isClass() const;
 
         DataValue& get(const std::string& name);
-        bool exists(const std::string& name) const;
+        bool has(const std::string& name) const;
         void add(const std::string& name, const DataValue& value);
         void assign(const std::string& name, const DataValue& value);
 
@@ -31,4 +31,4 @@ namespace Snapp {
 
 }
 
-#endif /* SEMANTICS_SCOPE_H_ */
+#endif /* SNAPP_SEMANTICS_SCOPE_H_ */

@@ -3,8 +3,11 @@
 
 #include "syntax/abstractSyntaxTree.h"
 #include "semantics/scope.h"
+#include "value/dataValue.h"
+#include "value/function.h"
 
 #include <optional>
+#include <vector>
 
 namespace Snapp {
 
@@ -15,9 +18,10 @@ namespace Snapp {
 
     class ASTRunner {
     public:
-        static void runAST(const AbstractSyntaxTree& ast, bool enableDebug = false);
         ASTRunner(bool enableDebug = false);
         ~ASTRunner();
+
+        static void runAST(const AbstractSyntaxTree& ast, bool enableDebug = false);
 
         Scope& currentScope();
 
@@ -28,8 +32,7 @@ namespace Snapp {
 
         size_t createScope(bool isFunction = false, ClassValue* classValue = nullptr);
         std::optional<DataValue> runASTNode(const SyntaxNode* node);
-        std::optional<DataValue> runFunction(const std::variant<FunctionValue, NativeFunctionValue>& function, const SyntaxNodeFunctionCall* call);
-//        std::optional<R_Value> getRValue(const SyntaxNode* node);
+        std::optional<DataValue> runFunction(const SimpleFunctionValue& function, const SyntaxNodeFunctionCall* call);
     };
 
 }

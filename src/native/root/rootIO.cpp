@@ -1,54 +1,49 @@
-//
-// Created by Adrian Casares on 5/1/23.
-//
-
 #include "native/root/rootIO.h"
-#include "syntax/dataType.h"
+#include "value/dataType.h"
 #include "semantics/astRunner.h"
 
 namespace Snapp::Native {
 
     FunctionGroup createPrintFunction() {
+        FunctionGroup printFunction;
 
-      FunctionGroup printFunction;
+        printFunction.addFunction({
+            DataType::Void,
+            { DataType::Str },
+            [](const std::vector<DataValue>& args) {
+                std::cout << *coerceStr(args[0]) << std::endl;
+                return std::nullopt;
+            }
+        });
 
-      printFunction.addFunction({
-          DataType::Void,
-          {DataType::Str},
-          [](const std::vector<DataValue>& args) {
-              std::cout << *coerceStr(args[0]) << std::endl;
-              return std::nullopt;
-          }
-      });
+        printFunction.addFunction({
+            DataType::Void,
+            { DataType::Int },
+            [](const std::vector<DataValue>& args) {
+                std::cout << *coerceInt(args[0]) << std::endl;
+                return std::nullopt;
+            }
+        });
 
-      printFunction.addFunction({
-        DataType::Void,
-        { DataType::Int },
-        [](const std::vector<DataValue>& args) {
-          std::cout << *coerceInt(args[0]) << std::endl;
-          return std::nullopt;
-        }
-      });
+        printFunction.addFunction({
+            DataType::Void,
+            { DataType::Float },
+            [](const std::vector<DataValue>& args) {
+                std::cout << *coerceFloat(args[0]) << std::endl;
+                return std::nullopt;
+            }
+        });
 
-      printFunction.addFunction({
-        DataType::Void,
-        { DataType::Float },
-        [](const std::vector<DataValue>& args) {
-          std::cout << *coerceFloat(args[0]) << std::endl;
-          return std::nullopt;
-        }
-      });
+        printFunction.addFunction({
+            DataType::Void,
+            { DataType::Bool },
+            [](const std::vector<DataValue>& args) {
+                std::cout << (*coerceBool(args[0]) ? "true" : "false") << std::endl;
+                return std::nullopt;
+            }
+        });
 
-      printFunction.addFunction({
-          DataType::Void,
-          { DataType::Bool },
-          [](const std::vector<DataValue>& args) {
-          std::cout << (*coerceBool(args[0]) ? "true" : "false") << std::endl;
-          return std::nullopt;
-          }
-      });
-
-      return printFunction;
+        return printFunction;
     }
 
     FunctionGroup createInputFunction() {
@@ -56,7 +51,7 @@ namespace Snapp::Native {
 
         inputFunction.addFunction({
             DataType::Str,
-            {DataType::Str},
+            { DataType::Str },
             [](const std::vector<DataValue>& args) {
                 std::cout << *coerceStr(args[0]);
                 std::string input;

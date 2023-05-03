@@ -10,5 +10,5 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
 
 file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS src/*.cpp)
-add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES} include/syntax/values/classValue.h)
+add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE include)

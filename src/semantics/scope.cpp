@@ -21,17 +21,17 @@ namespace Snapp {
         return class_ != nullptr;
     }
 
-    bool Scope::exists(const std::string& name) const {
+    bool Scope::has(const std::string& name) const {
         if (auto it = identifiers_.find(name); it != identifiers_.end()) {
             return true;
         } else if (parent_) {
-            return parent_->exists(name);
+            return parent_->has(name);
         }
         return false;
     }
 
     DataValue& Scope::get(const std::string& name) {
-        if(isClass()) {
+        if (isClass()) {
             return class_->scope()->get(name);
         }
 
@@ -45,7 +45,7 @@ namespace Snapp {
     }
 
     void Scope::assign(const std::string &name, const Snapp::DataValue &value) {
-        if(isClass()) {
+        if (isClass()) {
             class_->scope()->assign(name, value);
             return;
         }
@@ -60,13 +60,13 @@ namespace Snapp {
     }
 
     void Scope::add(const std::string& name, const DataValue& value) {
-        if(isClass()) {
+        if (isClass()) {
             class_->scope()->add(name, value);
             return;
         }
 
-        if(exists(name)) {
-          assign(name, value);
+        if (has(name)) {
+            assign(name, value);
         }
 
         identifiers_.insert({name, value});

@@ -1,17 +1,15 @@
-#ifndef SYNTAX_TOKEN_H_
-#define SYNTAX_TOKEN_H_
+#ifndef SNAPP_SYNTAX_TOKEN_H_
+#define SNAPP_SYNTAX_TOKEN_H_
 
 #include <iostream>
 #include <string>
-#include <map>
-#include <optional>
 #include <variant>
 #include <vector>
 
 #include "symbol.h"
 #include "keyword.h"
 #include "sourceLocation.h"
-#include "dataType.h"
+#include "value/primitive.h"
 
 namespace Snapp {
 
@@ -48,4 +46,4 @@ namespace Snapp {
 
 }
 
-#endif /* SYNTAX_TOKEN_H_ */
+#endif /* SNAPP_SYNTAX_TOKEN_H_ */

@@ -1,7 +1,3 @@
-//
-// Created by Adrian Casares on 5/1/23.
-//
-
 #include "native/nativeGroup.h"
 #include "native/root/rootIO.h"
 

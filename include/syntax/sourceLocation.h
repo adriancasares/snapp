@@ -1,5 +1,5 @@
-#ifndef SYNTAX_SOURCELOCATION_H_
-#define SYNTAX_SOURCELOCATION_H_
+#ifndef SNAPP_SYNTAX_SOURCELOCATION_H_
+#define SNAPP_SYNTAX_SOURCELOCATION_H_
 
 #include <iostream>
 
@@ -15,4 +15,4 @@ namespace Snapp {
 
 }
 
-#endif /* SYNTAX_SOURCELOCATION_H_ */
+#endif /* SNAPP_SYNTAX_SOURCELOCATION_H_ */

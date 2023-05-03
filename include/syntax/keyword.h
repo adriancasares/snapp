@@ -1,5 +1,5 @@
-#ifndef SYNTAX_KEYWORD_H_
-#define SYNTAX_KEYWORD_H_
+#ifndef SNAPP_SYNTAX_KEYWORD_H_
+#define SNAPP_SYNTAX_KEYWORD_H_
 
 #include <iostream>
 #include <string>
@@ -53,4 +53,4 @@ namespace Snapp {
 
 }
 
-#endif /* SYNTAX_KEYWORD_H_ */
+#endif /* SNAPP_SYNTAX_KEYWORD_H_ */

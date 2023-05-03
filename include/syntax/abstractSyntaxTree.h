@@ -1,5 +1,5 @@
-#ifndef SYNTAX_ABSTRACTSYNTAXTREE_H_
-#define SYNTAX_ABSTRACTSYNTAXTREE_H_
+#ifndef SNAPP_SYNTAX_ABSTRACTSYNTAXTREE_H_
+#define SNAPP_SYNTAX_ABSTRACTSYNTAXTREE_H_
 
 #include <iostream>
 #include <vector>
@@ -26,4 +26,4 @@ namespace Snapp {
 
 }
 
-#endif /* SYNTAX_ABSTRACTSYNTAXTREE_H_ */
+#endif /* SNAPP_SYNTAX_ABSTRACTSYNTAXTREE_H_ */

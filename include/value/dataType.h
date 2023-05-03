@@ -1,26 +1,11 @@
-#ifndef SYNTAX_DATATYPE_H_
-#define SYNTAX_DATATYPE_H_
+#ifndef SNAPP_VALUE_DATATYPE_H_
+#define SNAPP_VALUE_DATATYPE_H_
 
 #include <iostream>
 #include <string>
 #include <map>
-#include <variant>
-#include <vector>
-#include "functionGroup.h"
-#include <functional>
-#include "syntax/values/classValue.h"
-#include "dataValue.h"
 
 namespace Snapp {
-
-    class FunctionGroup;
-
-    struct FunctionValue;
-    struct NativeFunctionValue;
-
-    class ClassValue;
-
-    using AnyFunction = std::variant<FunctionValue, NativeFunctionValue, FunctionGroup>;
 
     enum class BaseDataType {
         Unknown,
@@ -29,8 +14,9 @@ namespace Snapp {
         Float,
         Bool,
         Str,
-        Function,
         Object,
+        Function,
+        Class,
     };
 
     const std::map<std::string, BaseDataType> nameToBaseDataType = {
@@ -51,8 +37,6 @@ namespace Snapp {
         BaseDataType base() const;
         const std::string& name() const;
         bool live() const;
-        static DataType getDataType(const DataValue& value);
-
 
         static DataType Void;
         static DataType Int;
@@ -68,30 +52,6 @@ namespace Snapp {
 
     std::ostream& operator<<(std::ostream& out, const DataType& dataType);
 
-    class SyntaxNode;
-
-    struct FunctionValue {
-        struct Parameter {
-            DataType type;
-            std::string name;
-        };
-
-        DataType returnType;
-        std::vector<Parameter> parameters;
-        SyntaxNode* body;
-    };
-
-    struct NativeFunctionValue {
-        DataType returnType;
-        std::vector<DataType> parameters;
-        std::function<std::optional<DataValue>(const std::vector<DataValue>&)> body;
-    };
-
-    struct ConstructorValue {
-        std::vector<DataType> parameters;
-        SyntaxNode* body;
-    };
-
 }
 
-#endif /* SYNTAX_DATATYPE_H_ */
+#endif /* SNAPP_VALUE_DATATYPE_H_ */

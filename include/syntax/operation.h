@@ -1,5 +1,5 @@
-#ifndef SYNTAX_OPERATION_H_
-#define SYNTAX_OPERATION_H_
+#ifndef SNAPP_SYNTAX_OPERATION_H_
+#define SNAPP_SYNTAX_OPERATION_H_
 
 #include <iostream>
 #include <string>
@@ -190,4 +190,4 @@ namespace Snapp {
 
 }
 
-#endif /* SYNTAX_OPERATION_H_ */
+#endif /* SNAPP_SYNTAX_OPERATION_H_ */

@@ -1,7 +1,4 @@
-//
-// Created by Adrian Casares on 5/2/23.
-//
-#include "syntax/functionGroup.h"
+#include "value/function.h"
 
 namespace Snapp {
 
@@ -16,11 +13,11 @@ namespace Snapp {
         functions_.push_back(function);
     }
 
-    std::vector<std::variant<FunctionValue, NativeFunctionValue>>& FunctionGroup::functions() {
+    std::vector<SimpleFunctionValue>& FunctionGroup::functions() {
         return functions_;
     }
 
-    const std::vector<std::variant<FunctionValue, NativeFunctionValue>>& FunctionGroup::functions() const {
+    const std::vector<SimpleFunctionValue>& FunctionGroup::functions() const {
         return functions_;
     }
 
@@ -58,7 +55,7 @@ namespace Snapp {
       }
     }
 
-    std::variant<FunctionValue, NativeFunctionValue>& FunctionGroup::getFunction(const std::vector<DataType>& parameters) {
+    SimpleFunctionValue& FunctionGroup::getFunction(const std::vector<DataType>& parameters) {
       for (auto &function : functions_) {
         if (std::holds_alternative<FunctionValue>(function)) {
           const auto &functionValue = std::get<FunctionValue>(function);

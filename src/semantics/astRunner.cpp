@@ -1,11 +1,8 @@
-//
-// Created by Adrian Casares on 4/17/23.
-//
-
-#include <cmath>
 #include "semantics/astRunner.h"
 #include "native/nativeGroup.h"
-#include "syntax/dataType.h"
+#include "error/runtimeError.h"
+
+#include <cmath>
 
 #define DEBUG_ONLY if (debugEnabled_)
 
@@ -78,29 +75,24 @@ namespace Snapp {
         }
     }
 
-    std::optional<DataValue> ASTRunner::runFunction(const std::variant<FunctionValue, NativeFunctionValue>& callee, const SyntaxNodeFunctionCall* functionCall) {
-      if(std::holds_alternative<NativeFunctionValue>(callee)) {
-        NativeFunctionValue nativeFunction = std::get<NativeFunctionValue>(callee);
-
-        std::vector<DataValue> arguments;
-
-        for (auto *argument : functionCall->arguments) {
-          arguments.push_back(*runASTNode(argument));
+    std::optional<DataValue> ASTRunner::runFunction(const SimpleFunctionValue& callee, const SyntaxNodeFunctionCall* functionCall) {
+        if (auto* nativeFunctionValue = std::get_if<NativeFunctionValue>(&callee)) {
+            std::vector<DataValue> arguments;
+            arguments.reserve(functionCall->arguments.size());
+            for (auto* argument : functionCall->arguments) {
+                arguments.push_back(*runASTNode(argument));
+            }
+            return nativeFunctionValue->body(arguments);
         }
-
-        return nativeFunction.body(arguments);
-      } else if(std::holds_alternative<FunctionValue>(callee)) {
-        FunctionValue function = std::get<FunctionValue>(callee);
-
-        int parent = createScope(true);
-
-        for (int parameterIndex = 0; parameterIndex < function.parameters.size(); parameterIndex++) {
-          currentScope().add(function.parameters[parameterIndex].name,
-                             *runASTNode(functionCall->arguments[parameterIndex]));
+        else if (auto* functionValue = std::get_if<FunctionValue>(&callee)) {
+            FunctionValue function = std::get<FunctionValue>(callee);
+            size_t parent = createScope(true);
+            for (size_t index = 0; index < function.parameters.size(); index++) {
+                currentScope().add(function.parameters[index].name, *runASTNode(functionCall->arguments[index]));
+            }
+            return runASTNode(function.body);
         }
-
-        return runASTNode(function.body);
-      }
+        return {};
     }
 
     ASTRunner::ASTRunner(bool enableDebug) {
@@ -392,29 +384,27 @@ namespace Snapp {
         if (auto* functionCall = dynamic_cast<const SyntaxNodeFunctionCall*>(node)) {
             DataValue callee = *runASTNode(functionCall->callee);
 
-          if (std::holds_alternative<FunctionValue>(callee)) {
-            runFunction(std::get<FunctionValue>(callee), functionCall);
-          }
-          else if (std::holds_alternative<NativeFunctionValue>(callee)) {
-              runFunction(std::get<NativeFunctionValue>(callee), functionCall);
-          }
-          else if(std::holds_alternative<FunctionGroup>(callee)) {
-            FunctionGroup group = std::get<FunctionGroup>(callee);
-
-            std::vector<DataType> parameters;
-
-              for(auto* argument : functionCall->arguments) {
-                  parameters.push_back(DataType::getDataType(*runASTNode(argument)));
-              }
-
-              if(group.hasFunction(parameters)) {
-                runFunction(group.getFunction(parameters), functionCall);
-              }
-
-              else {
-                throw std::runtime_error("No matching function found");
-              }
-          }
+            if (auto* anyFunction = std::get_if<AnyFunction>(&callee)) {
+                if (auto* functionValue = std::get_if<FunctionValue>(anyFunction)) {
+                    return runFunction(*functionValue, functionCall);
+                }
+                if (auto* nativeFunctionValue = std::get_if<NativeFunctionValue>(anyFunction)) {
+                    return runFunction(*nativeFunctionValue, functionCall);
+                }
+                if (auto* functionGroup = std::get_if<FunctionGroup>(anyFunction)) {
+                    std::vector<DataType> parameters;
+    
+                    for (auto* argument : functionCall->arguments) {
+                        parameters.push_back(dataTypeOf(*runASTNode(argument)));
+                    }
+    
+                    if (functionGroup->hasFunction(parameters)) {
+                        return runFunction(functionGroup->getFunction(parameters), functionCall);
+                    }
+                    throw RuntimeError("no matching function overload found");
+                }
+            }
+            throw RuntimeError("attempt to call non-function");
         }
 
         if (auto* variableDeclaration = dynamic_cast<const SyntaxNodeVariableDeclaration*>(node)) {
@@ -505,58 +495,57 @@ namespace Snapp {
         }
 
         if (auto* functionDeclaration = dynamic_cast<const SyntaxNodeFunctionDeclaration*>(node)) {
-          std::string name = functionDeclaration->identifier->name;
+            std::string name = functionDeclaration->identifier->name;
 
-          DEBUG_ONLY std::cout << "Function Declaration: " << functionDeclaration->output() << std::endl;
+            DEBUG_ONLY std::cout << "Function Declaration: " << functionDeclaration->output() << std::endl;
 
-          FunctionValue functionValue = {
-              functionDeclaration->returnType,
-              {},
-              functionDeclaration->body
-          };
-
-          for (auto parameter : functionDeclaration->parameters) {
-              FunctionValue::Parameter parameterValue = {parameter->dataType, parameter->identifier->name};
-              functionValue.parameters.push_back(parameterValue);
-          };
-
-          if(currentScope().exists(name)) {
-            DataValue& value = currentScope().get(name);
-
-            for(auto parameter : functionDeclaration->parameters) {
-              FunctionValue::Parameter parameterValue = {parameter->dataType, parameter->identifier->name};
-              functionValue.parameters.push_back(parameterValue);
+            FunctionValue functionValue = {
+                functionDeclaration->returnType,
+                {},
+                functionDeclaration->body,
             };
 
-            if(std::holds_alternative<FunctionValue>(value)) {
-              FunctionGroup functionGroupValue = FunctionGroup();
-              functionGroupValue.addFunction(std::get<FunctionValue>(value));
-              functionGroupValue.addFunction(functionValue);
+            for (auto parameter : functionDeclaration->parameters) {
+                FunctionValue::Parameter parameterValue = {parameter->dataType, parameter->identifier->name};
+                functionValue.parameters.push_back(parameterValue);
+            }
 
-              currentScope().assign(name, functionGroupValue);
+            if (currentScope().has(name)) {
+                DataValue& value = currentScope().get(name);
+
+                for (auto parameter : functionDeclaration->parameters) {
+                    FunctionValue::Parameter parameterValue = {parameter->dataType, parameter->identifier->name};
+                    functionValue.parameters.push_back(parameterValue);
+                }
+
+                if (auto* anyFunction = std::get_if<AnyFunction>(&value)) {
+                    if (auto* existingFunction = std::get_if<FunctionValue>(anyFunction)) {
+                        FunctionGroup functionGroup = FunctionGroup();
+                        functionGroup.addFunction(*existingFunction);
+                        functionGroup.addFunction(functionValue);
+                        currentScope().assign(name, functionGroup);
+                    }
+                    else if (auto* functionGroup = std::get_if<FunctionGroup>(anyFunction)) {
+                        functionGroup->addFunction(functionValue);
+                    }
+                }
             }
-            else if(std::holds_alternative<FunctionGroup>(value)) {
-              FunctionGroup functionGroupValue = std::get<FunctionGroup>(value);
-              functionGroupValue.addFunction(functionValue);
-              currentScope().assign(name, functionValue);
+            else {
+                currentScope().add(functionDeclaration->identifier->name, functionValue);
             }
-          } else {
-            currentScope().add(functionDeclaration->identifier->name, functionValue);
-          }
+            
+            return {};
         }
 
         if (auto* classDeclaration = dynamic_cast<const SyntaxNodeClassDeclaration*>(node)) {
-          ClassValue classValue;
-
-          currentScope().add(classDeclaration->identifier->name, classValue);
-
-          size_t parent = createScope(false, &classValue);
-
-          runASTNode(classDeclaration->body);
-
-          scopeIndex_ = parent;
-
-          return {};
+            ClassValue classValue;
+            currentScope().add(classDeclaration->identifier->name, classValue);
+            
+            size_t parent = createScope(false, &classValue); // FIXME: oh no no. no no no. this will not do.
+            runASTNode(classDeclaration->body);
+            scopeIndex_ = parent;
+            
+            return {};
         }
 
         if (auto* observerDeclaration = dynamic_cast<const SyntaxNodeObserverDeclaration*>(node)) {

@@ -1,6 +1,6 @@
 #include "syntax/abstractSyntaxTree.h"
-#include "error/syntaxError.h"
 #include "syntax/operation.h"
+#include "error/syntaxError.h"
 
 namespace Snapp {
 

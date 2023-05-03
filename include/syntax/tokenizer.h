@@ -1,5 +1,5 @@
-#ifndef SYNTAX_TOKENIZER_H_
-#define SYNTAX_TOKENIZER_H_
+#ifndef SNAPP_SYNTAX_TOKENIZER_H_
+#define SNAPP_SYNTAX_TOKENIZER_H_
 
 #include <string>
 #include <vector>
@@ -29,4 +29,4 @@ namespace Snapp {
 
 }
 
-#endif /* SYNTAX_TOKENIZER_H_ */
+#endif /* SNAPP_SYNTAX_TOKENIZER_H_ */

@@ -1,17 +1,17 @@
 #ifndef SNAPP_VALUE_DATAVALUE_H_
 #define SNAPP_VALUE_DATAVALUE_H_
-
-#include "dataType.h"
-#include "primitive.h"
-#include "class.h"
-
 #include <variant>
+
+#include "primitive.h"
 
 namespace Snapp {
 
     struct FunctionValue;
     struct NativeFunctionValue;
     class FunctionGroup;
+    class ClassValue;
+    class DataType;
+
 
     using AnyFunction = std::variant<FunctionValue, NativeFunctionValue, FunctionGroup>;
     using DataValue = std::variant<IntValue, FloatValue, BoolValue, StrValue, AnyFunction, ClassValue>;

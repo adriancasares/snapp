@@ -6,11 +6,11 @@ namespace Snapp {
         return scope_;
     }
 
-    const std::vector<ConstructorValue>& ClassValue::constructors() const {
+    const std::vector<FunctionValue>& ClassValue::constructors() const {
         return constructors_;
     }
 
-    void ClassValue::addConstructor(const ConstructorValue& constructor) {
+    void ClassValue::addConstructor(const FunctionValue& constructor) {
         constructors_.push_back(constructor);
     }
 

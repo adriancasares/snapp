@@ -3,9 +3,9 @@
 
 namespace Snapp {
 
-    Scope::Scope(Scope* parent, bool isFunction, ClassValue* classValue) {
+    Scope::Scope(Scope* parent, bool isFunction, bool isClass) {
         parent_ = parent;
-        class_ = classValue;
+        isClass_ = isClass;
         isFunction_ = isFunction;
     }
 
@@ -18,7 +18,7 @@ namespace Snapp {
     }
 
     bool Scope::isClass() const {
-        return class_ != nullptr;
+        return isClass_;
     }
 
     bool Scope::has(const std::string& name) const {
@@ -31,10 +31,6 @@ namespace Snapp {
     }
 
     DataValue& Scope::get(const std::string& name) {
-        if (isClass()) {
-            return class_->scope()->get(name);
-        }
-
         if (auto it = identifiers_.find(name); it != identifiers_.end()) {
             return it->second;
         } else if (parent_) {
@@ -45,11 +41,6 @@ namespace Snapp {
     }
 
     void Scope::assign(const std::string &name, const Snapp::DataValue &value) {
-        if (isClass()) {
-            class_->scope()->assign(name, value);
-            return;
-        }
-
         if (auto it = identifiers_.find(name); it != identifiers_.end()) {
             it->second = value;
         } else if (parent_) {
@@ -60,16 +51,14 @@ namespace Snapp {
     }
 
     void Scope::add(const std::string& name, const DataValue& value) {
-        if (isClass()) {
-            class_->scope()->add(name, value);
-            return;
-        }
-
         if (has(name)) {
             assign(name, value);
         }
 
-        identifiers_.insert({name, value});
+        identifiers_.insert({
+            name,
+            const_cast<DataValue&>(value)
+        });
     }
 
 }

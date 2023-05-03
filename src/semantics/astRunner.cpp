@@ -77,12 +77,15 @@ namespace Snapp {
 
     std::optional<DataValue> ASTRunner::runFunction(const SimpleFunctionValue& callee, const SyntaxNodeFunctionCall* functionCall) {
         if (auto* nativeFunctionValue = std::get_if<NativeFunctionValue>(&callee)) {
-            std::vector<DataValue> arguments;
+            std::vector<DataValue> arguments = {};
+
             arguments.reserve(functionCall->arguments.size());
             for (auto* argument : functionCall->arguments) {
                 arguments.push_back(*runASTNode(argument));
             }
-            return nativeFunctionValue->body(arguments);
+            const std::vector<DataValue> constArguments = arguments;
+
+            return nativeFunctionValue->body(constArguments);
         }
         else if (auto* functionValue = std::get_if<FunctionValue>(&callee)) {
             FunctionValue function = std::get<FunctionValue>(callee);

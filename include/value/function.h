@@ -3,6 +3,8 @@
 
 #include "dataType.h"
 #include "dataValue.h"
+#include "function.h"
+#include "class.h"
 
 #include <functional>
 #include <optional>
@@ -11,7 +13,7 @@
 #include <vector>
 
 namespace Snapp {
-
+//
     class SyntaxNode;
 
     struct FunctionValue {

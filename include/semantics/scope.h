@@ -11,7 +11,7 @@ namespace Snapp {
 
     class Scope {
     public:
-        Scope(Scope* parent = nullptr, bool isFunction = false, ClassValue* classValue = nullptr);
+        Scope(Scope* parent = nullptr, bool isFunction = false, bool isClass = true);
 
         bool isFunction() const;
         bool hasParent() const;
@@ -24,9 +24,9 @@ namespace Snapp {
 
     private:
         Scope* parent_;
-        ClassValue* class_;
+        bool isClass_;
         bool isFunction_;
-        std::map<std::string, DataValue> identifiers_;
+        std::map<std::string, DataValue&> identifiers_;
     };
 
 }

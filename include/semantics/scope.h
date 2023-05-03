@@ -26,7 +26,7 @@ namespace Snapp {
         Scope* parent_;
         bool isClass_;
         bool isFunction_;
-        std::map<std::string, DataValue&> identifiers_;
+        std::map<std::string, DataValue> identifiers_;
     };
 
 }

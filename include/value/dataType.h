@@ -44,6 +44,14 @@ namespace Snapp {
         static DataType Bool;
         static DataType Str;
 
+        bool operator==(const DataType& other) const {
+            return base_ == other.base_ && name_ == other.name_ && live_ == other.live_;
+        }
+
+        bool operator!=(const DataType& other) const {
+            return !(*this == other);
+        }
+
     private:
         BaseDataType base_;
         std::string name_;

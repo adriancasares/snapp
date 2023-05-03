@@ -30,7 +30,7 @@ namespace Snapp {
         size_t scopeIndex_;
         bool debugEnabled_;
 
-        size_t createScope(bool isFunction = false, ClassValue* classValue = nullptr);
+        size_t createScope(bool isFunction = false, bool isClass = false);
         std::optional<DataValue> runASTNode(const SyntaxNode* node);
         std::optional<DataValue> runFunction(const SimpleFunctionValue& function, const SyntaxNodeFunctionCall* call);
     };

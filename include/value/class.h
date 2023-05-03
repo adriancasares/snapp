@@ -21,6 +21,9 @@ namespace Snapp {
         void addConstructor(const FunctionValue& constructor);
         void setScope(Scope* scope);
 
+        bool hasConstructor(const std::vector<DataType>& arguments) const;
+        FunctionValue* getConstructor(const std::vector<DataType>& arguments);
+
     private:
         Scope* scope_;
         std::vector<FunctionValue> constructors_;

@@ -55,10 +55,10 @@ namespace Snapp {
             assign(name, value);
         }
 
-        identifiers_.insert({
+        identifiers_.insert_or_assign(
             name,
-            const_cast<DataValue&>(value)
-        });
+            value
+        );
     }
 
 }

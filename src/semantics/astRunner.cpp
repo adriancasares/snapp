@@ -115,10 +115,10 @@ namespace Snapp {
         return *scopes_[scopeIndex_];
     }
 
-    size_t ASTRunner::createScope(bool isFunction, ClassValue* classValue) {
+    size_t ASTRunner::createScope(bool isFunction, bool isClass) {
         size_t parent = scopeIndex_;
         scopeIndex_ = scopes_.size();
-        scopes_.push_back(new Scope(scopes_[parent], isFunction, classValue));
+        scopes_.push_back(new Scope(scopes_[parent], isFunction, isClass));
         return parent;
     }
 
@@ -406,6 +406,23 @@ namespace Snapp {
                     }
                     throw RuntimeError("no matching function overload found");
                 }
+            } else if (auto* classValue = std::get_if<ClassValue>(&callee)) {
+                if(classValue->constructors().size() == 0) {
+                  throw RuntimeError("no matching constructor found");
+                }
+
+                std::vector<DataType> parameters;
+
+                for (auto* argument : functionCall->arguments) {
+                    parameters.push_back(dataTypeOf(*runASTNode(argument)));
+                }
+
+                if(classValue->hasConstructor(parameters)) {
+                  FunctionValue* constructor = classValue->getConstructor(parameters);
+                  runFunction(*constructor, functionCall);
+                }
+
+                throw RuntimeError("no matching constructor found");
             }
             throw RuntimeError("attempt to call non-function");
         }
@@ -502,6 +519,8 @@ namespace Snapp {
 
             DEBUG_ONLY std::cout << "Function Declaration: " << functionDeclaration->output() << std::endl;
 
+            std::cout << functionDeclaration->returnType << std::endl;
+
             FunctionValue functionValue = {
                 functionDeclaration->returnType,
                 {},
@@ -541,14 +560,19 @@ namespace Snapp {
         }
 
         if (auto* classDeclaration = dynamic_cast<const SyntaxNodeClassDeclaration*>(node)) {
-            ClassValue classValue;
+            ClassValue classValue = {};
+
             currentScope().add(classDeclaration->identifier->name, classValue);
-            
-            size_t parent = createScope(false, &classValue); // FIXME: oh no no. no no no. this will not do.
+
+            size_t parent = createScope();
+
+            classValue.setScope(&currentScope());
+
             runASTNode(classDeclaration->body);
+
             scopeIndex_ = parent;
-            
-            return {};
+
+            return classValue;
         }
 
         if (auto* observerDeclaration = dynamic_cast<const SyntaxNodeObserverDeclaration*>(node)) {

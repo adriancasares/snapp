@@ -1,9 +1,9 @@
 class A {
     str name;
 
-    //A(str name) {
-      //  this.name = name;
-    //}
+    make A(str name) {
+        this.name = name;
+    }
 }
 
 A();

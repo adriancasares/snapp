@@ -14,6 +14,8 @@ namespace Snapp {
             return DataType(BaseDataType::Str, "str", false);
         } else if (std::holds_alternative<AnyFunction>(value)) {
             return DataType(BaseDataType::Function, "Function", false);
+        } else if (std::holds_alternative<ClassValue>(value)) {
+            return DataType(BaseDataType::Class, "Class", false);
         } else {
             return DataType(BaseDataType::Unknown, "Unknown", false);
         }

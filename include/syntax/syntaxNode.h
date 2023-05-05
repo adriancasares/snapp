@@ -9,6 +9,7 @@
 #include "value/dataType.h"
 #include "value/dataValue.h"
 #include "value/function.h"
+#include "value/class.h"
 
 namespace Snapp {
 

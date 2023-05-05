@@ -11,11 +11,6 @@
 
 namespace Snapp {
 
-    std::optional<FloatValue> coerceFloat(DataValue value);
-    std::optional<BoolValue> coerceBool(DataValue value);
-    std::optional<StrValue> coerceStr(DataValue value);
-    std::optional<IntValue> coerceInt(DataValue value);
-
     class ASTRunner {
     public:
         ASTRunner(bool enableDebug = false);
@@ -32,7 +27,7 @@ namespace Snapp {
 
         size_t createScope(bool isFunction = false, bool isClass = false);
         std::optional<DataValue> runASTNode(const SyntaxNode* node);
-        std::optional<DataValue> runFunction(const SimpleFunctionValue& function, const SyntaxNodeFunctionCall* call);
+        std::optional<DataValue> runFunction(const FunctionOverload& function, const SyntaxNodeFunctionCall* call);
     };
 
 }

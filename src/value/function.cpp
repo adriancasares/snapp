@@ -2,90 +2,60 @@
 
 namespace Snapp {
 
-    FunctionGroup::FunctionGroup() {
+    void FunctionValue::addOverload(const InterpretedFunction& overload) {
+        overloads_.emplace_back(overload);
     }
 
-    void FunctionGroup::addFunction(const FunctionValue& function) {
-        functions_.push_back(function);
+    void FunctionValue::addOverload(const NativeFunction& overload) {
+        overloads_.emplace_back(overload);
     }
 
-    void FunctionGroup::addFunction(const NativeFunctionValue& function) {
-        functions_.push_back(function);
+    void FunctionValue::addOverload(const FunctionOverload& overload) {
+        overloads_.emplace_back(overload);
     }
 
-    std::vector<SimpleFunctionValue>& FunctionGroup::functions() {
-        return functions_;
+    std::vector<FunctionOverload>& FunctionValue::overloads() {
+        return overloads_;
     }
 
-    const std::vector<SimpleFunctionValue>& FunctionGroup::functions() const {
-        return functions_;
+    const std::vector<FunctionOverload>& FunctionValue::overloads() const {
+        return overloads_;
     }
 
-    bool FunctionGroup::hasFunction(const std::vector<DataType>& parameters) const {
-      for (const auto &function : functions_) {
-        if (std::holds_alternative<FunctionValue>(function)) {
-          const auto &functionValue = std::get<FunctionValue>(function);
-          if (functionValue.parameters.size() == parameters.size()) {
-            bool match = true;
-            for (int i = 0; i < parameters.size(); i++) {
-              if (functionValue.parameters[i].type.base() != parameters[i].base()) {
-                match = false;
-                break;
-              }
+    const FunctionOverload* FunctionValue::getOverload(const std::vector<DataType>& parameters) const {
+        for (auto& function: overloads_) {
+            if (auto* interpreted = std::get_if<InterpretedFunction>(&function)) {
+                if (interpreted->parameters.size() != parameters.size()) {
+                    continue;
+                }
+                bool match = true;
+                for (int i = 0; i < parameters.size(); i++) {
+                    if (interpreted->parameters[i].type != parameters[i]) {
+                        match = false;
+                        break;
+                    }
+                }
+                if (match) {
+                    return &function;
+                }
             }
-            if (match) {
-              return true;
+            else if (auto* native = std::get_if<NativeFunction>(&function)) {
+                if (native->parameters.size() != parameters.size()) {
+                    continue;
+                }
+                bool match = true;
+                for (int i = 0; i < parameters.size(); i++) {
+                    if (native->parameters[i].base() != parameters[i].base()) {
+                        match = false;
+                        break;
+                    }
+                }
+                if (match) {
+                    return &function;
+                }
             }
-          }
-        } else if(std::holds_alternative<NativeFunctionValue>(function)) {
-          const auto &functionValue = std::get<NativeFunctionValue>(function);
-          if (functionValue.parameters.size() == parameters.size()) {
-            bool match = true;
-            for (int i = 0; i < parameters.size(); i++) {
-              if (functionValue.parameters[i].base() != parameters[i].base()) {
-                match = false;
-                break;
-              }
-            }
-            if (match) {
-              return true;
-            }
-          }
         }
-      }
+        return nullptr;
     }
 
-    SimpleFunctionValue& FunctionGroup::getFunction(const std::vector<DataType>& parameters) {
-      for (auto &function : functions_) {
-        if (std::holds_alternative<FunctionValue>(function)) {
-          const auto &functionValue = std::get<FunctionValue>(function);
-          if (functionValue.parameters.size() == parameters.size()) {
-            bool match = true;
-            for (int i = 0; i < parameters.size(); i++) {
-              if (functionValue.parameters[i].type.base() != parameters[i].base()) {
-                match = false;
-                break;
-              }
-            }
-            if (match) {
-              return function;
-            }
-          }
-        } else if (std::holds_alternative<NativeFunctionValue>(function)) {
-          const auto &functionValue = std::get<NativeFunctionValue>(function);
-          if (functionValue.parameters.size() == parameters.size()) {
-            bool match = true;
-            for (int i = 0; i < parameters.size(); i++) {
-              if (functionValue.parameters[i].base() != parameters[i].base()) {
-                match = false;
-                break;
-              }
-            }
-            if (match) {
-              return function;
-            }
-          }
-        }
-      }
-    }
 };

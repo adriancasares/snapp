@@ -9,24 +9,18 @@
 namespace Snapp {
 
     class Scope;
-    class SyntaxNode;
 
     class ClassValue {
     public:
-        ClassValue() = default;
+        ClassValue();
 
-        Scope* scope() const;
-        const std::vector<FunctionValue>& constructors() const;
-
-        void addConstructor(const FunctionValue& constructor);
+        FunctionValue& constructor();
+        Scope* scope();
         void setScope(Scope* scope);
 
-        bool hasConstructor(const std::vector<DataType>& arguments) const;
-        FunctionValue* getConstructor(const std::vector<DataType>& arguments);
-
     private:
+        FunctionValue constructor_;
         Scope* scope_;
-        std::vector<FunctionValue> constructors_;
     };
 
 }

@@ -6,8 +6,8 @@
 
 namespace Snapp::Native {
 
-    FunctionGroup createPrintFunction();
-    FunctionGroup createInputFunction();
+    FunctionValue createPrintFunction();
+    FunctionValue createInputFunction();
 
 }
 

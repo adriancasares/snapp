@@ -1,9 +1,12 @@
 class A {
     str name;
 
-    make A(str name) {
+    new A(str name) {
         this.name = name;
     }
 }
 
-A();
+A a1 = A("gamer");
+print(a1.name);
+A a2 = A();
+print(a2.name);

@@ -1,4 +1,5 @@
 #include "semantics/scope.h"
+#include "value/class.h"
 #include "error/runtimeError.h"
 
 namespace Snapp {
@@ -40,7 +41,7 @@ namespace Snapp {
         }
     }
 
-    void Scope::assign(const std::string &name, const Snapp::DataValue &value) {
+    void Scope::assign(const std::string &name, const DataValue &value) {
         if (auto it = identifiers_.find(name); it != identifiers_.end()) {
             it->second = value;
         } else if (parent_) {
@@ -54,11 +55,7 @@ namespace Snapp {
         if (has(name)) {
             assign(name, value);
         }
-
-        identifiers_.insert_or_assign(
-            name,
-            value
-        );
+        identifiers_.insert_or_assign(name, value);
     }
 
 }

@@ -3,8 +3,6 @@
 
 #include "dataType.h"
 #include "dataValue.h"
-#include "function.h"
-#include "class.h"
 
 #include <functional>
 #include <optional>
@@ -13,10 +11,10 @@
 #include <vector>
 
 namespace Snapp {
-//
+
     class SyntaxNode;
 
-    struct FunctionValue {
+    struct InterpretedFunction {
         struct Parameter {
             DataType type;
             std::string name;
@@ -27,29 +25,29 @@ namespace Snapp {
         SyntaxNode* body;
     };
 
-    struct NativeFunctionValue {
+    struct NativeFunction {
         DataType returnType;
         std::vector<DataType> parameters;
         std::function<std::optional<DataValue>(const std::vector<DataValue>&)> body;
     };
 
-    using SimpleFunctionValue = std::variant<FunctionValue, NativeFunctionValue>;
+    using FunctionOverload = std::variant<InterpretedFunction, NativeFunction>;
 
-    class FunctionGroup {
+    class FunctionValue {
     public:
-        FunctionGroup();
+        FunctionValue() = default;
 
-        std::vector<SimpleFunctionValue>& functions();
-        const std::vector<SimpleFunctionValue>& functions() const;
+        std::vector<FunctionOverload>& overloads();
+        const std::vector<FunctionOverload>& overloads() const;
 
-        bool hasFunction(const std::vector<DataType>& parameters) const;
-        SimpleFunctionValue& getFunction(const std::vector<DataType>& parameters);
+        const FunctionOverload* getOverload(const std::vector<DataType>& parameters) const;
 
-        void addFunction(const FunctionValue& function);
-        void addFunction(const NativeFunctionValue& function);
+        void addOverload(const InterpretedFunction& function);
+        void addOverload(const NativeFunction& function);
+        void addOverload(const FunctionOverload& function);
 
     private:
-        std::vector<SimpleFunctionValue> functions_;
+        std::vector<FunctionOverload> overloads_;
     };
 
 }

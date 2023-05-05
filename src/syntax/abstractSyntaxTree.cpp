@@ -233,13 +233,6 @@ namespace Snapp {
                     delete block;
                     return nullptr;
                 }
-                // this is flawed in some regards (namely, scoping)
-                /*else if (block->statements.size() == 1) {
-                    auto* statement = block->statements.back();
-                    block->statements.pop_back();
-                    delete block;
-                    return statement;
-                }*/
                 return block;
             }
             bool isPrivate = false, visibilitySpecified = false;

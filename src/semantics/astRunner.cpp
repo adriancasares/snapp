@@ -488,7 +488,9 @@ namespace Snapp {
             for (size_t index = 0; index < interpreted->parameters.size(); index++) {
                 currentScope().add(interpreted->parameters[index].name, *runASTNode(functionCall->arguments[index]));
             }
-            return runASTNode(interpreted->body);
+            auto returnValue = runASTNode(interpreted->body);
+            scopeIndex_ = parent;
+            return returnValue;
         }
 
         return {};

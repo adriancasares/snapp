@@ -3,24 +3,35 @@
 
 #include "dataType.h"
 #include "function.h"
-
+#include "error/runtimeError.h"
 #include <vector>
 
 namespace Snapp {
 
     class Scope;
 
+    struct ClassAttribute {
+        DataType type;
+        SyntaxNode* initializer;
+    };
+    using ClassIdentifierValue = std::variant<ClassAttribute, FunctionValue>;
+
     class ClassValue {
     public:
         ClassValue();
 
         FunctionValue& constructor();
-        Scope* scope();
-        void setScope(Scope* scope);
 
-    private:
+        ClassIdentifierValue& get(const std::string& name);
+        bool has(const std::string& name) const;
+        void add(const std::string& name, const ClassIdentifierValue& value);
+        void assign(const std::string& name, const ClassIdentifierValue& value);
+
+
+     private:
         FunctionValue constructor_;
-        Scope* scope_;
+        std::map<std::string, ClassIdentifierValue> identifiers_;
+
     };
 
 }

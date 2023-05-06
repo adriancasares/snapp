@@ -1,13 +1,4 @@
-/*
+
 class A {
     str name = "";
 }
-*/
-
-void b() {
-    str a = "";
-}
-
-b();
-
-print("a");

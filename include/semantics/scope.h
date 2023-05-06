@@ -6,16 +6,18 @@
 
 #include <map>
 #include <string>
-
+#include "value/class.h"
 namespace Snapp {
 
     class Scope {
     public:
-        Scope(Scope* parent, bool strong, bool isFunction = false, bool isClass = true);
+        Scope(Scope* parent, bool strong, bool isFunction = false, ClassValue* classValue = nullptr);
 
         bool isFunction() const;
         bool hasParent() const;
         bool isClass() const;
+        ClassValue* getClass() const;
+
         bool isStrong() const;
         Scope* parent() const;
 
@@ -27,7 +29,7 @@ namespace Snapp {
     private:
         Scope* parent_;
         bool strong_;
-        bool isClass_;
+        ClassValue* class_;
         bool isFunction_;
         std::map<std::string, DataValue> identifiers_;
     };

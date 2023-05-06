@@ -20,7 +20,7 @@ namespace Snapp {
         if (std::holds_alternative<FunctionValue>(value)) {
             return {BaseDataType::Function, "Function", false};
         }
-        if (std::holds_alternative<ClassValue>(value)) {
+        if (std::holds_alternative<ClassValue*>(value)) {
             return {BaseDataType::Class, "Class", false};
         }
         return {BaseDataType::Unknown, "Unknown", false};

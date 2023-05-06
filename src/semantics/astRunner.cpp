@@ -1,3 +1,4 @@
+#include "semantics/scope.h"
 #include "semantics/astRunner.h"
 #include "native/nativeGroup.h"
 #include "error/runtimeError.h"
@@ -32,15 +33,16 @@ namespace Snapp {
         return *scopes_[scopeIndex_];
     }
 
-    Scope& ASTRunner::currentHardScope() {
+    Scope& ASTRunner::currentStrongScope() {
         Scope* scope = scopes_[scopeIndex_];
-        while (scope->hasParent()) {
-            scope = scope->parent();
+
+        while (!scope->isStrong() && scope->hasParent()) {
+          scope = scope->parent();
         }
         return *scope;
     }
 
-    size_t ASTRunner::createScope(bool strong, bool isFunction, bool isClass) {
+    size_t ASTRunner::createScope(bool strong, bool isFunction, ClassValue* classValue) {
         // if a weak scope is being created, directly inherit all scopes of the parent (current)
         // if a strong scope is being created, use the uppermost scope as the parent
         if(strong) {
@@ -52,19 +54,14 @@ namespace Snapp {
 
             size_t old = scopeIndex_;
             scopeIndex_ = scopes_.size();
-            scopes_.push_back(new Scope(parent, strong, isFunction, isClass));
+            scopes_.push_back(new Scope(parent, strong, isFunction, classValue));
             return old;
         } else {
             size_t old = scopeIndex_;
             scopeIndex_ = scopes_.size();
-            scopes_.push_back(new Scope(scopes_[old], strong, isFunction, isClass));
+            scopes_.push_back(new Scope(scopes_[old], strong, isFunction, classValue));
             return old;
         }
-
-        size_t parent = scopeIndex_;
-        scopeIndex_ = scopes_.size();
-        scopes_.push_back(new Scope(scopes_[parent], strong, isFunction, isClass));
-        return parent;
     }
 
     std::optional<DataValue> ASTRunner::runASTNode(const SyntaxNode *node) {
@@ -344,14 +341,15 @@ namespace Snapp {
                 }
                 throw RuntimeError("no matching function overload found");
             }
-            else if (auto* classValue = std::get_if<ClassValue>(&callee)) {
+            else if (auto* classValue = std::get_if<ClassValue*>(&callee)) {
                 std::vector<DataType> parameters;
                 parameters.reserve(functionCall->arguments.size());
+
                 for (auto* argument : functionCall->arguments) {
                     parameters.push_back(dataTypeOf(*runASTNode(argument)));
                 }
 
-                if (auto* overload = classValue->constructor().getOverload(parameters)) {
+                if (auto* overload = (*classValue)->constructor().getOverload(parameters)) {
                     runFunction(*overload, functionCall);
                 }
                 throw RuntimeError("no matching class constructor found");
@@ -361,11 +359,24 @@ namespace Snapp {
         }
 
         if (auto* variableDeclaration = dynamic_cast<const SyntaxNodeVariableDeclaration*>(node)) {
-            DataValue value = *runASTNode(variableDeclaration->value);
+            if(currentStrongScope().isClass()) {
+              ClassValue *classValue = currentStrongScope().getClass();
 
-            DEBUG_ONLY std::cout << "[" << scopeIndex_ << "] Variable (" << variableDeclaration->dataType << " " << variableDeclaration->identifier->name << "): " << *convertStr(value) << std::endl;
+              ClassAttribute attribute = {
+                  variableDeclaration->dataType,
+                  variableDeclaration->value
+              };
 
-            currentScope().add(variableDeclaration->identifier->name, value);
+              DEBUG_ONLY std::cout << "[" << scopeIndex_ << "] Attribute (" << variableDeclaration->dataType << " " << variableDeclaration->identifier->name << std::endl;
+
+              classValue->add(variableDeclaration->identifier->name, attribute);
+            } else {
+              DataValue value = *runASTNode(variableDeclaration->value);
+
+              DEBUG_ONLY std::cout << "[" << scopeIndex_ << "] Variable (" << variableDeclaration->dataType << " " << variableDeclaration->identifier->name << "): " << *convertStr(value) << std::endl;
+
+              currentScope().add(variableDeclaration->identifier->name, value);
+            }
         }
 
         if (auto* blockStatement = dynamic_cast<const SyntaxNodeBlockStatement*>(node)) {
@@ -478,11 +489,11 @@ namespace Snapp {
         }
 
         if (auto* classDeclaration = dynamic_cast<const SyntaxNodeClassDeclaration*>(node)) {
-            ClassValue classValue;
+            ClassValue* classValue = new ClassValue();
+
             currentScope().add(classDeclaration->identifier->name, classValue);
 
-            size_t parent = createScope(true, false, true);
-            classValue.setScope(&currentScope());
+            size_t parent = createScope(true, false, classValue);
 
             runASTNode(classDeclaration->body);
 

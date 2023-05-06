@@ -1,4 +1,8 @@
 
 class A {
     str name = "";
+
+    void printName() {
+        print(name);
+    }
 }

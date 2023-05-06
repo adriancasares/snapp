@@ -461,8 +461,6 @@ namespace Snapp {
         if (auto* functionDeclaration = dynamic_cast<const SyntaxNodeFunctionDeclaration*>(node)) {
             std::string name = functionDeclaration->identifier->name;
 
-            DEBUG_ONLY std::cout << "Function Declaration: " << functionDeclaration->output() << std::endl;
-
             InterpretedFunction newFunction = {
                 functionDeclaration->returnType,
                 {},
@@ -473,18 +471,35 @@ namespace Snapp {
                 newFunction.parameters.push_back({parameter->dataType, parameter->identifier->name});
             }
 
-            if (currentScope().has(name)) {
+            if(currentStrongScope().isClass()) {
+              DEBUG_ONLY std::cout << "Method Declaration: " << functionDeclaration->output() << std::endl;
+              ClassValue *classValue = currentStrongScope().getClass();
+
+              if(classValue->has(name)) {
                 DataValue& value = currentScope().get(name);
                 if (auto* functionValue = std::get_if<FunctionValue>(&value)) {
-                    functionValue->addOverload(newFunction);
+                  functionValue->addOverload(newFunction);
                 }
-            }
-            else {
+              } else {
+                FunctionValue functionValue;
+                functionValue.addOverload(newFunction);
+                classValue->add(name, functionValue);
+              }
+            } else {
+              DEBUG_ONLY std::cout << "Function Declaration: " << functionDeclaration->output() << std::endl;
+              if (currentScope().has(name)) {
+                DataValue& value = currentScope().get(name);
+                if (auto* functionValue = std::get_if<FunctionValue>(&value)) {
+                  functionValue->addOverload(newFunction);
+                }
+              }
+              else {
                 FunctionValue functionValue;
                 functionValue.addOverload(newFunction);
                 currentScope().add(functionDeclaration->identifier->name, functionValue);
+              }
             }
-            
+
             return {};
         }
 

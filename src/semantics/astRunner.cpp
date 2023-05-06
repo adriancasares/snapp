@@ -17,7 +17,7 @@ namespace Snapp {
 
     ASTRunner::ASTRunner(bool enableDebug) {
         debugEnabled_ = enableDebug;
-        scopes_.push_back(new Scope());
+        scopes_.push_back(new Scope(nullptr, true));
         scopeIndex_ = 0;
         Native::injectNativeGroup(scopes_[scopeIndex_]);
     }
@@ -32,10 +32,38 @@ namespace Snapp {
         return *scopes_[scopeIndex_];
     }
 
-    size_t ASTRunner::createScope(bool isFunction, bool isClass) {
+    Scope& ASTRunner::currentHardScope() {
+        Scope* scope = scopes_[scopeIndex_];
+        while (scope->hasParent()) {
+            scope = scope->parent();
+        }
+        return *scope;
+    }
+
+    size_t ASTRunner::createScope(bool strong, bool isFunction, bool isClass) {
+        // if a weak scope is being created, directly inherit all scopes of the parent (current)
+        // if a strong scope is being created, use the uppermost scope as the parent
+        if(strong) {
+            Scope* parent = scopes_[scopeIndex_];
+
+            while (parent->hasParent()) {
+                parent = parent->parent();
+            }
+
+            size_t old = scopeIndex_;
+            scopeIndex_ = scopes_.size();
+            scopes_.push_back(new Scope(parent, strong, isFunction, isClass));
+            return old;
+        } else {
+            size_t old = scopeIndex_;
+            scopeIndex_ = scopes_.size();
+            scopes_.push_back(new Scope(scopes_[old], strong, isFunction, isClass));
+            return old;
+        }
+
         size_t parent = scopeIndex_;
         scopeIndex_ = scopes_.size();
-        scopes_.push_back(new Scope(scopes_[parent], isFunction, isClass));
+        scopes_.push_back(new Scope(scopes_[parent], strong, isFunction, isClass));
         return parent;
     }
 
@@ -341,7 +369,7 @@ namespace Snapp {
         }
 
         if (auto* blockStatement = dynamic_cast<const SyntaxNodeBlockStatement*>(node)) {
-            size_t parent = createScope();
+            size_t parent = createScope(false);
             std::optional<DataValue> value;
 
             DEBUG_ONLY std::cout << "[" << scopeIndex_ << "] Block Statement: start" << std::endl;
@@ -365,7 +393,7 @@ namespace Snapp {
         }
 
         if (auto* ifStatement = dynamic_cast<const SyntaxNodeIfStatement*>(node)) {
-            size_t parent = createScope();
+            size_t parent = createScope(false);
             std::optional<DataValue> value;
             if (*convertBool(*runASTNode(ifStatement->condition))) {
                 DEBUG_ONLY std::cout << "[" << scopeIndex_ << "] If Statement: condition is true" << std::endl;
@@ -384,7 +412,7 @@ namespace Snapp {
         }
 
         if (auto* whileStatement = dynamic_cast<const SyntaxNodeWhileStatement*>(node)) {
-            size_t parent = createScope();
+            size_t parent = createScope(false);
             while (*convertBool(*runASTNode(whileStatement->condition))) {
                 DEBUG_ONLY std::cout << "[" << scopeIndex_ << "] While Statement: iteration" << std::endl;
 
@@ -397,7 +425,7 @@ namespace Snapp {
         }
 
         if (auto* forStatement = dynamic_cast<const SyntaxNodeForStatement*>(node)) {
-            size_t parent = createScope();
+            size_t parent = createScope(false);
             runASTNode(forStatement->initialize);
 
             while (*convertBool(*runASTNode(forStatement->condition))) {
@@ -453,7 +481,7 @@ namespace Snapp {
             ClassValue classValue;
             currentScope().add(classDeclaration->identifier->name, classValue);
 
-            size_t parent = createScope(false, true);
+            size_t parent = createScope(true, false, true);
             classValue.setScope(&currentScope());
 
             runASTNode(classDeclaration->body);
@@ -484,7 +512,7 @@ namespace Snapp {
             return nativeFunctionValue->body(arguments);
         }
         else if (auto* interpreted = std::get_if<InterpretedFunction>(&callee)) {
-            size_t parent = createScope(true);
+            size_t parent = createScope(true, true);
             for (size_t index = 0; index < interpreted->parameters.size(); index++) {
                 currentScope().add(interpreted->parameters[index].name, *runASTNode(functionCall->arguments[index]));
             }

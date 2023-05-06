@@ -4,7 +4,9 @@
 
 namespace Snapp {
 
-    Scope::Scope(Scope* parent, bool isFunction, bool isClass) {
+    Scope::Scope(Scope* parent, bool strong, bool isFunction, bool isClass) {
+        identifiers_ = std::map<std::string, DataValue>();
+        strong_ = strong;
         parent_ = parent;
         isClass_ = isClass;
         isFunction_ = isFunction;
@@ -23,7 +25,7 @@ namespace Snapp {
     }
 
     bool Scope::has(const std::string& name) const {
-        if (auto it = identifiers_.find(name); it != identifiers_.end()) {
+        if (identifiers_.find(name) != identifiers_.end()) {
             return true;
         } else if (parent_) {
             return parent_->has(name);
@@ -56,6 +58,10 @@ namespace Snapp {
             assign(name, value);
         }
         identifiers_.insert_or_assign(name, value);
+    }
+
+    Scope* Scope::parent() const {
+        return parent_;
     }
 
 }

@@ -19,13 +19,14 @@ namespace Snapp {
         static void runAST(const AbstractSyntaxTree& ast, bool enableDebug = false);
 
         Scope& currentScope();
+        Scope& currentHardScope();
 
     private:
         std::vector<Scope*> scopes_;
         size_t scopeIndex_;
         bool debugEnabled_;
 
-        size_t createScope(bool isFunction = false, bool isClass = false);
+        size_t createScope(bool strong, bool isFunction = false, bool isClass = false);
         std::optional<DataValue> runASTNode(const SyntaxNode* node);
         std::optional<DataValue> runFunction(const FunctionOverload& function, const SyntaxNodeFunctionCall* call);
     };

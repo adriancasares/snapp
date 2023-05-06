@@ -1,12 +1,13 @@
+/*
 class A {
-    str name;
+    str name = "";
+}
+*/
 
-    new A(str name) {
-        this.name = name;
-    }
+void b() {
+    str a = "";
 }
 
-A a1 = A("gamer");
-print(a1.name);
-A a2 = A();
-print(a2.name);
+b();
+
+print("a");

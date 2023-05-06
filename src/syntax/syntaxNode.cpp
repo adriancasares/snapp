@@ -302,4 +302,38 @@ namespace Snapp {
         return out.str();
     }
 
+    SyntaxNodeConstructorDeclaration::SyntaxNodeConstructorDeclaration(std::vector<SyntaxNodeVariableDeclaration*> parameters, SyntaxNode* body, bool isPrivate) :
+        parameters(parameters),
+        body(body),
+        isPrivate(isPrivate) {}
+
+    SyntaxNodeConstructorDeclaration::~SyntaxNodeConstructorDeclaration() {
+        delete body;
+        for (auto* parameter : parameters) {
+            delete parameter;
+        }
+    }
+
+    std::string SyntaxNodeConstructorDeclaration::output() const {
+      std::ostringstream out;
+      out << "cr[";
+      if (isPrivate) {
+        out << "private, ";
+      }
+
+      out << "?](";
+
+      for (int i = 0; i < parameters.size(); ++i) {
+        if (i != 0) {
+          out << ", ";
+        }
+        out << parameters[i]->output();
+      }
+      out << "){";
+      if (body) {
+        out << body->output();
+      }
+      out << "}";
+      return out.str();
+    }
 }

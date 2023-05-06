@@ -5,4 +5,8 @@ class A {
     void printName() {
         print(name);
     }
+
+    new () {
+        print("A.new()");
+    }
 }

@@ -3,7 +3,8 @@
 
 namespace Snapp {
 
-    ClassValue::ClassValue() {
+    ClassValue::ClassValue(std::string name) {
+        name_ = name;
     }
 
     FunctionValue& ClassValue::constructor() {
@@ -35,5 +36,9 @@ namespace Snapp {
         assign(name, value);
       }
       identifiers_.insert_or_assign(name, value);
+    }
+
+    std::string ClassValue::name() const {
+        return name_;
     }
 }

@@ -18,17 +18,18 @@ namespace Snapp {
 
     class ClassValue {
     public:
-        ClassValue();
-
+        ClassValue(std::string name);
         FunctionValue& constructor();
 
         ClassIdentifierValue& get(const std::string& name);
+        std::string name() const;
         bool has(const std::string& name) const;
         void add(const std::string& name, const ClassIdentifierValue& value);
         void assign(const std::string& name, const ClassIdentifierValue& value);
 
 
      private:
+        std::string name_;
         FunctionValue constructor_;
         std::map<std::string, ClassIdentifierValue> identifiers_;
 

@@ -152,6 +152,16 @@ namespace Snapp {
         SyntaxNode* body;
     };
 
+    class SyntaxNodeConstructorDeclaration : public SyntaxNode {
+    public:
+        SyntaxNodeConstructorDeclaration(std::vector<SyntaxNodeVariableDeclaration*> parameters, SyntaxNode* body, bool isPrivate = false);
+        ~SyntaxNodeConstructorDeclaration();
+        std::string output() const;
+        std::vector<SyntaxNodeVariableDeclaration*> parameters;
+        SyntaxNode* body;
+        bool isPrivate;
+    };
+
 }
 
 #endif /* SNAPP_SYNTAX_SYNTAXNODE_H_ */

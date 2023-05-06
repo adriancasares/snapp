@@ -19,6 +19,7 @@ namespace Snapp {
         Class,
         Observe,
         As,
+        New,
     };
 
     const std::map<Keyword, std::string> keywordNames = {
@@ -32,6 +33,7 @@ namespace Snapp {
         {Keyword::Class, "Class"},
         {Keyword::Observe, "Observe"},
         {Keyword::As, "As"},
+        {Keyword::New, "New"},
     };
 
     const std::map<std::string, Keyword> literalToKeyword = {
@@ -45,6 +47,7 @@ namespace Snapp {
         {"class", Keyword::Class},
         {"observe", Keyword::Observe},
         {"as", Keyword::As},
+        {"new", Keyword::New},
     };
 
     Keyword findKeyword(const std::string& content);

@@ -253,6 +253,34 @@ namespace Snapp {
                 auto* body = parseStatement(iter, end);
                 return new SyntaxNodeClassDeclaration(new SyntaxNodeIdentifier(name), body, isPrivate);
             }
+            else if(iter->has(Keyword::New)) {
+              nextToken(iter, end);
+              if (iter->has(Symbol::ParenLeft)) {
+                nextToken(iter, end);
+                std::vector<SyntaxNodeVariableDeclaration*> parameters;
+
+                while (!iter->has(Symbol::ParenRight)) {
+                  if (auto* parameter = dynamic_cast<SyntaxNodeVariableDeclaration*>(tryParseDeclaration(iter, end, StopperRule::CommaOrParenRight))) {
+                    parameters.push_back(parameter);
+                  } else {
+                    throw SyntaxError("invalid function parameter", iter->start(), iter->start());
+                  }
+                  if (iter->has(Symbol::Comma)) {
+                    nextToken(iter, end);
+                  }
+                }
+
+                nextToken(iter, end);
+                iter->expect(Symbol::CurlyLeft);
+                auto* body = parseStatement(iter, end);
+
+                DataType dataType(findBaseDataType("constructor"), "constructor", false);
+
+                return new SyntaxNodeConstructorDeclaration(parameters, body, isPrivate);
+              } else {
+                throw SyntaxError("expected '('", iter->start(), iter->start());
+              }
+            }
             else if (auto* declaration = tryParseDeclaration(iter, end, StopperRule::Semicolon, true, isPrivate)) {
                 return declaration;
             }

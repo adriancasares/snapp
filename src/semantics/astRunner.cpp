@@ -474,7 +474,6 @@ namespace Snapp {
             if(currentStrongScope().isClass()) {
               DEBUG_ONLY std::cout << "Method Declaration: " << functionDeclaration->output() << std::endl;
               ClassValue *classValue = currentStrongScope().getClass();
-
               if(classValue->has(name)) {
                 DataValue& value = currentScope().get(name);
                 if (auto* functionValue = std::get_if<FunctionValue>(&value)) {
@@ -503,8 +502,35 @@ namespace Snapp {
             return {};
         }
 
+        if(auto* constructorDeclaration = dynamic_cast<const SyntaxNodeConstructorDeclaration*>(node)) {
+          if(currentStrongScope().isClass()) {
+            ClassValue* classValue = currentStrongScope().getClass();
+
+            DataType classType = DataType(BaseDataType::Object, classValue->name(), false);
+
+            InterpretedFunction newFunction = {
+                classType,
+                {},
+                constructorDeclaration->body,
+            };
+
+            for (auto parameter : constructorDeclaration->parameters) {
+                newFunction.parameters.push_back({parameter->dataType, parameter->identifier->name});
+            }
+
+            DEBUG_ONLY std::cout << "Constructor Declaration: " << constructorDeclaration->output() << std::endl;
+
+            FunctionValue constructor = classValue->constructor();
+
+            constructor.addOverload(newFunction);
+          } else {
+            throw std::runtime_error("Constructor declaration outside of class");
+          }
+
+          return {};
+        }
         if (auto* classDeclaration = dynamic_cast<const SyntaxNodeClassDeclaration*>(node)) {
-            ClassValue* classValue = new ClassValue();
+            ClassValue* classValue = new ClassValue(classDeclaration->identifier->name);
 
             currentScope().add(classDeclaration->identifier->name, classValue);
 

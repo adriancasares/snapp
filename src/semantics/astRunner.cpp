@@ -2,6 +2,7 @@
 #include "semantics/astRunner.h"
 #include "native/nativeGroup.h"
 #include "error/runtimeError.h"
+#include "value/object.h"
 
 #include <cmath>
 
@@ -324,7 +325,23 @@ namespace Snapp {
 
                 return right;
             }
-        }
+
+            if(binaryExpression->operation == Operation::Access) {
+                auto* identifier = dynamic_cast<const SyntaxNodeIdentifier*>(binaryExpression->leftSide);
+                auto* prop = dynamic_cast<const SyntaxNodeIdentifier*>(binaryExpression->rightSide);
+
+                auto* objectValue = std::get_if<ObjectValue*>(&currentScope().get(identifier->name));
+
+                if(!objectValue) {
+                    throw RuntimeError("cannot access member of non-object value");
+                }
+
+
+                auto& member = (*objectValue)->scope()->get(prop->name);
+
+                return member;
+            }
+         }
 
         if (auto* functionCall = dynamic_cast<const SyntaxNodeFunctionCall*>(node)) {
             DataValue callee = *runASTNode(functionCall->callee);
@@ -350,7 +367,22 @@ namespace Snapp {
                 }
 
                 if (auto* overload = (*classValue)->constructor().getOverload(parameters)) {
-                    runFunction(*overload, functionCall);
+                  ObjectValue *objectValue = new ObjectValue(*classValue);
+
+                  for(auto& identifier : (*classValue)->identifiers()) {
+                    if(auto* attribute = std::get_if<ClassAttribute>(&identifier.second)) {
+                      SyntaxNode* initializer = attribute->initializer;
+                      objectValue->scope()->add(identifier.first, *runASTNode(initializer));
+                    } else if(auto* function = std::get_if<FunctionValue>(&identifier.second)) {
+                      objectValue->scope()->add(identifier.first, *function);
+                    } else {
+                      throw RuntimeError("invalid class identifier");
+                    }
+                  }
+
+                  runFunction(*overload, functionCall);
+
+                  return objectValue;
                 }
                 throw RuntimeError("no matching class constructor found");
             } else {
@@ -512,6 +544,7 @@ namespace Snapp {
                 classType,
                 {},
                 constructorDeclaration->body,
+                true
             };
 
             for (auto parameter : constructorDeclaration->parameters) {
@@ -520,15 +553,14 @@ namespace Snapp {
 
             DEBUG_ONLY std::cout << "Constructor Declaration: " << constructorDeclaration->output() << std::endl;
 
-            FunctionValue constructor = classValue->constructor();
-
-            constructor.addOverload(newFunction);
+            classValue->constructor().addOverload(newFunction);
           } else {
             throw std::runtime_error("Constructor declaration outside of class");
           }
 
           return {};
         }
+
         if (auto* classDeclaration = dynamic_cast<const SyntaxNodeClassDeclaration*>(node)) {
             ClassValue* classValue = new ClassValue(classDeclaration->identifier->name);
 
@@ -549,7 +581,7 @@ namespace Snapp {
 //              runASTNode(argument);
 //          }
         }
-        
+
         return {};
     }
 

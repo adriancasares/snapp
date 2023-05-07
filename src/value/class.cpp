@@ -41,4 +41,12 @@ namespace Snapp {
     std::string ClassValue::name() const {
         return name_;
     }
+
+    std::map<std::string, ClassIdentifierValue>& ClassValue::identifiers() {
+        return identifiers_;
+    }
+
+    const std::map<std::string, ClassIdentifierValue>& ClassValue::identifiers() const {
+        return identifiers_;
+    }
 }

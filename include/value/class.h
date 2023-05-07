@@ -26,7 +26,8 @@ namespace Snapp {
         bool has(const std::string& name) const;
         void add(const std::string& name, const ClassIdentifierValue& value);
         void assign(const std::string& name, const ClassIdentifierValue& value);
-
+        std::map<std::string, ClassIdentifierValue>& identifiers();
+        const std::map<std::string, ClassIdentifierValue>& identifiers() const;
 
      private:
         std::string name_;

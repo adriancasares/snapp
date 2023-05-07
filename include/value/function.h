@@ -23,6 +23,7 @@ namespace Snapp {
         DataType returnType;
         std::vector<Parameter> parameters;
         SyntaxNode* body;
+        bool isConstructor;
     };
 
     struct NativeFunction {

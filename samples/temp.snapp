@@ -1,6 +1,5 @@
-
 class A {
-    str name = "";
+    str name = "caca";
 
     void printName() {
         print(name);
@@ -10,3 +9,7 @@ class A {
         print("A.new()");
     }
 }
+
+A value = A();
+
+print(value.name);

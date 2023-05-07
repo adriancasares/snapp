@@ -21,14 +21,13 @@ namespace Snapp {
         Scope& currentScope();
         Scope& currentStrongScope();
 
-    private:
-        std::vector<Scope*> scopes_;
-        size_t scopeIndex_;
-        bool debugEnabled_;
-
-        size_t createScope(bool strong, bool isFunction = false, ClassValue* classValue = nullptr);
         std::optional<DataValue> runASTNode(const SyntaxNode* node);
-        std::optional<DataValue> runFunction(const FunctionOverload& function, const SyntaxNodeFunctionCall* call);
+     private:
+      std::vector<Scope*> scopes_;
+      size_t scopeIndex_;
+      bool debugEnabled_;
+      size_t createScope(bool strong, bool isFunction = false, ClassValue* classValue = nullptr);
+      std::optional<DataValue> runFunction(const FunctionOverload& function, const SyntaxNodeFunctionCall* call);
     };
 
 }

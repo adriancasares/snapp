@@ -49,6 +49,7 @@ namespace Snapp {
           void addOverload(const FunctionOverload& function);
 
           void bind(ObjectValue* object);
+          void setScope(Scope* scope);
           Scope* scope() const;
       private:
           std::vector<FunctionOverload> overloads_;

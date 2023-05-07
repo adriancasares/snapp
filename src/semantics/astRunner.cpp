@@ -547,14 +547,19 @@ namespace Snapp {
             }
             else {
                 DEBUG_ONLY std::cout << "Function Declaration: " << functionDeclaration->output() << std::endl;
+
                 if (currentScope().has(name)) {
-                DataValue& value = currentScope().get(name);
+                    DataValue& value = currentScope().get(name);
                     if (auto* functionValue = std::get_if<FunctionValue>(&value)) {
+                        functionValue->setScope(scopes_[scopeIndex_]);
+
                         functionValue->addOverload(newFunction);
                     }
                 }
                 else {
                     FunctionValue functionValue;
+                    functionValue.setScope(scopes_[scopeIndex_]);
+
                     functionValue.addOverload(newFunction);
                     currentScope().add(functionDeclaration->identifier->name, functionValue);
                 }

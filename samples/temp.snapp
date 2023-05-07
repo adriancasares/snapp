@@ -3,6 +3,7 @@ class A {
 
     void printAge() {
         print(age);
+//        print(a);
     }
 
     void incrementAge() {
@@ -14,6 +15,11 @@ class A {
     }
 }
 
-A value = A();
-value.incrementAge();
-value.printAge();
+void run() {
+    A a = A();
+    a.printAge();
+    a.incrementAge();
+    a.printAge();
+}
+
+run();

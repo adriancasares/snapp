@@ -66,4 +66,8 @@ namespace Snapp {
     Scope* FunctionValue::scope() const {
         return *scope_;
     }
+
+    void FunctionValue::setScope(Scope* scope) {
+        scope_ = scope;
+    }
 };

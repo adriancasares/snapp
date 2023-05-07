@@ -2,6 +2,7 @@
 #include "semantics/astRunner.h"
 #include "native/nativeGroup.h"
 #include "error/runtimeError.h"
+#include "value/import.h"
 #include "value/object.h"
 #include "value/function.h"
 #include "syntax/tokenizer.h"
@@ -14,11 +15,19 @@
 
 namespace Snapp {
 
-    void ASTRunner::runAST(const AbstractSyntaxTree& ast, bool enableDebug) {
-        ASTRunner runner = ASTRunner(enableDebug);
+    Scope* ASTRunner::runAST(const AbstractSyntaxTree& ast, bool enableDebug, bool keep) {
+        ASTRunner* runner = new ASTRunner(enableDebug);
+
         for (auto* node : ast.root()) {
-            runner.runASTNode(node);
+            runner->runASTNode(node);
         }
+
+        if (!keep) {
+            delete runner;
+            return nullptr;
+        }
+
+        return runner->scopes_[0];
     }
 
     ASTRunner::ASTRunner(bool enableDebug) {
@@ -349,21 +358,31 @@ namespace Snapp {
                 auto* identifier = dynamic_cast<const SyntaxNodeIdentifier*>(binaryExpression->leftSide);
                 auto* prop = dynamic_cast<const SyntaxNodeIdentifier*>(binaryExpression->rightSide);
 
-                auto* objectValue = std::get_if<ObjectValue*>(&currentScope().get(identifier->name));
+                if(auto* objectValue = std::get_if<ObjectValue*>(&currentScope().get(identifier->name))) {
+                  auto& member = (*objectValue)->scope()->get(prop->name);
 
-                if(!objectValue) {
-                    throw RuntimeError("cannot access member of non-object value");
-                }
-
-
-                auto& member = (*objectValue)->scope()->get(prop->name);
-
-                if(auto* isFunction = std::get_if<FunctionValue>(&member)) {
+                  if(auto* isFunction = std::get_if<FunctionValue>(&member)) {
                     FunctionValue* functionValue = isFunction;
                     functionValue->bind(*objectValue);
-                }
+                  }
 
-                return member;
+                  return member;
+                }
+                else if(auto* importValue = std::get_if<ImportValue*>(&currentScope().get(identifier->name))) {
+                  // print all members of the import
+                  std::cout << (*importValue)->scope()->identifiers_.size() << std::endl;
+                  auto& member = (*importValue)->scope()->get(prop->name);
+
+                  if(auto* isFunction = std::get_if<FunctionValue>(&member)) {
+                    FunctionValue* functionValue = isFunction;
+                    functionValue->setScope((*importValue)->scope());
+                  }
+
+                  return member;
+                }
+                else {
+                  throw RuntimeError("cannot access property of non-object");
+                }
             }
          }
 
@@ -651,7 +670,11 @@ namespace Snapp {
 
                 auto ast = Snapp::AbstractSyntaxTree::fromTokens(tokens);
 
-                Snapp::ASTRunner::runAST(*ast, false);
+                Scope* scope = Snapp::ASTRunner::runAST(*ast, false, true);
+
+                ImportValue* importValue = new ImportValue(scope);
+
+                currentScope().add(importStatement->alias->name, importValue);
               } catch (const Snapp::SyntaxError& error) {
                 std::cerr << error.output(sourceCode) << std::endl;
                 return 1;

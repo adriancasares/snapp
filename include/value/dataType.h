@@ -17,6 +17,7 @@ namespace Snapp {
         Object,
         Function,
         Class,
+        Import,
     };
 
     const std::map<std::string, BaseDataType> nameToBaseDataType = {
@@ -26,6 +27,9 @@ namespace Snapp {
         {"bool", BaseDataType::Bool},
         {"str", BaseDataType::Str},
         {"Object", BaseDataType::Object},
+        {"Function", BaseDataType::Function},
+        {"Class", BaseDataType::Class},
+        {"Import", BaseDataType::Import},
     };
 
     BaseDataType findBaseDataType(const std::string& name);

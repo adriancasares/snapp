@@ -16,7 +16,7 @@ namespace Snapp {
         ASTRunner(bool enableDebug = false);
         ~ASTRunner();
 
-        static void runAST(const AbstractSyntaxTree& ast, bool enableDebug = false);
+        static Scope* runAST(const AbstractSyntaxTree& ast, bool enableDebug = false, bool keep = false);
 
         Scope& currentScope();
         Scope& currentStrongScope();

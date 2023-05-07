@@ -28,12 +28,12 @@ namespace Snapp {
 
         void setParent(Scope* parent);
 
-    private:
-        Scope* parent_;
-        bool strong_;
-        ClassValue* class_;
-        bool isFunction_;
-        std::map<std::string, DataValue> identifiers_;
+      std::map<std::string, DataValue> identifiers_;
+     private:
+      Scope* parent_;
+      bool strong_;
+      ClassValue* class_;
+      bool isFunction_;
     };
 
 }

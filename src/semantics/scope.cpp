@@ -72,4 +72,8 @@ namespace Snapp {
       return strong_;
     }
 
+    void Scope::setParent(Scope* parent) {
+        parent_ = parent;
+    }
+
 }

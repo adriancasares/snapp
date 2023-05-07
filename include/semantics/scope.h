@@ -26,6 +26,8 @@ namespace Snapp {
         void add(const std::string& name, const DataValue& value);
         void assign(const std::string& name, const DataValue& value);
 
+        void setParent(Scope* parent);
+
     private:
         Scope* parent_;
         bool strong_;

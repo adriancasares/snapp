@@ -26,8 +26,9 @@ namespace Snapp {
       std::vector<Scope*> scopes_;
       size_t scopeIndex_;
       bool debugEnabled_;
+      void setScope(Scope* scope);
       size_t createScope(bool strong, bool isFunction = false, ClassValue* classValue = nullptr);
-      std::optional<DataValue> runFunction(const FunctionOverload& function, const SyntaxNodeFunctionCall* call);
+      std::optional<DataValue> runFunction(const FunctionOverload& function, const SyntaxNodeFunctionCall* call, Scope* scope);
     };
 
 }

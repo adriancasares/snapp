@@ -13,6 +13,7 @@
 namespace Snapp {
 
     class SyntaxNode;
+    class Scope;
 
     struct InterpretedFunction {
         struct Parameter {
@@ -35,20 +36,23 @@ namespace Snapp {
     using FunctionOverload = std::variant<InterpretedFunction, NativeFunction>;
 
     class FunctionValue {
-    public:
-        FunctionValue() = default;
+      public:
+          FunctionValue() = default;
 
-        std::vector<FunctionOverload>& overloads();
-        const std::vector<FunctionOverload>& overloads() const;
+          std::vector<FunctionOverload>& overloads();
+          const std::vector<FunctionOverload>& overloads() const;
 
-        const FunctionOverload* getOverload(const std::vector<DataType>& parameters) const;
+          const FunctionOverload* getOverload(const std::vector<DataType>& parameters) const;
 
-        void addOverload(const InterpretedFunction& function);
-        void addOverload(const NativeFunction& function);
-        void addOverload(const FunctionOverload& function);
+          void addOverload(const InterpretedFunction& function);
+          void addOverload(const NativeFunction& function);
+          void addOverload(const FunctionOverload& function);
 
-    private:
-        std::vector<FunctionOverload> overloads_;
+          void bind(ObjectValue* object);
+          Scope* scope() const;
+      private:
+          std::vector<FunctionOverload> overloads_;
+          std::optional<Scope*> scope_;
     };
 
 }

@@ -3,6 +3,7 @@
 #include "native/nativeGroup.h"
 #include "error/runtimeError.h"
 #include "value/object.h"
+#include "value/function.h"
 
 #include <cmath>
 
@@ -40,6 +41,17 @@ namespace Snapp {
             scope = scope->parent();
         }
         return *scope;
+    }
+
+    void ASTRunner::setScope(Snapp::Scope *scope) {
+        for (size_t i = 0; i < scopes_.size(); i++) {
+            if (scopes_[i] == scope) {
+              scopeIndex_ = i;
+              return;
+            }
+        }
+
+        throw RuntimeError("Scope not found");
     }
 
     size_t ASTRunner::createScope(bool strong, bool isFunction, ClassValue* classValue) {
@@ -321,6 +333,10 @@ namespace Snapp {
 
                 DataValue right = *runASTNode(binaryExpression->rightSide);
 
+                // if right is a functionValue
+                if(auto* functionValue = std::get_if<FunctionValue>(&right)) {
+
+                }
                 currentScope().assign(identifier->name, right);
 
                 return right;
@@ -339,6 +355,11 @@ namespace Snapp {
 
                 auto& member = (*objectValue)->scope()->get(prop->name);
 
+                if(auto* isFunction = std::get_if<FunctionValue>(&member)) {
+                    FunctionValue* functionValue = isFunction;
+                    functionValue->bind(*objectValue);
+                }
+
                 return member;
             }
          }
@@ -354,19 +375,25 @@ namespace Snapp {
                 }
 
                 if (auto* overload = functionValue->getOverload(parameters)) {
-                    return runFunction(*overload, functionCall);
+                    return runFunction(*overload, functionCall, functionValue->scope());
                 }
                 throw RuntimeError("no matching function overload found");
             }
             else if (auto* classValue = std::get_if<ClassValue*>(&callee)) {
                 std::vector<DataType> parameters;
                 parameters.reserve(functionCall->arguments.size());
+
                 for (auto* argument : functionCall->arguments) {
                     parameters.push_back(dataTypeOf(*runASTNode(argument)));
                 }
 
                 if (auto* overload = (*classValue)->constructor().getOverload(parameters)) {
+
                   ObjectValue *objectValue = new ObjectValue(*classValue);
+
+                  scopes_.push_back(objectValue->scope());
+
+                  objectValue->scope()->setParent((*classValue)->scope());
 
                   for(auto& identifier : (*classValue)->identifiers()) {
                     if(auto* attribute = std::get_if<ClassAttribute>(&identifier.second)) {
@@ -379,12 +406,13 @@ namespace Snapp {
                     }
                   }
 
-                  runFunction(*overload, functionCall);
+                  runFunction(*overload, functionCall, objectValue->scope());
 
                   return objectValue;
                 }
                 throw RuntimeError("no matching class constructor found");
-            } else {
+            }
+            else {
                 DEBUG_ONLY std::cout << "[" << scopeIndex_ << "] Invalid callee: " << *convertStr(callee) << std::endl;
                 throw RuntimeError("attempt to call non-function");
             }
@@ -412,7 +440,6 @@ namespace Snapp {
         }
 
         if (auto* blockStatement = dynamic_cast<const SyntaxNodeBlockStatement*>(node)) {
-            size_t parent = createScope(false);
             std::optional<DataValue> value;
 
             DEBUG_ONLY std::cout << "[" << scopeIndex_ << "] Block Statement: start" << std::endl;
@@ -431,13 +458,13 @@ namespace Snapp {
 
             DEBUG_ONLY std::cout << "[" << scopeIndex_ << "] Block Statement: end" << std::endl;
 
-            scopeIndex_ = parent;
             return value;
         }
 
         if (auto* ifStatement = dynamic_cast<const SyntaxNodeIfStatement*>(node)) {
             size_t parent = createScope(false);
             std::optional<DataValue> value;
+
             if (*convertBool(*runASTNode(ifStatement->condition))) {
                 DEBUG_ONLY std::cout << "[" << scopeIndex_ << "] If Statement: condition is true" << std::endl;
 
@@ -570,6 +597,10 @@ namespace Snapp {
 
             size_t parent = createScope(true, false, classValue);
 
+            DEBUG_ONLY std::cout << "Class Declaration: " << classDeclaration->output() << std::endl;
+
+            classValue->setScope(&currentScope());
+
             runASTNode(classDeclaration->body);
 
             scopeIndex_ = parent;
@@ -587,7 +618,7 @@ namespace Snapp {
         return {};
     }
 
-    std::optional<DataValue> ASTRunner::runFunction(const FunctionOverload& callee, const SyntaxNodeFunctionCall* functionCall) {
+    std::optional<DataValue> ASTRunner::runFunction(const FunctionOverload& callee, const SyntaxNodeFunctionCall* functionCall, Scope* parent) {
         if (auto* nativeFunction = std::get_if<NativeFunction>(&callee)) {
             std::vector<DataValue> arguments;
             arguments.reserve(functionCall->arguments.size());
@@ -598,12 +629,15 @@ namespace Snapp {
             return nativeFunction->body(arguments);
         }
         else if (auto* interpretedFunction = std::get_if<InterpretedFunction>(&callee)) {
-            size_t parent = createScope(true, true);
+            size_t old = createScope(true, true);
+
+            currentScope().setParent(parent);
+
             for (size_t index = 0; index < interpretedFunction->parameters.size(); index++) {
                 currentScope().add(interpretedFunction->parameters[index].name, *runASTNode(functionCall->arguments[index]));
             }
             auto returnValue = runASTNode(interpretedFunction->body);
-            scopeIndex_ = parent;
+            scopeIndex_ = old;
             return returnValue;
         }
 

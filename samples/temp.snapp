@@ -1,15 +1,19 @@
 class A {
-    str name = "caca";
+    int age = 15;
 
-    void printName() {
-        print(name);
+    void printAge() {
+        print(age);
+    }
+
+    void incrementAge() {
+        age = age + 1;
     }
 
     new () {
-        print("A.new()");
+//        print("A.new()");
     }
 }
 
 A value = A();
-
-print(value.name);
+value.incrementAge();
+value.printAge();

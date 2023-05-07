@@ -49,4 +49,12 @@ namespace Snapp {
     const std::map<std::string, ClassIdentifierValue>& ClassValue::identifiers() const {
         return identifiers_;
     }
+
+    void ClassValue::setScope(Scope* scope) {
+        scope_ = scope;
+    }
+
+    Scope* ClassValue::scope() const {
+        return scope_;
+    }
 }

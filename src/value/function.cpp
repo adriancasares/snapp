@@ -1,4 +1,5 @@
 #include "value/function.h"
+#include "value/object.h"
 
 namespace Snapp {
 
@@ -58,4 +59,11 @@ namespace Snapp {
         return nullptr;
     }
 
+    void FunctionValue::bind(ObjectValue* object) {
+        scope_ = object->scope();
+    }
+
+    Scope* FunctionValue::scope() const {
+        return *scope_;
+    }
 };

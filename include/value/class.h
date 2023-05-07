@@ -29,10 +29,14 @@ namespace Snapp {
         std::map<std::string, ClassIdentifierValue>& identifiers();
         const std::map<std::string, ClassIdentifierValue>& identifiers() const;
 
+        void setScope(Scope* scope);
+        Scope* scope() const;
+
      private:
         std::string name_;
         FunctionValue constructor_;
         std::map<std::string, ClassIdentifierValue> identifiers_;
+        Scope* scope_;
 
     };
 

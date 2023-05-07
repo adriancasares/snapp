@@ -35,9 +35,8 @@ namespace Snapp {
 
     Scope& ASTRunner::currentStrongScope() {
         Scope* scope = scopes_[scopeIndex_];
-
         while (!scope->isStrong() && scope->hasParent()) {
-          scope = scope->parent();
+            scope = scope->parent();
         }
         return *scope;
     }
@@ -45,7 +44,7 @@ namespace Snapp {
     size_t ASTRunner::createScope(bool strong, bool isFunction, ClassValue* classValue) {
         // if a weak scope is being created, directly inherit all scopes of the parent (current)
         // if a strong scope is being created, use the uppermost scope as the parent
-        if(strong) {
+        if (strong) {
             Scope* parent = scopes_[scopeIndex_];
 
             while (parent->hasParent()) {
@@ -56,7 +55,8 @@ namespace Snapp {
             scopeIndex_ = scopes_.size();
             scopes_.push_back(new Scope(parent, strong, isFunction, classValue));
             return old;
-        } else {
+        }
+        else {
             size_t old = scopeIndex_;
             scopeIndex_ = scopes_.size();
             scopes_.push_back(new Scope(scopes_[old], strong, isFunction, classValue));
@@ -344,16 +344,17 @@ namespace Snapp {
             else if (auto* classValue = std::get_if<ClassValue*>(&callee)) {
                 std::vector<DataType> parameters;
                 parameters.reserve(functionCall->arguments.size());
-
                 for (auto* argument : functionCall->arguments) {
                     parameters.push_back(dataTypeOf(*runASTNode(argument)));
                 }
 
                 if (auto* overload = (*classValue)->constructor().getOverload(parameters)) {
                     runFunction(*overload, functionCall);
+                    return {};
                 }
                 throw RuntimeError("no matching class constructor found");
             } else {
+                DEBUG_ONLY std::cout << "[" << scopeIndex_ << "] Invalid callee: " << *convertStr(callee) << std::endl;
                 throw RuntimeError("attempt to call non-function");
             }
         }
@@ -471,64 +472,66 @@ namespace Snapp {
                 newFunction.parameters.push_back({parameter->dataType, parameter->identifier->name});
             }
 
-            if(currentStrongScope().isClass()) {
-              DEBUG_ONLY std::cout << "Method Declaration: " << functionDeclaration->output() << std::endl;
-              ClassValue *classValue = currentStrongScope().getClass();
-              if(classValue->has(name)) {
-                DataValue& value = currentScope().get(name);
-                if (auto* functionValue = std::get_if<FunctionValue>(&value)) {
-                  functionValue->addOverload(newFunction);
+            if (currentStrongScope().isClass()) {
+                DEBUG_ONLY std::cout << "Method Declaration: " << functionDeclaration->output() << std::endl;
+                ClassValue *classValue = currentStrongScope().getClass();
+                if (classValue->has(name)) {
+                    DataValue& value = currentScope().get(name);
+                    if (auto* functionValue = std::get_if<FunctionValue>(&value)) {
+                        functionValue->addOverload(newFunction);
+                    }
                 }
-              } else {
-                FunctionValue functionValue;
-                functionValue.addOverload(newFunction);
-                classValue->add(name, functionValue);
-              }
-            } else {
-              DEBUG_ONLY std::cout << "Function Declaration: " << functionDeclaration->output() << std::endl;
-              if (currentScope().has(name)) {
-                DataValue& value = currentScope().get(name);
-                if (auto* functionValue = std::get_if<FunctionValue>(&value)) {
-                  functionValue->addOverload(newFunction);
+                else {
+                    FunctionValue functionValue;
+                    functionValue.addOverload(newFunction);
+                    classValue->add(name, functionValue);
                 }
-              }
-              else {
-                FunctionValue functionValue;
-                functionValue.addOverload(newFunction);
-                currentScope().add(functionDeclaration->identifier->name, functionValue);
-              }
+            }
+            else {
+                DEBUG_ONLY std::cout << "Function Declaration: " << functionDeclaration->output() << std::endl;
+                if (currentScope().has(name)) {
+                DataValue& value = currentScope().get(name);
+                    if (auto* functionValue = std::get_if<FunctionValue>(&value)) {
+                        functionValue->addOverload(newFunction);
+                    }
+                }
+                else {
+                    FunctionValue functionValue;
+                    functionValue.addOverload(newFunction);
+                    currentScope().add(functionDeclaration->identifier->name, functionValue);
+                }
             }
 
             return {};
         }
 
-        if(auto* constructorDeclaration = dynamic_cast<const SyntaxNodeConstructorDeclaration*>(node)) {
-          if(currentStrongScope().isClass()) {
-            ClassValue* classValue = currentStrongScope().getClass();
-
-            DataType classType = DataType(BaseDataType::Object, classValue->name(), false);
-
-            InterpretedFunction newFunction = {
-                classType,
-                {},
-                constructorDeclaration->body,
-            };
-
-            for (auto parameter : constructorDeclaration->parameters) {
-                newFunction.parameters.push_back({parameter->dataType, parameter->identifier->name});
+        if (auto* constructorDeclaration = dynamic_cast<const SyntaxNodeConstructorDeclaration*>(node)) {
+            if (currentStrongScope().isClass()) {
+                ClassValue* classValue = currentStrongScope().getClass();
+                DataType classType = DataType(BaseDataType::Object, classValue->name(), false);
+    
+                InterpretedFunction newFunction = {
+                    classType,
+                    {},
+                    constructorDeclaration->body,
+                };
+    
+                for (auto parameter : constructorDeclaration->parameters) {
+                    newFunction.parameters.push_back({parameter->dataType, parameter->identifier->name});
+                }
+    
+                DEBUG_ONLY std::cout << "Constructor Declaration: " << constructorDeclaration->output() << std::endl;
+    
+                auto& constructor = classValue->constructor();
+                constructor.addOverload(newFunction);
+            }
+            else {
+                throw RuntimeError("Constructor declaration outside of class");
             }
 
-            DEBUG_ONLY std::cout << "Constructor Declaration: " << constructorDeclaration->output() << std::endl;
-
-            FunctionValue constructor = classValue->constructor();
-
-            constructor.addOverload(newFunction);
-          } else {
-            throw std::runtime_error("Constructor declaration outside of class");
-          }
-
-          return {};
+            return {};
         }
+        
         if (auto* classDeclaration = dynamic_cast<const SyntaxNodeClassDeclaration*>(node)) {
             ClassValue* classValue = new ClassValue(classDeclaration->identifier->name);
 
@@ -539,7 +542,7 @@ namespace Snapp {
             runASTNode(classDeclaration->body);
 
             scopeIndex_ = parent;
-            return classValue;
+            return {};
         }
 
         if (auto* observerDeclaration = dynamic_cast<const SyntaxNodeObserverDeclaration*>(node)) {
@@ -554,21 +557,21 @@ namespace Snapp {
     }
 
     std::optional<DataValue> ASTRunner::runFunction(const FunctionOverload& callee, const SyntaxNodeFunctionCall* functionCall) {
-        if (auto* nativeFunctionValue = std::get_if<NativeFunction>(&callee)) {
+        if (auto* nativeFunction = std::get_if<NativeFunction>(&callee)) {
             std::vector<DataValue> arguments;
             arguments.reserve(functionCall->arguments.size());
             for (auto* argument : functionCall->arguments) {
                 arguments.push_back(*runASTNode(argument));
             }
 
-            return nativeFunctionValue->body(arguments);
+            return nativeFunction->body(arguments);
         }
-        else if (auto* interpreted = std::get_if<InterpretedFunction>(&callee)) {
+        else if (auto* interpretedFunction = std::get_if<InterpretedFunction>(&callee)) {
             size_t parent = createScope(true, true);
-            for (size_t index = 0; index < interpreted->parameters.size(); index++) {
-                currentScope().add(interpreted->parameters[index].name, *runASTNode(functionCall->arguments[index]));
+            for (size_t index = 0; index < interpretedFunction->parameters.size(); index++) {
+                currentScope().add(interpretedFunction->parameters[index].name, *runASTNode(functionCall->arguments[index]));
             }
-            auto returnValue = runASTNode(interpreted->body);
+            auto returnValue = runASTNode(interpretedFunction->body);
             scopeIndex_ = parent;
             return returnValue;
         }

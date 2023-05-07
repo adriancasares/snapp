@@ -10,3 +10,6 @@ class A {
         print("A.new()");
     }
 }
+
+A a = A();
+a.printName();

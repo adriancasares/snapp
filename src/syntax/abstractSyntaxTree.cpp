@@ -356,6 +356,30 @@ namespace Snapp {
                 auto* value = parseExpression(iter, end, StopperRule::Semicolon);
                 return new SyntaxNodeReturnStatement(value);
             }
+            else if(iter->has(Keyword::Import)) {
+              // expect identifier or string
+                nextToken(iter, end);
+
+                if (auto* value = std::get_if<Identifier>(&iter->value())) {
+                    nextToken(iter, end);
+                    SyntaxNodeIdentifier* identifier = new SyntaxNodeIdentifier(value->name);
+                    return new SyntaxNodeImportStatement(identifier, identifier);
+                } else if (auto* value = std::get_if<std::string>(&iter->value())) {
+                    nextToken(iter, end);
+
+                    iter->expect(Keyword::As);
+
+                    nextToken(iter, end);
+
+                    std::string alias = iter->expectIdentifier().name;
+
+                    nextToken(iter, end);
+
+                    return new SyntaxNodeImportStatement(*value, new SyntaxNodeIdentifier(alias));
+                } else {
+                    throw SyntaxError("expected identifier or string", iter->start(), iter->end());
+                }
+            }
             else {
                 return parseExpression(iter, end, StopperRule::Semicolon);
             }
@@ -373,12 +397,12 @@ namespace Snapp {
         return root_;
     }
 
-    AbstractSyntaxTree AbstractSyntaxTree::fromTokens(const std::vector<Token>& tokens) {
+    AbstractSyntaxTree* AbstractSyntaxTree::fromTokens(const std::vector<Token>& tokens) {
         TokenIterator iter = tokens.begin(), end = tokens.end();
-        AbstractSyntaxTree tree;
+        AbstractSyntaxTree* tree = new AbstractSyntaxTree();
         while (iter != end) {
             if (auto* statement = parseStatement(iter, end, false)) {
-                tree.root_.push_back(statement);
+                tree->root_.push_back(statement);
             }
             ++iter;
         }

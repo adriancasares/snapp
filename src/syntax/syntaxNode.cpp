@@ -336,4 +336,32 @@ namespace Snapp {
       out << "}";
       return out.str();
     }
+
+    SyntaxNodeImportStatement::SyntaxNodeImportStatement(std::variant<SyntaxNodeIdentifier*, std::string> path, SyntaxNodeIdentifier* alias) :
+        path(path),
+        alias(alias) {}
+
+    SyntaxNodeImportStatement::~SyntaxNodeImportStatement() {
+      if (std::holds_alternative<SyntaxNodeIdentifier *>(path)) {
+        delete std::get<SyntaxNodeIdentifier *>(path);
+      } else {
+        std::get<std::string>(path).~basic_string();
+      }
+    }
+
+    bool SyntaxNodeImportStatement::isFile() const {
+      return std::holds_alternative<std::string>(path);
+    }
+
+    std::string SyntaxNodeImportStatement::output() const {
+      std::ostringstream out;
+      out << "import(";
+      if (std::holds_alternative<SyntaxNodeIdentifier *>(path)) {
+        out << std::get<SyntaxNodeIdentifier *>(path)->output();
+      } else {
+        out << std::get<std::string>(path);
+      }
+      out << ")";
+      return out.str();
+    }
 }

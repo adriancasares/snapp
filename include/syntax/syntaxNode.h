@@ -162,6 +162,15 @@ namespace Snapp {
         bool isPrivate;
     };
 
+    class SyntaxNodeImportStatement : public SyntaxNode {
+     public:
+      SyntaxNodeImportStatement(std::variant<SyntaxNodeIdentifier*, std::string> path, SyntaxNodeIdentifier* alias);
+      ~SyntaxNodeImportStatement();
+      std::string output() const;
+      SyntaxNodeIdentifier* alias;
+      std::variant<SyntaxNodeIdentifier*, std::string> path;
+      bool isFile() const;
+    };
 }
 
 #endif /* SNAPP_SYNTAX_SYNTAXNODE_H_ */

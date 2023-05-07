@@ -16,7 +16,7 @@ namespace Snapp {
 
         const std::vector<SyntaxNode*>& root() const;
 
-        static AbstractSyntaxTree fromTokens(const std::vector<Token>& tokens);
+        static AbstractSyntaxTree* fromTokens(const std::vector<Token>& tokens);
 
     private:
         std::vector<SyntaxNode*> root_;

@@ -1,25 +1,3 @@
-class A {
-    int age = 15;
+print("Hello World!");
 
-    void printAge() {
-        print(age);
-//        print(a);
-    }
-
-    void incrementAge() {
-        age = age + 1;
-    }
-
-    new () {
-//        print("A.new()");
-    }
-}
-
-void run() {
-    A a = A();
-    a.printAge();
-    a.incrementAge();
-    a.printAge();
-}
-
-run();
+import "../samples/import.snapp" as _import;

@@ -47,9 +47,9 @@ int main(int argc, char** argv) {
         std::vector<Snapp::Token> tokens = Snapp::Tokenizer::tokenize(sourceCode);
 
         auto ast = Snapp::AbstractSyntaxTree::fromTokens(tokens);
-        if (debugEnabled) std::cout << ast << std::endl;
+        if (debugEnabled) std::cout << *ast << std::endl;
 
-        Snapp::ASTRunner::runAST(ast, debugEnabled);
+        Snapp::ASTRunner::runAST(*ast, debugEnabled);
 
     } catch (const Snapp::SyntaxError& error) {
         std::cerr << error.output(sourceCode) << std::endl;

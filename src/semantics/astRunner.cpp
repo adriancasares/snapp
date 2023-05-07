@@ -4,8 +4,11 @@
 #include "error/runtimeError.h"
 #include "value/object.h"
 #include "value/function.h"
-
+#include "syntax/tokenizer.h"
+#include "error/syntaxError.h"
+#include <fstream>
 #include <cmath>
+#include <iostream>
 
 #define DEBUG_ONLY if (debugEnabled_)
 
@@ -620,6 +623,46 @@ namespace Snapp {
 //          }
         }
 
+        if(auto* importStatement = dynamic_cast<const SyntaxNodeImportStatement*>(node)) {
+            if(importStatement->isFile()) {
+              std::string sourceCode;
+
+              {
+                std::string sourcePath = std::get<std::string>(importStatement->path);
+                std::ifstream source (sourcePath);
+                if (!source.is_open()) {
+                  throw RuntimeError("Error: unable to read file '" + sourcePath + "'");
+                } else if(source.bad()) {
+                  throw RuntimeError("Error: unable to read file '" + sourcePath + "'");
+                } else if(source.fail()) {
+                  throw RuntimeError("Error: unable to read file '" + sourcePath + "'");
+                } else if(source.eof()) {
+                  throw RuntimeError("Error: unable to read file '" + sourcePath + "'");
+                } else if(source.good() && source.is_open()) {
+                  sourceCode.assign(std::istreambuf_iterator<char>(source), std::istreambuf_iterator<char>());
+                }
+
+              }
+
+              std::cout << "Importing file '" << std::get<std::string>(importStatement->path) << "'" << std::endl;
+
+              try {
+                std::vector<Snapp::Token> tokens = Snapp::Tokenizer::tokenize(sourceCode);
+
+                auto ast = Snapp::AbstractSyntaxTree::fromTokens(tokens);
+
+                Snapp::ASTRunner::runAST(*ast, false);
+              } catch (const Snapp::SyntaxError& error) {
+                std::cerr << error.output(sourceCode) << std::endl;
+                return 1;
+              } catch (const Snapp::RuntimeError& error) {
+                std::cerr << error.output() << std::endl;
+                return 1;
+              }
+            } else {
+              throw RuntimeError("Importing from a module is not yet supported");
+            }
+        }
         return {};
     }
 

@@ -1,3 +1,1 @@
-import "../samples/import.snapp" as myCustomImport;
-
-use_external_function("../library/test/test.cpp", 4.4, false);
+import "samples/import.snapp" as myCustomImport;

@@ -25,6 +25,10 @@ namespace Snapp {
 
     const FunctionOverload* FunctionValue::getOverload(const std::vector<DataType>& parameters) const {
         for (auto& function: overloads_) {
+            if (anyParameters_) {
+                return &function;
+            }
+
             if (auto* interpreted = std::get_if<InterpretedFunction>(&function)) {
                 if (interpreted->parameters.size() != parameters.size()) {
                     continue;
@@ -69,5 +73,13 @@ namespace Snapp {
 
     void FunctionValue::setScope(Scope* scope) {
         scope_ = scope;
+    }
+
+    void FunctionValue::setAnyParameters(bool anyParameters) {
+        anyParameters_ = anyParameters;
+    }
+
+    bool FunctionValue::anyParameters() const {
+        return anyParameters_;
     }
 };

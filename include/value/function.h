@@ -51,9 +51,14 @@ namespace Snapp {
           void bind(ObjectValue* object);
           void setScope(Scope* scope);
           Scope* scope() const;
+
+          void setAnyParameters(bool anyParameters);
+          bool anyParameters() const;
+
       private:
           std::vector<FunctionOverload> overloads_;
           std::optional<Scope*> scope_;
+          bool anyParameters_;
     };
 
 }

@@ -30,7 +30,8 @@ namespace Snapp {
     struct NativeFunction {
         DataType returnType;
         std::vector<DataType> parameters;
-        std::function<std::optional<DataValue>(const std::vector<DataValue>&)> body;
+        std::function<std::optional<DataValue>(const std::vector<DataValue>&, Scope*)> body;
+        bool isConstructor;
     };
 
     using FunctionOverload = std::variant<InterpretedFunction, NativeFunction>;

@@ -14,7 +14,7 @@ namespace Snapp {
     class DataType;
     class ImportValue;
 
-    using DataValue = std::variant<IntValue, FloatValue, BoolValue, StrValue, FunctionValue, ClassValue*, ObjectValue*, ImportValue*>;
+    using DataValue = std::variant<IntValue, FloatValue, BoolValue, StrValue, FunctionValue, ClassValue*, ObjectValue*, ImportValue*, void*>;
 
     DataType dataTypeOf(const DataValue& value);
 

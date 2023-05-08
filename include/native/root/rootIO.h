@@ -7,9 +7,7 @@
 
 namespace Snapp::Native {
 
-    FunctionValue createPrintFunction();
-    FunctionValue createInputFunction();
-    ClassValue* createArrayClass();
+    ImportValue* createRootIO();
 
 }
 

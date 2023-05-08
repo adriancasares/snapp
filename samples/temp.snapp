@@ -1,1 +1,3 @@
-import "samples/import.snapp" as myCustomImport;
+io.print("Hello World");
+
+Array arr = Array();

@@ -697,7 +697,7 @@ namespace Snapp {
                 arguments.push_back(*runASTNode(argument));
             }
 
-            return nativeFunction->body(arguments);
+            return nativeFunction->body(arguments, parent);
         }
         else if (auto* interpretedFunction = std::get_if<InterpretedFunction>(&callee)) {
             size_t old = createScope(true, true);

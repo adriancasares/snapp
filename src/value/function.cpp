@@ -35,7 +35,7 @@ namespace Snapp {
                 }
                 bool match = true;
                 for (int i = 0; i < parameters.size(); i++) {
-                    if (interpreted->parameters[i].type != parameters[i]) {
+                    if (interpreted->parameters[i].type != parameters[i] && interpreted->parameters[i].type != DataType::Void) {
                         match = false;
                         break;
                     }
@@ -50,7 +50,7 @@ namespace Snapp {
                 }
                 bool match = true;
                 for (int i = 0; i < parameters.size(); i++) {
-                    if (native->parameters[i].base() != parameters[i].base()) {
+                    if (native->parameters[i].base() != parameters[i].base() && native->parameters[i].base() != BaseDataType::Void) {
                         match = false;
                         break;
                     }

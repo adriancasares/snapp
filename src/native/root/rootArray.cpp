@@ -11,7 +11,7 @@ namespace Snapp::Native {
           DataType::Void,
           {},
           [](const std::vector<DataValue>& args, Snapp::Scope* scope) -> std::optional<DataValue> {
-            void* data = malloc(1000);
+            void* data = new std::vector<DataValue>();
 
             scope->assign("data_", data);
 
@@ -20,23 +20,24 @@ namespace Snapp::Native {
       };
     };
 
-    FunctionValue createGetAddress () {
-      FunctionValue getAddress;
+    FunctionValue createAdd () {
+      FunctionValue addToArray;
+      addToArray.addOverload({
+                                    DataType::Void,
+                                    {DataType::Void},
+                                    [](const std::vector<DataValue> &args,
+                                        Snapp::Scope *scope) -> std::optional<DataValue> {
 
-      getAddress.addOverload({
-        DataType::Void,
-        {},
-        [](const std::vector<DataValue>& args, Snapp::Scope* scope) -> std::optional<DataValue> {
-          void* data = std::get<void*>(scope->get("data_"));
+                                      void *data = std::get<void *>(scope->get("data_"));
 
-          std::cout << data << std::endl;
+                                      std::vector<DataValue> *dataVector = static_cast<std::vector<DataValue> *>(data);
+                                      dataVector->push_back(args[0]);
 
-            return std::nullopt;
-        }
-      });
-
-        return getAddress;
-    }
+                                      return std::nullopt;
+                                    }
+                                });
+        return addToArray;
+      }
 
     ClassValue* createRootArray() {
         ClassValue* arrayClass = new ClassValue("Array");
@@ -54,7 +55,7 @@ namespace Snapp::Native {
 
         arrayClass->constructor().addOverload(createArrayConstructor());
 
-        arrayClass->add("getAddress", createGetAddress());
+        arrayClass->add("add", createAdd());
         return arrayClass;
     }
 }

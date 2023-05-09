@@ -1,3 +1,1 @@
-io.print("Hello World");
-
-Array arr = Array();
+io.print(string.length("Hello World"));

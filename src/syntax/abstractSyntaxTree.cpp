@@ -10,8 +10,10 @@ namespace Snapp {
             Semicolon,
             Comma,
             ParenRight,
+            SquareRight,
             Colon,
             CommaOrParenRight,
+            CommaOrSquareRight,
         };
 
         bool shouldUseToken(const TokenIterator& iter, const TokenIterator& end, StopperRule stopper) {
@@ -25,10 +27,14 @@ namespace Snapp {
                     return !iter->has(Symbol::Comma);
                 case StopperRule::ParenRight:
                     return !iter->has(Symbol::ParenRight);
+                case StopperRule::SquareRight:
+                    return !iter->has(Symbol::SquareRight);
                 case StopperRule::Colon:
                     return !iter->has(Symbol::Colon);
                 case StopperRule::CommaOrParenRight:
                     return !iter->has(Symbol::Comma) && !iter->has(Symbol::ParenRight);
+                case StopperRule::CommaOrSquareRight:
+                    return !iter->has(Symbol::Comma) && !iter->has(Symbol::SquareRight);
                 default:
                     return true;
             }
@@ -77,25 +83,39 @@ namespace Snapp {
             std::vector<OperatorInfo> operators;
             std::vector<SyntaxNode*> operands;
             bool expectOperand = true;
+            
             while (iter != end && shouldUseToken(iter, end, stopper)) {
-                if (std::holds_alternative<Symbol>(iter->value())) {
-                    const Symbol& symbol = std::get<Symbol>(iter->value());
-                    if (expectOperand && symbol == Symbol::ParenLeft) {
+                if (auto* symbol = std::get_if<Symbol>(&iter->value())) {
+                    OperatorInfo operatorInfo;
+                    if (expectOperand && *symbol == Symbol::ParenLeft) {
                         nextToken(iter, end);
                         operands.push_back(parseExpression(iter, end, StopperRule::ParenRight));
                         expectOperand = false;
                         ++iter;
                         continue;
                     }
-                    Operation operation = findOperation(symbol, expectOperand);
-                    if (operation == Operation::Unknown) {
-                        throw SyntaxError("unexpected symbol '" + symbolNames.at(symbol) + "'", iter->start(), iter->end());
+                    else if (expectOperand && *symbol == Symbol::SquareLeft) {
+                        std::vector<SyntaxNode*> elements;
+                        nextToken(iter, end);
+                        while (!iter->has(Symbol::SquareRight)) {
+                            elements.push_back(parseExpression(iter, end, StopperRule::CommaOrSquareRight));
+                            if (iter->has(Symbol::Comma)) {
+                                nextToken(iter, end);
+                            }
+                        }
+                        operands.push_back(new SyntaxNodeArrayLiteral(elements));
+                        expectOperand = false;
+                        ++iter;
+                        continue;
                     }
-                    while (!operators.empty() && leftPrecedes(operators.back().operation, operation)) {
+                    operatorInfo.operation = findOperation(*symbol, expectOperand);
+                    if (operatorInfo.operation == Operation::Unknown) {
+                        throw SyntaxError("unexpected symbol '" + symbolNames.at(*symbol) + "'", iter->start(), iter->end());
+                    }
+                    while (!operators.empty() && leftPrecedes(operators.back().operation, operatorInfo.operation)) {
                         popOperatorIntoOperand(operators, operands);
                     }
-                    OperatorInfo operatorInfo{operation};
-                    switch (operation) {
+                    switch (operatorInfo.operation) {
                         case Operation::Call: {
                             operatorInfo.operandCount = 1;
                             nextToken(iter, end);
@@ -106,6 +126,12 @@ namespace Snapp {
                                     nextToken(iter, end);
                                 }
                             }
+                            break;
+                        }
+                        case Operation::Index: {
+                            operatorInfo.operandCount = 2;
+                            nextToken(iter, end);
+                            operands.push_back(parseExpression(iter, end, StopperRule::SquareRight));
                             break;
                         }
                         case Operation::PostInc:
@@ -151,10 +177,12 @@ namespace Snapp {
                 }
                 ++iter;
             }
+            
             if (expectOperand) {
                 --iter;
                 throw SyntaxError("expected an operand", iter->end(), iter->end());
             }
+            
             while (!operators.empty()) {
                 popOperatorIntoOperand(operators, operands);
             }
@@ -162,16 +190,19 @@ namespace Snapp {
                 --iter;
                 throw SyntaxError("expression unexpectedly resolved to " + std::to_string(operands.size()) + "operands", iter->end(), iter->end());
             }
+            
             return operands.back();
         }
 
         SyntaxNode* tryParseDeclaration(TokenIterator& iter, const TokenIterator& end, StopperRule stopper, bool functionAllowed = false, bool isPrivate = false) {
             TokenIterator start(iter);
+            
             bool liveType = false;
             if (iter->has(Symbol::AtSign)) {
                 liveType = true;
                 nextToken(iter, end);
             }
+            
             if (std::holds_alternative<Identifier>(iter->value())) {
                 const std::string& typeName = std::get<Identifier>(iter->value()).name;
                 nextToken(iter, end);
@@ -208,6 +239,7 @@ namespace Snapp {
                     return new SyntaxNodeVariableDeclaration(dataType, new SyntaxNodeIdentifier(name), nullptr, isPrivate);
                 }
             }
+            
             iter = start;
             return nullptr;
         }

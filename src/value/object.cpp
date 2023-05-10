@@ -1,15 +1,8 @@
-//
-// Created by Adrian Casares on 5/6/23.
-//
-
 #include "value/object.h"
 #include "value/class.h"
 #include "semantics/scope.h"
-#include "semantics/astRunner.h"
 
 namespace Snapp {
-
-    class ASTRunner;
 
     ObjectValue::ObjectValue(ClassValue* classValue) {
         classValue_ = classValue;
@@ -36,4 +29,5 @@ namespace Snapp {
     const ClassValue* ObjectValue::classValue() const {
         return classValue_;
     }
+
 }

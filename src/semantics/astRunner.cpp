@@ -354,37 +354,53 @@ namespace Snapp {
                 return right;
             }
 
-            if(binaryExpression->operation == Operation::Access) {
-                auto* identifier = dynamic_cast<const SyntaxNodeIdentifier*>(binaryExpression->leftSide);
-                auto* prop = dynamic_cast<const SyntaxNodeIdentifier*>(binaryExpression->rightSide);
-
-                if(auto* objectValue = std::get_if<ObjectValue*>(&currentScope().get(identifier->name))) {
-                  auto& member = (*objectValue)->scope()->get(prop->name);
-
-                  if(auto* isFunction = std::get_if<FunctionValue>(&member)) {
-                    FunctionValue* functionValue = isFunction;
-                    functionValue->bind(*objectValue);
-                  }
-
-                  return member;
+            if (binaryExpression->operation == Operation::Access) {
+                DataValue left = *runASTNode(binaryExpression->leftSide);
+                auto* property = dynamic_cast<const SyntaxNodeIdentifier*>(binaryExpression->rightSide);
+                if (!property) {
+                    throw RuntimeError("expected identifier as property name");
                 }
-                else if(auto* importValue = std::get_if<ImportValue*>(&currentScope().get(identifier->name))) {
-                  // print all members of the import
-                  std::cout << (*importValue)->scope()->identifiers_.size() << std::endl;
-                  auto& member = (*importValue)->scope()->get(prop->name);
+                else if (auto* strValue = std::get_if<StrValue>(&left)) {
+                    throw RuntimeError("methods and properties of 'str' not yet implemented");
+                }
+                else if (auto* objectValue = std::get_if<ObjectValue*>(&left)) {
+                    auto& member = (*objectValue)->scope()->get(property->name);
 
-                  if(auto* isFunction = std::get_if<FunctionValue>(&member)) {
-                    FunctionValue* functionValue = isFunction;
-                    functionValue->setScope((*importValue)->scope());
-                  }
+                    if (auto* functionValue = std::get_if<FunctionValue>(&member)) {
+                        functionValue->bind(*objectValue);
+                    }
 
-                  return member;
+                    return member;
+                }
+                else if (auto* importValue = std::get_if<ImportValue*>(&left)) {
+                    DEBUG_ONLY std::cout << (*importValue)->scope()->identifiers_.size() << std::endl;
+                    auto& member = (*importValue)->scope()->get(property->name);
+
+                    if (auto* functionValue = std::get_if<FunctionValue>(&member)) {
+                        functionValue->setScope((*importValue)->scope());
+                    }
+
+                    return member;
                 }
                 else {
-                  throw RuntimeError("cannot access property of non-object");
+                    throw RuntimeError("cannot access property of non-object");
                 }
             }
-         }
+
+            if (binaryExpression->operation == Operation::Index) {
+                DataValue container = *runASTNode(binaryExpression->leftSide);
+                DataValue index = *runASTNode(binaryExpression->rightSide);
+                if (auto* objectValue = std::get_if<ObjectValue*>(&container)) {
+                    if ((*objectValue)->classValue()->name() == "Array") {
+                        auto& getter = std::get<FunctionValue>((*objectValue)->scope()->get("get"));
+                        getter.bind(*objectValue);
+                        auto& getterNative = std::get<NativeFunction>(*getter.getOverload({DataType::Int}));
+                        return getterNative.body({index}, getter.scope());
+                    }
+                }
+                throw RuntimeError("only arrays can be indexed");
+            }
+        }
 
         if (auto* functionCall = dynamic_cast<const SyntaxNodeFunctionCall*>(node)) {
             DataValue callee = *runASTNode(functionCall->callee);
@@ -410,27 +426,24 @@ namespace Snapp {
                 }
 
                 if (auto* overload = (*classValue)->constructor().getOverload(parameters)) {
+                    auto* objectValue = new ObjectValue(*classValue);
 
-                  ObjectValue *objectValue = new ObjectValue(*classValue);
+                    scopes_.push_back(objectValue->scope());
+                    objectValue->scope()->setParent((*classValue)->scope());
 
-                  scopes_.push_back(objectValue->scope());
-
-                  objectValue->scope()->setParent((*classValue)->scope());
-
-                  for(auto& identifier : (*classValue)->identifiers()) {
-                    if(auto* attribute = std::get_if<ClassAttribute>(&identifier.second)) {
-                      SyntaxNode* initializer = attribute->initializer;
-                      objectValue->scope()->add(identifier.first, *runASTNode(initializer));
-                    } else if(auto* function = std::get_if<FunctionValue>(&identifier.second)) {
-                      objectValue->scope()->add(identifier.first, *function);
-                    } else {
-                      throw RuntimeError("invalid class identifier");
+                    for (auto& identifier : (*classValue)->identifiers()) {
+                        if (auto* attribute = std::get_if<ClassAttribute>(&identifier.second)) {
+                            objectValue->scope()->add(identifier.first, *runASTNode(attribute->initializer));
+                        } else if (auto* function = std::get_if<FunctionValue>(&identifier.second)) {
+                            objectValue->scope()->add(identifier.first, *function);
+                        } else {
+                            throw RuntimeError("invalid class identifier");
+                        }
                     }
-                  }
 
-                  runFunction(*overload, functionCall, objectValue->scope());
+                    runFunction(*overload, functionCall, objectValue->scope());
 
-                  return objectValue;
+                    return objectValue;
                 }
                 throw RuntimeError("no matching class constructor found");
             }
@@ -440,24 +453,55 @@ namespace Snapp {
             }
         }
 
+        if (auto* arrayLiteral = dynamic_cast<const SyntaxNodeArrayLiteral*>(node)) {
+            auto* arrayClass = std::get<ClassValue*>(currentScope().get("Array"));
+            auto* arrayValue = new ObjectValue(arrayClass);
+            
+            scopes_.push_back(arrayValue->scope());
+            arrayValue->scope()->setParent(arrayClass->scope());
+
+            for (auto& identifier : arrayClass->identifiers()) {
+                if (auto* attribute = std::get_if<ClassAttribute>(&identifier.second)) {
+                    arrayValue->scope()->add(identifier.first, *runASTNode(attribute->initializer));
+                } else if (auto* function = std::get_if<FunctionValue>(&identifier.second)) {
+                    arrayValue->scope()->add(identifier.first, *function);
+                } else {
+                    throw RuntimeError("invalid class identifier");
+                }
+            }
+
+            auto& constructor = arrayClass->constructor();
+            constructor.bind(arrayValue);
+            auto& constructorNative = std::get<NativeFunction>(*constructor.getOverload({}));
+            constructorNative.body({}, arrayValue->scope());
+
+            auto* elements = static_cast<std::vector<DataValue>*>(std::get<void*>(arrayValue->scope()->get("data_")));
+            elements->reserve(arrayLiteral->elements.size());
+            for (auto* element : arrayLiteral->elements) {
+                elements->push_back(*runASTNode(element));
+            }
+
+            return arrayValue;
+        }
+
         if (auto* variableDeclaration = dynamic_cast<const SyntaxNodeVariableDeclaration*>(node)) {
-            if(currentStrongScope().isClass()) {
-              ClassValue *classValue = currentStrongScope().getClass();
+            if (currentStrongScope().isClass()) {
+                ClassValue* classValue = currentStrongScope().getClass();
 
-              ClassAttribute attribute = {
-                  variableDeclaration->dataType,
-                  variableDeclaration->value
-              };
+                ClassAttribute attribute = {
+                    variableDeclaration->dataType,
+                    variableDeclaration->value,
+                };
 
-              DEBUG_ONLY std::cout << "[" << scopeIndex_ << "] Attribute (" << variableDeclaration->dataType << " " << variableDeclaration->identifier->name << std::endl;
+                DEBUG_ONLY std::cout << "[" << scopeIndex_ << "] Attribute (" << variableDeclaration->dataType << " " << variableDeclaration->identifier->name << std::endl;
 
-              classValue->add(variableDeclaration->identifier->name, attribute);
+                classValue->add(variableDeclaration->identifier->name, attribute);
             } else {
-              DataValue value = *runASTNode(variableDeclaration->value);
+                DataValue value = *runASTNode(variableDeclaration->value);
 
-              DEBUG_ONLY std::cout << "[" << scopeIndex_ << "] Variable (" << variableDeclaration->dataType << " " << variableDeclaration->identifier->name << "): " << *convertStr(value) << std::endl;
+                DEBUG_ONLY std::cout << "[" << scopeIndex_ << "] Variable (" << variableDeclaration->dataType << " " << variableDeclaration->identifier->name << "): " << *convertStr(value) << std::endl;
 
-              currentScope().add(variableDeclaration->identifier->name, value);
+                currentScope().add(variableDeclaration->identifier->name, value);
             }
         }
 
@@ -642,48 +686,28 @@ namespace Snapp {
 //          }
         }
 
-        if(auto* importStatement = dynamic_cast<const SyntaxNodeImportStatement*>(node)) {
-            if(importStatement->isFile()) {
-              std::string sourceCode;
+        if (auto* importStatement = dynamic_cast<const SyntaxNodeImportStatement*>(node)) {
+            if (importStatement->isFile()) {
+                std::string sourceCode;
 
-              {
-                std::string sourcePath = std::get<std::string>(importStatement->path);
-                std::ifstream source (sourcePath);
-                if (!source.is_open()) {
-                  throw RuntimeError("Error: unable to read file '" + sourcePath + "'");
-                } else if(source.bad()) {
-                  throw RuntimeError("Error: unable to read file '" + sourcePath + "'");
-                } else if(source.fail()) {
-                  throw RuntimeError("Error: unable to read file '" + sourcePath + "'");
-                } else if(source.eof()) {
-                  throw RuntimeError("Error: unable to read file '" + sourcePath + "'");
-                } else if(source.good() && source.is_open()) {
-                  sourceCode.assign(std::istreambuf_iterator<char>(source), std::istreambuf_iterator<char>());
+                {
+                    std::string sourcePath = std::get<std::string>(importStatement->path);
+                    std::ifstream source (sourcePath);
+                    if (!source.is_open()) {
+                        throw RuntimeError("failed to import file '" + sourcePath + "'");
+                    }
+                    sourceCode.assign(std::istreambuf_iterator<char>(source), std::istreambuf_iterator<char>());
                 }
 
-              }
+                DEBUG_ONLY std::cout << "Importing file '" << std::get<std::string>(importStatement->path) << "'" << std::endl;
 
-              std::cout << "Importing file '" << std::get<std::string>(importStatement->path) << "'" << std::endl;
-
-              try {
                 std::vector<Snapp::Token> tokens = Snapp::Tokenizer::tokenize(sourceCode);
-
                 auto ast = Snapp::AbstractSyntaxTree::fromTokens(tokens);
-
                 Scope* scope = Snapp::ASTRunner::runAST(*ast, false, true);
-
                 ImportValue* importValue = new ImportValue(scope);
-
                 currentScope().add(importStatement->alias->name, importValue);
-              } catch (const Snapp::SyntaxError& error) {
-                std::cerr << error.output(sourceCode) << std::endl;
-                return 1;
-              } catch (const Snapp::RuntimeError& error) {
-                std::cerr << error.output() << std::endl;
-                return 1;
-              }
             } else {
-              throw RuntimeError("Importing from a module is not yet supported");
+                throw RuntimeError("Importing from a module is not yet supported");
             }
         }
         return {};

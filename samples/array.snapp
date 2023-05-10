@@ -1,3 +1,4 @@
-Array arr = Array();
-
-arr.add("he");
+Array arr = [1, 2, 3];
+arr.add("arrays");
+arr.add("crazy");
+io.print(arr[0] + " " + arr[1] + " " + arr[2] + " " + arr[3] + " " + arr[4]);

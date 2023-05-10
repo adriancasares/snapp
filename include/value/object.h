@@ -5,6 +5,7 @@
 #include "function.h"
 #include "error/runtimeError.h"
 #include "semantics/astRunner.h"
+
 #include <vector>
 
 namespace Snapp {
@@ -12,16 +13,18 @@ namespace Snapp {
     class Scope;
 
     class ObjectValue {
-      public:
-          ObjectValue(ClassValue* classValue);
-          const Scope* scope() const;
-          Scope* scope();
-          void setScope(Scope* scope);
-          const ClassValue* classValue() const;
-          ClassValue* classValue();
-       private:
-          Scope* scope_;
-          ClassValue* classValue_;
+    public:
+        ObjectValue(ClassValue* classValue);
+
+        const Scope* scope() const;
+        Scope* scope();
+        void setScope(Scope* scope);
+        const ClassValue* classValue() const;
+        ClassValue* classValue();
+
+    private:
+        Scope* scope_;
+        ClassValue* classValue_;
     };
 
 }

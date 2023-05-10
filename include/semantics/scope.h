@@ -7,6 +7,7 @@
 #include <map>
 #include <string>
 #include "value/class.h"
+
 namespace Snapp {
 
     class Scope {
@@ -27,7 +28,8 @@ namespace Snapp {
         void setParent(Scope* parent);
 
         std::map<std::string, DataValue> identifiers_;
-     private:
+
+    private:
         Scope* parent_;
         bool strong_;
         ClassValue* class_;

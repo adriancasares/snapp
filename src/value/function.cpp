@@ -82,4 +82,5 @@ namespace Snapp {
     bool FunctionValue::anyParameters() const {
         return anyParameters_;
     }
-};
+
+}

@@ -24,18 +24,20 @@ namespace Snapp {
     }
 
     const FunctionOverload* FunctionValue::getOverload(const std::vector<DataType>& parameters) const {
+        int insertedParams = boundStr_ ? 1 : 0;
+
         for (auto& function: overloads_) {
             if (anyParameters_) {
                 return &function;
             }
 
             if (auto* interpreted = std::get_if<InterpretedFunction>(&function)) {
-                if (interpreted->parameters.size() != parameters.size()) {
+                if (parameters.size() != interpreted->parameters.size() - insertedParams) {
                     continue;
                 }
                 bool match = true;
                 for (int i = 0; i < parameters.size(); i++) {
-                    if (interpreted->parameters[i].type != parameters[i] && interpreted->parameters[i].type != DataType::Void) {
+                    if (interpreted->parameters[insertedParams + i].type != parameters[i] && interpreted->parameters[insertedParams + i].type != DataType::Void) {
                         match = false;
                         break;
                     }
@@ -45,12 +47,12 @@ namespace Snapp {
                 }
             }
             else if (auto* native = std::get_if<NativeFunction>(&function)) {
-                if (native->parameters.size() != parameters.size()) {
+                if (parameters.size() != native->parameters.size() - insertedParams) {
                     continue;
                 }
                 bool match = true;
                 for (int i = 0; i < parameters.size(); i++) {
-                    if (native->parameters[i].base() != parameters[i].base() && native->parameters[i].base() != BaseDataType::Void) {
+                    if (native->parameters[insertedParams + i].base() != parameters[i].base() && native->parameters[insertedParams + i].base() != BaseDataType::Void) {
                         match = false;
                         break;
                     }
@@ -63,16 +65,24 @@ namespace Snapp {
         return nullptr;
     }
 
-    void FunctionValue::bind(ObjectValue* object) {
-        scope_ = object->scope();
-    }
-
     Scope* FunctionValue::scope() const {
         return *scope_;
     }
 
     void FunctionValue::setScope(Scope* scope) {
         scope_ = scope;
+    }
+
+    void FunctionValue::bind(ObjectValue* objectValue) {
+        scope_ = objectValue->scope();
+    }
+
+    const std::optional<StrValue>& FunctionValue::boundStr() const {
+        return boundStr_;
+    }
+
+    void FunctionValue::bind(const StrValue& strValue) {
+        boundStr_ = strValue;
     }
 
     void FunctionValue::setAnyParameters(bool anyParameters) {

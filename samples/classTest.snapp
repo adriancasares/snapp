@@ -1,0 +1,21 @@
+class TerribleMap {
+    private Array keys;
+    private Array values;
+
+    new() {
+        keys = [];
+        values = [];
+    }
+
+    void get(void key) {
+        //
+    }
+
+    void put(void key, void value) {
+        //
+    }
+}
+
+TerribleMap map = TerribleMap();
+map.keys.add("hello");
+io.print(map.keys[0]);

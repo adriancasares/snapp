@@ -21,12 +21,11 @@ namespace Snapp::Native {
         FunctionValue arrayGet;
         arrayGet.addOverload({
             DataType::Void,
-            {DataType::Void},
+            {DataType::Int},
             [](const std::vector<DataValue>& args, Scope* scope) -> std::optional<DataValue> {
-                void* data = std::get<void*>(scope->get("data_"));
-                std::vector<DataValue>* dataVector = static_cast<std::vector<DataValue>*>(data);
+                auto* data = static_cast<std::vector<DataValue>*>(std::get<void*>(scope->get("data_")));
 
-                return dataVector->at(*coerceInt(args.at(0)));
+                return data->at(*coerceInt(args.at(0)));
             }
         });
         return arrayGet;
@@ -38,9 +37,8 @@ namespace Snapp::Native {
             DataType::Void,
             {DataType::Void},
             [](const std::vector<DataValue>& args, Scope* scope) -> std::optional<DataValue> {
-                void* data = std::get<void*>(scope->get("data_"));
-                std::vector<DataValue>* dataVector = static_cast<std::vector<DataValue>*>(data);
-                dataVector->push_back(args.at(0));
+                auto* data = static_cast<std::vector<DataValue>*>(std::get<void*>(scope->get("data_")));
+                data->push_back(args.at(0));
 
                 return std::nullopt;
             }
@@ -49,7 +47,7 @@ namespace Snapp::Native {
     }
 
     ClassValue* createRootArray() {
-        ClassValue* arrayClass = new ClassValue("Array");
+        auto* arrayClass = new ClassValue("Array");
 
         ClassAttribute dataAttribute = {
             {BaseDataType::Unknown, "data_", false},

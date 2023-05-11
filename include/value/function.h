@@ -37,29 +37,32 @@ namespace Snapp {
     using FunctionOverload = std::variant<InterpretedFunction, NativeFunction>;
 
     class FunctionValue {
-      public:
-          FunctionValue() = default;
+    public:
+        FunctionValue() = default;
 
-          std::vector<FunctionOverload>& overloads();
-          const std::vector<FunctionOverload>& overloads() const;
+        std::vector<FunctionOverload>& overloads();
+        const std::vector<FunctionOverload>& overloads() const;
 
-          const FunctionOverload* getOverload(const std::vector<DataType>& parameters) const;
+        const FunctionOverload* getOverload(const std::vector<DataType>& parameters) const;
 
-          void addOverload(const InterpretedFunction& function);
-          void addOverload(const NativeFunction& function);
-          void addOverload(const FunctionOverload& function);
+        void addOverload(const InterpretedFunction& function);
+        void addOverload(const NativeFunction& function);
+        void addOverload(const FunctionOverload& function);
 
-          void bind(ObjectValue* object);
-          void setScope(Scope* scope);
-          Scope* scope() const;
+        Scope* scope() const;
+        void setScope(Scope* scope);
+        void bind(ObjectValue* objectValue);
+        const std::optional<StrValue>& boundStr() const;
+        void bind(const StrValue& strValue);
 
-          void setAnyParameters(bool anyParameters);
-          bool anyParameters() const;
+        void setAnyParameters(bool anyParameters);
+        bool anyParameters() const;
 
-      private:
-          std::vector<FunctionOverload> overloads_;
-          std::optional<Scope*> scope_;
-          bool anyParameters_;
+    private:
+        std::vector<FunctionOverload> overloads_;
+        std::optional<Scope*> scope_;
+        std::optional<StrValue> boundStr_;
+        bool anyParameters_;
     };
 
 }

@@ -1,9 +1,21 @@
-int a() {
-    print("first function");
+int fizzBuzz(int count) {
+    int fizzBuzzCount = 0;
+    for (int i = 1; i <= count; i = i + 1) {
+        if (i % 15 == 0) {
+            io.print("FizzBuzz");
+            fizzBuzzCount = fizzBuzzCount + 1;
+        }
+        else if (i % 3 == 0) {
+            io.print("Fizz");
+        }
+        else if (i % 5 == 0) {
+            io.print("Buzz");
+        }
+        else {
+            io.print(i);
+        }
+    }
+    return fizzBuzzCount;
 }
 
-int a(int b) {
-    print("second function");
-}
-
-a(1);
+io.print("\"FizzBuzz\" was printed out " + fizzBuzz(50) + " time(s)!");

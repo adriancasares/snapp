@@ -24,20 +24,18 @@ namespace Snapp {
     }
 
     const FunctionOverload* FunctionValue::getOverload(const std::vector<DataType>& parameters) const {
-        size_t insertedParams = boundStr_ ? 1 : 0;
-
         for (auto& function: overloads_) {
             if (anyParameters_) {
                 return &function;
             }
 
             if (auto* interpreted = std::get_if<InterpretedFunction>(&function)) {
-                if (parameters.size() != interpreted->parameters.size() - insertedParams) {
+                if (parameters.size() != interpreted->parameters.size()) {
                     continue;
                 }
                 bool match = true;
                 for (size_t i = 0; i < parameters.size(); i++) {
-                    if (interpreted->parameters[insertedParams + i].type != parameters[i] && interpreted->parameters[insertedParams + i].type != DataType::Void) {
+                    if (interpreted->parameters[i].type != parameters[i] && interpreted->parameters[i].type != DataType::Void) {
                         match = false;
                         break;
                     }
@@ -47,12 +45,12 @@ namespace Snapp {
                 }
             }
             else if (auto* native = std::get_if<NativeFunction>(&function)) {
-                if (parameters.size() != native->parameters.size() - insertedParams) {
+                if (parameters.size() != native->parameters.size()) {
                     continue;
                 }
                 bool match = true;
                 for (size_t i = 0; i < parameters.size(); i++) {
-                    if (native->parameters[insertedParams + i].base() != parameters[i].base() && native->parameters[insertedParams + i].base() != BaseDataType::Void) {
+                    if (native->parameters[i].base() != parameters[i].base() && native->parameters[i].base() != BaseDataType::Void) {
                         match = false;
                         break;
                     }

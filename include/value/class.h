@@ -37,7 +37,7 @@ namespace Snapp {
         std::string name_;
         FunctionValue constructor_;
         std::map<std::string, ClassIdentifierValue> identifiers_;
-        Scope* scope_;
+        Scope* scope_ = nullptr;
     };
 
 }

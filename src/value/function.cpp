@@ -24,7 +24,7 @@ namespace Snapp {
     }
 
     const FunctionOverload* FunctionValue::getOverload(const std::vector<DataType>& parameters) const {
-        int insertedParams = boundStr_ ? 1 : 0;
+        size_t insertedParams = boundStr_ ? 1 : 0;
 
         for (auto& function: overloads_) {
             if (anyParameters_) {
@@ -36,7 +36,7 @@ namespace Snapp {
                     continue;
                 }
                 bool match = true;
-                for (int i = 0; i < parameters.size(); i++) {
+                for (size_t i = 0; i < parameters.size(); i++) {
                     if (interpreted->parameters[insertedParams + i].type != parameters[i] && interpreted->parameters[insertedParams + i].type != DataType::Void) {
                         match = false;
                         break;
@@ -51,7 +51,7 @@ namespace Snapp {
                     continue;
                 }
                 bool match = true;
-                for (int i = 0; i < parameters.size(); i++) {
+                for (size_t i = 0; i < parameters.size(); i++) {
                     if (native->parameters[insertedParams + i].base() != parameters[i].base() && native->parameters[insertedParams + i].base() != BaseDataType::Void) {
                         match = false;
                         break;

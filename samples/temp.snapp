@@ -18,6 +18,7 @@ str foo = "Hello World";
 
 ExampleClass example = ExampleClass();
 
+io.print(string.length("amazing"));
 io.print("amazing".length());
 
 io.print(example.incrementCount());

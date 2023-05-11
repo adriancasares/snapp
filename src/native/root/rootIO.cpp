@@ -11,7 +11,7 @@ namespace Snapp::Native {
             DataType::Void,
             {DataType::Str},
             [](const std::vector<DataValue>& args, const Scope* scope) {
-                std::cout << *coerceStr(args[0]) << std::endl;
+                std::cout << *coerceStr(args.at(0)) << std::endl;
                 return std::nullopt;
             }
         });
@@ -19,7 +19,7 @@ namespace Snapp::Native {
             DataType::Void,
             {DataType::Int},
             [](const std::vector<DataValue>& args, const Scope* scope) {
-                std::cout << *coerceInt(args[0]) << std::endl;
+                std::cout << *coerceInt(args.at(0)) << std::endl;
                 return std::nullopt;
             }
         });
@@ -27,7 +27,7 @@ namespace Snapp::Native {
             DataType::Void,
             {DataType::Float},
             [](const std::vector<DataValue>& args, const Scope* scope) {
-                std::cout << *coerceFloat(args[0]) << std::endl;
+                std::cout << *coerceFloat(args.at(0)) << std::endl;
                 return std::nullopt;
             }
         });
@@ -35,7 +35,7 @@ namespace Snapp::Native {
             DataType::Void,
             {DataType::Bool},
             [](const std::vector<DataValue>& args, const Scope* scope) {
-                std::cout << (*coerceBool(args[0]) ? "true" : "false") << std::endl;
+                std::cout << (*coerceBool(args.at(0)) ? "true" : "false") << std::endl;
                 return std::nullopt;
             }
         });
@@ -48,7 +48,7 @@ namespace Snapp::Native {
             DataType::Str,
             {DataType::Str},
             [](const std::vector<DataValue>& args, const Scope* scope) {
-                std::cout << *coerceStr(args[0]);
+                std::cout << *coerceStr(args.at(0));
                 std::string input;
                 std::cin.ignore(); // unclear exactly what this fixes, but getline() doesn't work otherwise
                 std::getline(std::cin, input);

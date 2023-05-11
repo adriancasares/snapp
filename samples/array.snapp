@@ -1,4 +1,21 @@
+//io.print(1);
 Array arr = [1, 2, 3];
+//io.print(2);
 arr.add("arrays");
 arr.add("crazy");
 io.print(arr[0] + " " + arr[1] + " " + arr[2] + " " + arr[3] + " " + arr[4]);
+
+str myString = "Hello World!!";
+io.print(myString);
+myString = string.replaceAll(myString, "o", "j");
+io.print(myString);
+myString = string.uppercase(myString);
+io.print(myString);
+myString = string.lowercase(myString);
+io.print(myString);
+myString = string.replaceFirst(myString, "j", "u");
+io.print(myString);
+myString = string.replaceLast(myString, "l", "n");
+io.print(myString);
+myString = string.substring(myString, 3, string.length(myString) - 1);
+io.print(myString);

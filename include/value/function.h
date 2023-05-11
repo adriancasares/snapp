@@ -62,7 +62,7 @@ namespace Snapp {
         std::vector<FunctionOverload> overloads_;
         std::optional<Scope*> scope_;
         std::optional<StrValue> boundStr_;
-        bool anyParameters_;
+        bool anyParameters_ = false;
     };
 
 }

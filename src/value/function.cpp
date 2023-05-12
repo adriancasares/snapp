@@ -24,12 +24,12 @@ namespace Snapp {
     }
 
     const FunctionOverload* FunctionValue::getOverload(const std::vector<DataType>& parameters) const {
-        for (auto& function: overloads_) {
+        for (auto& overload: overloads_) {
             if (anyParameters_) {
-                return &function;
+                return &overload;
             }
 
-            if (auto* interpreted = std::get_if<InterpretedFunction>(&function)) {
+            if (auto* interpreted = std::get_if<InterpretedFunction>(&overload)) {
                 if (parameters.size() != interpreted->parameters.size()) {
                     continue;
                 }
@@ -41,25 +41,26 @@ namespace Snapp {
                     }
                 }
                 if (match) {
-                    return &function;
+                    return &overload;
                 }
             }
-            else if (auto* native = std::get_if<NativeFunction>(&function)) {
+            else if (auto* native = std::get_if<NativeFunction>(&overload)) {
                 if (parameters.size() != native->parameters.size()) {
                     continue;
                 }
                 bool match = true;
                 for (size_t i = 0; i < parameters.size(); i++) {
-                    if (native->parameters[i].base() != parameters[i].base() && native->parameters[i].base() != BaseDataType::Void) {
+                    if (native->parameters[i] != parameters[i] && native->parameters[i] != DataType::Void) {
                         match = false;
                         break;
                     }
                 }
                 if (match) {
-                    return &function;
+                    return &overload;
                 }
             }
         }
+        
         return nullptr;
     }
 

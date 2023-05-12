@@ -19,3 +19,41 @@ class TerribleMap {
 TerribleMap map = TerribleMap();
 map.keys.add("hello");
 io.print(map.keys[0]);
+
+class Vector2 {
+    float x = 0.0;
+    float y = 0.0;
+
+    new() {}
+
+    new(float initX, float initY) {
+        x = initX;
+        y = initY;
+    }
+
+    Vector2 add(void other) {
+        return Vector2(x + other.x, y + other.y);
+    }
+
+    Vector2 mul(float scalar) {
+        return Vector2(x * scalar, y * scalar);
+    }
+
+    float dot(void other) {
+        return x * other.x + y * other.y;
+    }
+
+    str toStr() {
+        return "Vector2(" + x + ", " + y + ")";
+    }
+}
+
+Vector2 vector1 = Vector2();
+Vector2 vector2 = Vector2(3.0, 4.0);
+io.print("vector1 = " + vector1.toStr());
+io.print("vector2 = " + vector2.toStr());
+io.print("vector2 * 3 = " + vector2.mul(3.0).toStr());
+vector1 = Vector2(-7.0, 5.0);
+io.print("vector1 = " + vector1.toStr());
+io.print("vector1 + vector2 = " + vector1.add(vector2).toStr());
+io.print("vector1 . vector2 = " + vector1.dot(vector2));

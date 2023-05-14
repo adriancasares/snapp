@@ -4,11 +4,13 @@
 #include "native/root/rootDate.h"
 #include "value/import.h"
 
+#include <chrono>
+
 namespace Snapp::Native {
 
     int getCurrentUnix() {
         std::time_t now = std::time(nullptr);
-        std::chrono::seconds seconds_since_epoch = std::chrono::seconds(now);
+        std::chrono::seconds seconds_since_epoch(now);
         int seconds = seconds_since_epoch.count();
 
         return seconds;

@@ -7,8 +7,7 @@
 
 namespace Snapp::Native {
 
-    ClassValue* createRootDate
-    ();
+    ClassValue* createRootDate();
 
 }
 

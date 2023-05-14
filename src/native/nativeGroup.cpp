@@ -4,7 +4,7 @@
 #include "native/root/rootIO.h"
 #include "native/root/rootString.h"
 #include "native/root/rootDate.h"
-
+#include "native/root/rootRandom.h"
 
 namespace Snapp::Native {
 
@@ -13,6 +13,7 @@ namespace Snapp::Native {
         scope->add("Array", createRootArray());
         scope->add("string", createRootString());
         scope->add("Date", createRootDate());
+        scope->add("random", createRootRandom());
     }
 
 }

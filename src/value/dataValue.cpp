@@ -1,6 +1,7 @@
 #include "value/dataValue.h"
 #include "value/function.h"
 #include "value/class.h"
+#include "value/object.h"
 
 namespace Snapp {
 
@@ -18,12 +19,15 @@ namespace Snapp {
             return {BaseDataType::Str, "str", false};
         }
         if (std::holds_alternative<FunctionValue>(value)) {
-            return {BaseDataType::Function, "Function", false};
+            return {BaseDataType::Function, "fn", false};
         }
         if (std::holds_alternative<ClassValue*>(value)) {
-            return {BaseDataType::Class, "Class", false};
+            return {BaseDataType::Class, "class", false};
         }
-        return {BaseDataType::Unknown, "Unknown", false};
+        if (std::holds_alternative<ObjectValue*>(value)) {
+            return {BaseDataType::Object, std::get<ObjectValue*>(value)->classValue()->name(), false};
+        }
+        return {BaseDataType::Unknown, "(unknown)", false};
     }
 
     std::optional<IntValue> coerceInt(const DataValue& value) {

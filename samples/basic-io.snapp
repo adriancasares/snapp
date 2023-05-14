@@ -1,2 +1,2 @@
-str name = input("What is your name? ");
-print("Hello, " + name + "!");
+str name = io.input("What is your name? ");
+io.print("Hello, " + name + "!");

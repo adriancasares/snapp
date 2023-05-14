@@ -63,6 +63,14 @@ namespace Snapp {
         std::vector<SyntaxNode*> arguments;
     };
 
+    class SyntaxNodeArrayLiteral : public SyntaxNode {
+    public:
+        SyntaxNodeArrayLiteral(std::vector<SyntaxNode*> elements);
+        ~SyntaxNodeArrayLiteral();
+        std::string output() const;
+        std::vector<SyntaxNode*> elements;
+    };
+
     class SyntaxNodeVariableDeclaration : public SyntaxNode {
     public:
         SyntaxNodeVariableDeclaration(DataType dataType, SyntaxNodeIdentifier* identifier, SyntaxNode* value, bool isPrivate = false);

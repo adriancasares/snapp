@@ -180,6 +180,7 @@ namespace Snapp {
                                     break;
                             }
                             literal.push_back(escChar);
+                            escaped = false;
                         } else if (next == '"') {
                             terminated = true;
                             break;

@@ -1,10 +1,15 @@
-Array arr = Array();
+Array matrixVectorMultiply2x2(Array matrix, Array vector) {
+    return [
+        matrix[0][0] * vector[0] + matrix[0][1] * vector[1],
+        matrix[1][0] * vector[0] + matrix[1][1] * vector[1],
+    ];
+}
 
-arr.add("he");
-arr.add("she");
+Array rotate90Degrees = [
+    [0, -1],
+    [1, 0],
+];
 
-// str map(str item, int idx) {
-//   return item + "ha" + idx;
-// }
-
-// arr.map(map) // returns ["heha0", "sheha1"]
+Array testVector = [6, 5];
+Array rotated = matrixVectorMultiply2x2(rotate90Degrees, testVector);
+io.print("[" + rotated[0] + ", " + rotated[1] + "]");

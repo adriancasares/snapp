@@ -1,6 +1,6 @@
 int func(int value, fn change) {
     if (value < 100) {
-        value = change(func(value + 1));
+        value = change(func(value + 1, change));
     }
     return value;
 }
@@ -9,4 +9,4 @@ int testChange(int value) {
     return value - 4;
 }
 
-print(func(0, testChange));
+io.print(func(0, testChange));

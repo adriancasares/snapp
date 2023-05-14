@@ -14,6 +14,7 @@ namespace Snapp {
         DataType type;
         SyntaxNode* initializer;
     };
+
     using ClassIdentifierValue = std::variant<ClassAttribute, FunctionValue>;
 
     class ClassValue {
@@ -32,12 +33,11 @@ namespace Snapp {
         void setScope(Scope* scope);
         Scope* scope() const;
 
-     private:
+    private:
         std::string name_;
         FunctionValue constructor_;
         std::map<std::string, ClassIdentifierValue> identifiers_;
-        Scope* scope_;
-
+        Scope* scope_ = nullptr;
     };
 
 }

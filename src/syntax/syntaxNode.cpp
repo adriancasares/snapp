@@ -86,6 +86,28 @@ namespace Snapp {
         return out.str();
     }
 
+    SyntaxNodeArrayLiteral::SyntaxNodeArrayLiteral(std::vector<SyntaxNode*> elements) :
+        elements(elements) {}
+
+    SyntaxNodeArrayLiteral::~SyntaxNodeArrayLiteral() {
+        for (auto* element : elements) {
+            delete element;
+        }
+    }
+
+    std::string SyntaxNodeArrayLiteral::output() const {
+        std::ostringstream out;
+        out << "Array(";
+        for (int i = 0; i < elements.size(); ++i) {
+            if (i != 0) {
+                out << ", ";
+            }
+            out << elements[i]->output();
+        }
+        out << ")";
+        return out.str();
+    }
+
     SyntaxNodeVariableDeclaration::SyntaxNodeVariableDeclaration(DataType dataType, SyntaxNodeIdentifier* identifier, SyntaxNode* value, bool isPrivate) :
         dataType(dataType),
         identifier(identifier),

@@ -24,47 +24,44 @@ namespace Snapp {
     }
 
     const FunctionOverload* FunctionValue::getOverload(const std::vector<DataType>& parameters) const {
-        for (auto& function: overloads_) {
+        for (auto& overload: overloads_) {
             if (anyParameters_) {
-                return &function;
+                return &overload;
             }
 
-            if (auto* interpreted = std::get_if<InterpretedFunction>(&function)) {
-                if (interpreted->parameters.size() != parameters.size()) {
+            if (auto* interpreted = std::get_if<InterpretedFunction>(&overload)) {
+                if (parameters.size() != interpreted->parameters.size()) {
                     continue;
                 }
                 bool match = true;
-                for (int i = 0; i < parameters.size(); i++) {
+                for (size_t i = 0; i < parameters.size(); i++) {
                     if (interpreted->parameters[i].type != parameters[i] && interpreted->parameters[i].type != DataType::Void) {
                         match = false;
                         break;
                     }
                 }
                 if (match) {
-                    return &function;
+                    return &overload;
                 }
             }
-            else if (auto* native = std::get_if<NativeFunction>(&function)) {
-                if (native->parameters.size() != parameters.size()) {
+            else if (auto* native = std::get_if<NativeFunction>(&overload)) {
+                if (parameters.size() != native->parameters.size()) {
                     continue;
                 }
                 bool match = true;
-                for (int i = 0; i < parameters.size(); i++) {
-                    if (native->parameters[i].base() != parameters[i].base() && native->parameters[i].base() != BaseDataType::Void) {
+                for (size_t i = 0; i < parameters.size(); i++) {
+                    if (native->parameters[i] != parameters[i] && native->parameters[i] != DataType::Void) {
                         match = false;
                         break;
                     }
                 }
                 if (match) {
-                    return &function;
+                    return &overload;
                 }
             }
         }
+        
         return nullptr;
-    }
-
-    void FunctionValue::bind(ObjectValue* object) {
-        scope_ = object->scope();
     }
 
     Scope* FunctionValue::scope() const {
@@ -75,6 +72,18 @@ namespace Snapp {
         scope_ = scope;
     }
 
+    void FunctionValue::bind(ObjectValue* objectValue) {
+        scope_ = objectValue->scope();
+    }
+
+    const std::optional<StrValue>& FunctionValue::boundStr() const {
+        return boundStr_;
+    }
+
+    void FunctionValue::bind(const StrValue& strValue) {
+        boundStr_ = strValue;
+    }
+
     void FunctionValue::setAnyParameters(bool anyParameters) {
         anyParameters_ = anyParameters;
     }
@@ -82,4 +91,5 @@ namespace Snapp {
     bool FunctionValue::anyParameters() const {
         return anyParameters_;
     }
-};
+
+}

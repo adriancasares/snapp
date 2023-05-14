@@ -1,6 +1,7 @@
 { pkgs }: {
 	deps = [
-		pkgs.clang_12
+		pkgs.systemd
+  pkgs.clang_12
 		pkgs.cmake
 		pkgs.gdb
 	];

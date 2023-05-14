@@ -3,11 +3,11 @@ class ExampleClass {
     int counter = 0;
 
     new () {
-        io.print("Hello World");
         io.print("Constructor");
     }
 
     int incrementCount() {
+        io.print("Incrementing count...");
         counter = counter + 1; // ++, --, +=, etc. not supported yet
         return counter;
     }
@@ -17,6 +17,9 @@ class ExampleClass {
 str foo = "Hello World";
 
 ExampleClass example = ExampleClass();
+
+io.print(string.length("amazing"));
+io.print("amazing".length());
 
 io.print(example.incrementCount());
 

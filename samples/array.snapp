@@ -1,3 +1,10 @@
 Array arr = Array();
 
 arr.add("he");
+arr.add("she");
+
+// str map(str item, int idx) {
+//   return item + "ha" + idx;
+// }
+
+// arr.map(map) // returns ["heha0", "sheha1"]

@@ -1,0 +1,5 @@
+Date date = Date();
+
+io.print(date.getTotalSeconds());
+
+io.print(date.getMillis());

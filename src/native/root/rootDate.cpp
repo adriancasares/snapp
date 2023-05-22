@@ -124,6 +124,62 @@ FunctionValue createGetWeekday() {
                           }});
   return getWeekday;
 }
+
+FunctionValue createGetWeek() {
+    FunctionValue getWeek;
+    getWeek.addOverload({DataType::Int,
+                         {},
+                         [](const std::vector<DataValue> &args,
+                            Scope *scope) -> std::optional<DataValue> {
+                             return std::get<int>(scope->get("week_"));
+                         }});
+    return getWeek;
+}
+
+FunctionValue createGetDay() {
+    FunctionValue getDay;
+    getDay.addOverload({DataType::Int,
+                        {},
+                        [](const std::vector<DataValue> &args,
+                           Scope *scope) -> std::optional<DataValue> {
+                            return std::get<int>(scope->get("day_"));
+                        }});
+    return getDay;
+}
+
+FunctionValue createGetHour() {
+    FunctionValue getHour;
+    getHour.addOverload({DataType::Int,
+                         {},
+                         [](const std::vector<DataValue> &args,
+                            Scope *scope) -> std::optional<DataValue> {
+                             return std::get<int>(scope->get("hour_"));
+                         }});
+    return getHour;
+}
+
+FunctionValue createGetMinute() {
+    FunctionValue getMinute;
+    getMinute.addOverload({DataType::Int,
+                           {},
+                           [](const std::vector<DataValue> &args,
+                              Scope *scope) -> std::optional<DataValue> {
+                               return std::get<int>(scope->get("minute_"));
+                           }});
+    return getMinute;
+}
+
+FunctionValue createGetSecond() {
+    FunctionValue getSecond;
+    getSecond.addOverload({DataType::Int,
+                           {},
+                           [](const std::vector<DataValue> &args,
+                              Scope *scope) -> std::optional<DataValue> {
+                               return std::get<int>(scope->get("second_"));
+                           }});
+    return getSecond;
+}
+
 ClassValue* createRootDate() {
     ClassValue* dateClass = new ClassValue("Date");
 

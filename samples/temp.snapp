@@ -26,3 +26,5 @@ io.print(example.incrementCount());
 io.print(string.length("Hello World"));
 
 io.print(example.incrementCount());
+
+io.print(random.random());

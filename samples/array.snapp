@@ -11,5 +11,7 @@ Array rotate90Degrees = [
 ];
 
 Array testVector = [6, 5];
+
 Array rotated = matrixVectorMultiply2x2(rotate90Degrees, testVector);
+
 io.print("[" + rotated[0] + ", " + rotated[1] + "]");
